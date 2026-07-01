@@ -1,0 +1,48 @@
+
+services:
+  # --- SERVICIO 1: BASE DE DATOS ---
+  db:
+    image: postgres:16-alpine
+    container_name: proyecto_db
+    environment:
+      POSTGRES_DB: mi_base_datos
+      POSTGRES_USER: usuario_db
+      POSTGRES_PASSWORD: password_seguro
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Esto asegura que el contenedor esté realmente listo antes de que Spring intente conectar
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuario_db -d mi_base_datos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- SERVICIO 2: BACKEND (SPRING BOOT) ---
+  backend:
+    build: ./backend
+    container_name: proyecto_backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Aquí le pasamos las variables que Spring leerá automáticamente
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mi_base_datos
+      SPRING_DATASOURCE_USERNAME: usuario_db
+      SPRING_DATASOURCE_PASSWORD: password_seguro
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- SERVICIO 3: FRONTEND (ANGULAR) ---
+  frontend:
+    build: ./frontend
+    container_name: proyecto_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
