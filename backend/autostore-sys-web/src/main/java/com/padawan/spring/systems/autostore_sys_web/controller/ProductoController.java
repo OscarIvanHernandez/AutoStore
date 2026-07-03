@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,7 +55,7 @@ public class ProductoController {
         return ResponseEntity.ok(createdProducto);
     }
 
-    // PUT
+    // PUT /api/productos/{id} -> Actualizar un producto existente
     @PutMapping("/{id}")
     public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
         return productoService.obtenerPorId(id).map(productoExistente -> {
@@ -73,5 +74,15 @@ public class ProductoController {
             Producto actualizado = productoService.guardar(productoExistente);
             return ResponseEntity.ok(actualizado);
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/productos/{id} -> Eliminar un producto existente
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean eliminado = productoService.eliminarLogico(id);
+        if (eliminado) {
+            return ResponseEntity.noContent().build(); // Código 204 (Todo bien, sin contenido)
+        }
+        return ResponseEntity.notFound().build(); // Código 404 si el ID no existía
     }
 }
