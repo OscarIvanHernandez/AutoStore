@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("api/productos")
+@RequestMapping("/api/productos")
 @CrossOrigin(origins = "http://localhost:5173") // Permitir solicitudes desde el frontend
 public class ProductoController {
 
@@ -43,7 +43,7 @@ public class ProductoController {
     }
 
     // GET /api/productos/search?q=xxx --> Buscar productos
-    @PostMapping("/search")
+    @GetMapping("/search")
     public List<Producto> search(@RequestParam("q") String query) {
         return productoService.buscar(query);
     }
