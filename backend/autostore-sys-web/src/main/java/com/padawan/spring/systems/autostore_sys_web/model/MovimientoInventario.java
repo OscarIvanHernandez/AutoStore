@@ -1,4 +1,4 @@
-package com.autostore.sys.model;
+package com.padawan.spring.systems.autostore_sys_web.model;
 
 import java.time.LocalDateTime;
 

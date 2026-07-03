@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AutostoreSysWebApplication<autostore-sys-web>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.padawan.spring.systems.autostore_sys_web.AutostoreSysWebApplication",
+            "projectName": "autostore-sys-web",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

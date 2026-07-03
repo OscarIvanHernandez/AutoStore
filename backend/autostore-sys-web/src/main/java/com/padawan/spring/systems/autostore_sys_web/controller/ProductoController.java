@@ -1,0 +1,77 @@
+package com.padawan.spring.systems.autostore_sys_web.controller;
+
+import com.padawan.spring.systems.autostore_sys_web.service.ProductoService;
+import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
+
+
+@RestController
+@RequestMapping("api/productos")
+@CrossOrigin(origins = "http://localhost:5173") // Permitir solicitudes desde el frontend
+public class ProductoController {
+
+    private final ProductoService productoService;
+
+    public ProductoController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
+
+    // GET /api/productos -> Listar todos los activos
+    @GetMapping
+    public List<Producto> getAll(){
+        return productoService.listarActivos();
+    }
+
+    // GET /api/productos/{id} -> Obtener un producto por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> getById(@PathVariable Long id){
+        return productoService.obtenerPorId(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+    }
+
+    // GET /api/productos/search?q=xxx --> Buscar productos
+    @PostMapping("/search")
+    public List<Producto> search(@RequestParam("q") String query) {
+        return productoService.buscar(query);
+    }
+
+    // GET /api/productos -> Crear un nuevo producto
+    @PostMapping
+    public ResponseEntity<Producto> create(@RequestBody Producto producto) {
+        Producto createdProducto = productoService.guardar(producto);
+        return ResponseEntity.ok(createdProducto);
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
+        return productoService.obtenerPorId(id).map(productoExistente -> {
+            // Actualizamos los campos permitidos
+            productoExistente.setNombre(producto.getNombre());
+            productoExistente.setMarca(producto.getMarca());
+            productoExistente.setCategoria(producto.getCategoria());
+            productoExistente.setProveedor(producto.getProveedor());
+            productoExistente.setPrecioCompra(producto.getPrecioCompra());
+            productoExistente.setPrecioVentaMostrador(producto.getPrecioVentaMostrador());
+            productoExistente.setPrecioVentaTaller(producto.getPrecioVentaTaller());
+            productoExistente.setStockActual(producto.getStockActual());
+            productoExistente.setStockMinimo(producto.getStockMinimo());
+            productoExistente.setFoto(producto.getFoto());
+            
+            Producto actualizado = productoService.guardar(productoExistente);
+            return ResponseEntity.ok(actualizado);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+}
