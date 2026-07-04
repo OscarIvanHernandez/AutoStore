@@ -85,4 +85,36 @@ public class ProductoController {
         }
         return ResponseEntity.notFound().build(); // Código 404 si el ID no existía
     }
+
+    //POST /api/productos/{id}/ajustar-stock (ISSUE-07)
+    @PostMapping("/{id}/ajustar-stock")
+    public ResponseEntity<?> ajustarStock(@PathVariable Long id, @RequestBody AjusteRequest request){
+        try {
+            // Convertir el String del JSON a un Enum
+            com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento tipo = 
+                com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento.valueOf(request.getTipo().toUpperCase());
+            
+            Producto productoActualizado = productoService.ajustarStock(id, tipo, request.getCantidad(), request.getMotivo());
+            return ResponseEntity.ok(productoActualizado);
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.badRequest().body(iae.getMessage());  
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Clase auxiliar (DTO) para mapear el JSON que llega del Frontend
+    public static class AjusteRequest{
+        private String tipo;
+        private Integer cantidad;
+        private String motivo;
+
+        public String getTipo() { return tipo; }
+        public void setTipo(String tipo) { this.tipo = tipo; }
+        public Integer getCantidad() { return cantidad; }
+        public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+        public String getMotivo() { return motivo; }
+        public void setMotivo(String motivo) { this.motivo = motivo; }
+
+    }
 }
