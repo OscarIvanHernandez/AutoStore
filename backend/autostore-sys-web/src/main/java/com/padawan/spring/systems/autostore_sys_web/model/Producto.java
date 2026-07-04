@@ -48,7 +48,7 @@ public class Producto {
     private String foto;
 
     @Column(nullable = false)
-    private Boolean activo;
+    private Boolean activo = true;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
