@@ -1,12 +1,9 @@
-<p>Funcionando</p>
-<div class="layout-wrapper">
-  <app-aside></app-aside>
+<div class="admin-grid">
+  <app-navbar class="layout-header"></app-navbar>
 
-  <div class="main-content">
-    <app-navbar></app-navbar>
+  <app-aside class="layout-sidebar"></app-aside>
 
-    <div class="page-container">
-      <router-outlet></router-outlet>
-    </div>
-  </div>
+  <main class="layout-content">
+    <router-outlet></router-outlet>
+  </main>
 </div>
