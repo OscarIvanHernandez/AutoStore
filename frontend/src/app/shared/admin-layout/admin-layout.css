@@ -1,0 +1,36 @@
+.admin-grid {
+  display: grid;
+  /* Definimos 2 columnas: la primera de 260px (sidebar) y la segunda toma el resto (1fr) */
+  grid-template-columns: 260px 1fr;
+  /* Definimos 2 filas: la primera de 70px (navbar) y la segunda toma el resto (1fr) */
+  grid-template-rows: 70px 1fr;
+
+  /* Dibujamos el mapa de la pantalla: */
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main";
+
+  height: 100vh; /* Que ocupe el 100% de la altura de la pantalla */
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Le asignamos a cada etiqueta su lugar en el mapa */
+.layout-header {
+  grid-area: header;
+  background-color: #ffffff; /* Color temporal para que lo distingas */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.layout-sidebar {
+  grid-area: sidebar;
+  background-color: #1e293b; /* Color oscuro típico de barra lateral */
+  color: white;
+}
+
+.layout-content {
+  grid-area: main;
+  background-color: #f8fafc; /* Fondo gris claro para el contenido */
+  padding: 24px;
+  overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
+}
