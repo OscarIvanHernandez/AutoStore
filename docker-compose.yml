@@ -51,7 +51,7 @@ services:
       - ./frontend:/app
       - /app/node_modules # 👈 Crucial: protege los módulos de Docker
     # 🔥 ESTE COMANDO ASEGURA QUE PRIMERO SE INSTALEN ANTES DE CORRER EL START:
-    command: sh -c "npm install && npm run start -- --host 0.0.0.0 --poll 2000"
+    command: sh -c "npm install && npm run start -- --host 0.0.0.0 --poll 2000 --allowed-hosts frontend"
     depends_on:
       - backend
 volumes:
