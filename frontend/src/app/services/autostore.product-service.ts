@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, pipe } from 'rxjs';
-import { tap, map, mergeMap } from 'rxjs/operators';
-import { Producto, AjusteRequest } from './autostore.models';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { ProductoInterface, AjusteRequestInterface } from './autostore.models';
 
 
 @Injectable({
@@ -16,9 +16,9 @@ export class ProductoService {
 
 
   // GET /api/productos
-  getProductosActivos(): Observable<Producto[]> {
+  getProductosActivos(): Observable<ProductoInterface[]> {
   console.log('📡 Petición GET a:', this.apiURL);
-    return this.http.get<Producto[]>(this.apiURL).pipe(
+    return this.http.get<ProductoInterface[]>(this.apiURL).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -26,9 +26,9 @@ export class ProductoService {
   }
 
   // GET /api/productos/{id}
-  getProductoById(id: number): Observable<Producto>{
+  getProductoById(id: number): Observable<ProductoInterface>{
     console.log('📡 Petición GET a:', `${this.apiURL}/${id}`);
-    return this.http.get<Producto>(`${this.apiURL}/${id}`).pipe(
+    return this.http.get<ProductoInterface>(`${this.apiURL}/${id}`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -36,9 +36,9 @@ export class ProductoService {
   }
 
   // GET /api/productos/search?q=..
-  buscar(query: string): Observable<Producto[]>{
+  buscar(query: string): Observable<ProductoInterface[]>{
     console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params: { q:query } });
-    return this.http.get<Producto[]>(`${this.apiURL}/search`, { params: { q: query } }).pipe(
+    return this.http.get<ProductoInterface[]>(`${this.apiURL}/search`, { params: { q: query } }).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -46,9 +46,9 @@ export class ProductoService {
   }
 
   // POST /api/productos
-  crear(producto: Producto): Observable<Producto>{
+  crear(producto: ProductoInterface): Observable<ProductoInterface>{
     console.log('📡 Petición PUT a:', this.apiURL);
-    return this.http.put<Producto>(this.apiURL, producto).pipe(
+    return this.http.put<ProductoInterface>(this.apiURL, producto).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -56,9 +56,9 @@ export class ProductoService {
   }
 
   // PUT /api/productos/{id}
-  actualizar(producto: Producto): Observable<Producto>{
+  actualizar(producto: ProductoInterface): Observable<ProductoInterface>{
     console.log('📡 Petición POST a:', `${this.apiURL}/${producto.id}`);
-    return this.http.post<Producto>(`${this.apiURL}/${producto.id}`, producto).pipe(
+    return this.http.post<ProductoInterface>(`${this.apiURL}/${producto.id}`, producto).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -76,7 +76,7 @@ export class ProductoService {
   }
 
   // POST /api/productos/{id}/ajustar-stock (ISSUE-07)
-  ajustarStock(id: number, ajuste: AjusteRequest): Observable<Producto> {
-    return this.http.post<Producto>(`${this.apiURL}/${id}/ajustar-stock`, ajuste);
+  ajustarStock(id: number, ajuste: AjusteRequestInterface): Observable<ProductoInterface> {
+    return this.http.post<ProductoInterface>(`${this.apiURL}/${id}/ajustar-stock`, ajuste);
   }
 }

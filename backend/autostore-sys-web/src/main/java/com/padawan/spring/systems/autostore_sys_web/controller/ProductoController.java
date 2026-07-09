@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "http://localhost:5173") // Permitir solicitudes desde el frontend
+@CrossOrigin(origins = "http://localhost:4200") // Permitir solicitudes desde el frontend
 public class ProductoController {
 
     private final ProductoService productoService;

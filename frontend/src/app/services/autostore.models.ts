@@ -1,4 +1,4 @@
-export interface Producto {
+export interface ProductoInterface {
   id?: number;
   nombre: string;
   marca: string;
@@ -16,7 +16,7 @@ export interface Producto {
 
 }
 
-export interface AjusteRequest {
+export interface AjusteRequestInterface {
   tipo: 'ENTRADA' | 'SALIDA';
   cantida: number;
   motivo: string;
