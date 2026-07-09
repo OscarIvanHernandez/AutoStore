@@ -4,5 +4,44 @@
     <p class="alert-warning"> Cargando tus productos, un momemento...</p>
   </div>
 
+  <div *ngIf="!isLoading">
 
+    <section class="products-header-content">
+      <div class="products-header-info">
+        <h1>Inventario</h1>
+        <p>{{ productos.length }} productos</p>
+      </div>
+
+      <div class="products-header-actions">
+        <button>Agregar producto</button>
+      </div>
+    </section>
+
+    <div *ngIf="successMessage" class="alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="productos.length === 0" class="empty-state">
+      <p>No hay productos registrados en inventario</p>
+    </div>
+
+    <div *ngIf="productos.length > 0" class="products-card-content">
+      <table class="products-table">
+        <thead>
+          <th>Producto</th>
+          <th>Categoráa</th>
+          <th>P. Mostrador</th>
+          <th>P. Taller</th>
+          <th>Stock</th>
+        </thead>
+        <tbody>
+          <tr class="product-field" *ngFor="let producto of productos">
+            <td>{{producto.nombre}}</td>
+            <td>{{producto.categoria}}</td>
+            <td>{{producto.precioVentaMostrador}}</td>
+            <td>{{producto.precioVentaTaller}}</td>
+            <td>Acual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
