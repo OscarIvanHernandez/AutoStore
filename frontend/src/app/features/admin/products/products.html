@@ -26,19 +26,19 @@
     <div *ngIf="productos.length > 0" class="products-card-content">
       <table class="products-table">
         <thead>
-          <th>Producto</th>
-          <th>Categoráa</th>
-          <th>P. Mostrador</th>
-          <th>P. Taller</th>
-          <th>Stock</th>
+          <th class="col-1">Producto</th>
+          <th class="col-2">Categoría</th>
+          <th class="col-3">P. Mostrador</th>
+          <th class="col-4">P. Taller</th>
+          <th class="col-5">Stock</th>
         </thead>
         <tbody>
           <tr class="product-field" *ngFor="let producto of productos">
-            <td>{{producto.nombre}}</td>
+            <td style="text-align: initial;">{{producto.nombre}}</td>
             <td>{{producto.categoria}}</td>
-            <td>{{producto.precioVentaMostrador}}</td>
-            <td>{{producto.precioVentaTaller}}</td>
-            <td>Acual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
+            <td>${{producto.precioVentaMostrador}}</td>
+            <td>${{producto.precioVentaTaller}}</td>
+            <td style="text-align: end;">Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
           </tr>
         </tbody>
       </table>

@@ -31,6 +31,5 @@
 .layout-content {
   grid-area: main;
   background-color: #f8fafc; /* Fondo gris claro para el contenido */
-  padding: 24px;
   overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
 }
