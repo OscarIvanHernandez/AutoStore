@@ -48,47 +48,47 @@
   <!--MODAL para agregar un nuevo producto-->
   <div class="modal-overlay" *ngIf="mostrarModal">
     <section class="modal-card">
-      <h2>Registrar Nueva Refacción</h2>
+      <h2>Registrar Nuevo Producto</h2>
 
       <form (ngSubmit)="guardarProducto()">
         <div class="form-grid">
           <div class="form-input">
-            <label>Nombre</label>
+            <label>Nombre:</label>
             <input type="text" name="nombre" [(ngModel)]="nuevoProducto.nombre" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Marca</label>
+            <label>Marca:</label>
             <input type="text" [(ngModel)]="nuevoProducto.marca" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Categoría</label>
+            <label>Categoría:</label>
             <input type="text" [(ngModel)]="nuevoProducto.categoria" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Proveedor</label>
+            <label>Proveedor:</label>
             <input type="text" [(ngModel)]="nuevoProducto.proveedor" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Precio Compra</label>
+            <label>Precio Compra:</label>
             <input type="text" [(ngModel)]="nuevoProducto.precioCompra" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Precio Venta Mostrador</label>
+            <label>Precio Venta Mostrador:</label>
             <input type="text" [(ngModel)]="nuevoProducto.precioVentaMostrador" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Precio Venta Taller</label>
+            <label>Precio Venta Taller:</label>
             <input type="text" [(ngModel)]="nuevoProducto.precioVentaTaller" [ngModelOptions] ="{standalone: true}" required>
           </div>
 
           <div class="form-input">
-            <label>Stock Inicial</label>
+            <label>Stock Inicial:</label>
             <input type="text" [(ngModel)]="nuevoProducto.stockActual" [ngModelOptions] ="{standalone: true}" required>
           </div>
         </div>

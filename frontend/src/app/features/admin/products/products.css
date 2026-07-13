@@ -61,4 +61,22 @@ th.col-5{
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
+.form-grid {
+  margin-bottom: 24px;
+}
+
+.form-input {
+margin: 8px;
+padding-left: 50px;
+width: 100%;
+font-size: 1.1rem;
+}
+
+label {
+  padding-right: 1rem;
+}
+
+input {
+  width: 90%;
+}
 
