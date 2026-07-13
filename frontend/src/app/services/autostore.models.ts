@@ -6,14 +6,11 @@ export interface ProductoInterface {
   proveedor?: string;
   precioCompra: number;
   precioVentaMostrador: number;
-  precioVentaTaller: number;
+  precioVentaTaller?: number;
   stockActual: number;
   stockMinimo: number;
   foto?: string;
   activo?: boolean;
-  fechaCracion: string;
-  fechaActualizacion: string;
-
 }
 
 export interface AjusteRequestInterface {
