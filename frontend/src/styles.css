@@ -5,6 +5,9 @@ html, body {
   height: 100%;
   width: 100%;
 }
+body{
+  font-family: 'Inter', sans-serif;
+}
 
 /* Para que los bordes y paddings no rompan tus tamaños */
 *, *::before, *::after {
