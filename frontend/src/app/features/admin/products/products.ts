@@ -159,4 +159,29 @@ export class Products implements OnInit{
     })
   }
 
+    cambiarEstado(): void {
+    if(!this.productoSeleccionado || !this.productoSeleccionado.id) return;
+
+    this.successMessage = null;
+    this.errorMessage = null;
+
+    this.productoService.actualizarEstado(this.productoSeleccionado).subscribe({
+      next: (data) => {
+        const index = this.productos.findIndex(p => p.id === data.id);
+        if(index !== 1){
+          this.productos[index] = data;
+        }
+        // Mensaje dinámico según el nuevo estado
+        const accion = data.activo ? 'activado' : 'desactivado';
+        this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
+        setTimeout(() => this.successMessage = null, 3000);
+      },
+      error: (error) => {
+        console.error('Error al cambiar el estado del producto:', error);
+        this.errorMessage = 'No se pudo cambiar el estado del producto.';
+        setTimeout(() => this.errorMessage = null, 3000);
+      }
+    })
+  }
+
 }

@@ -43,7 +43,7 @@
             <td style="text-align: end;">
               <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
               <button class="btn-icon"  title="Editar datos">📝</button>
-              <button class="btn-icon"  [title]="producto.activo ? 'Desactivar' : 'Activar'">
+              <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'">
                 {{ producto.activo ? '❌' : '🔄' }}
               </button>
             </td>
