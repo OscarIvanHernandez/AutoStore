@@ -13,7 +13,7 @@
       </div>
 
       <div class="products-header-actions">
-        <button (click)="abrirModal()">Agregar producto</button>
+        <button (click)="abrirModalCrearProducto()">Agregar producto</button>
       </div>
     </section>
 
@@ -31,6 +31,7 @@
           <th class="col-3">Marca</th>
           <th class="col-4">Precio de mostrador</th>
           <th class="col-5">Stock</th>
+          <th class="col-6">Acciones </th>
         </thead>
         <tbody>
           <tr class="product-field" *ngFor="let producto of productos">
@@ -38,7 +39,14 @@
             <td>{{producto.categoria}}</td>
             <td>{{producto.marca}}</td>
             <td>${{producto.precioVentaMostrador}}</td>
-            <td style="text-align: end;">Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
+            <td>Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
+            <td style="text-align: end;">
+              <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
+              <button class="btn-icon"  title="Editar datos">📝</button>
+              <button class="btn-icon"  [title]="producto.activo ? 'Desactivar' : 'Activar'">
+                {{ producto.activo ? '❌' : '🔄' }}
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -98,5 +106,44 @@
         </div>
       </form>
     </section>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModalStock && productoSeleccionado">
+    <div class="modal-card">
+      <h2>Ajustar Inventario</h2>
+      <p style="margin-bottom: 15px; color: #64748b;">
+        Producto: <strong>{{ productoSeleccionado.nombre }}</strong> <br>
+        Stock actual: <strong>{{ productoSeleccionado.stockActual }} piezas</strong>
+      </p>
+
+      <form (ngSubmit)="guardarAjusteStock()">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Tipo de Ajuste</label>
+            <select name="tipoMovimiento" [(ngModel)]="ajuste.tipo" required>
+              <option value="ENTRADA">➕ Entrada (Suma al inventario)</option>
+              <option value="SALIDA">➖ Salida (Resta del inventario)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cantidad de piezas</label>
+            <input type="number" name="cantidadAjuste" [(ngModel)]="ajuste.cantida" min="1" required>
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Motivo del ajuste</label>
+            <input type="text" name="motivoAjuste" [(ngModel)]="ajuste.motivo" placeholder="Ej. Ajuste por merma, conteo anual, compra..." required>
+          </div>
+
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarModalStock()">Cancelar</button>
+          <button type="submit" class="btn-primary">Aplicar Ajuste</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

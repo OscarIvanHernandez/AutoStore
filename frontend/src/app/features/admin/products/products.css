@@ -31,14 +31,13 @@ th.col-1{
   width: 20%;
   text-align: initial;
 }
-th.col-2{width: 20%;}
-th.col-3{width: 20%;}
-th.col-4{width: 20%;}
-th.col-5{
-  width: 20%;
-  text-align: end;
-}
-
+th.col-2{width: auto;}
+th.col-3{width: auto;}
+th.col-4{width: auto;}
+th.col-5{width: auto;}
+th.col-6{
+    width: auto;
+    text-align: end;}
 /*ESTILOS PARA MODAL*/
 .modal-overlay {
   position: fixed;

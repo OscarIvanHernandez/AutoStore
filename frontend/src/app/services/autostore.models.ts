@@ -15,7 +15,7 @@ export interface ProductoInterface {
 
 export interface AjusteRequestInterface {
   tipo: 'ENTRADA' | 'SALIDA';
-  cantida: number;
+  cantidad: number;
   motivo: string;
 
 }

@@ -1,6 +1,6 @@
+import { AjusteRequestInterface, ProductoInterface } from './../../../services/autostore.models';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {ProductoService} from '../../../services/autostore.product-service';
-import { ProductoInterface } from '../../../services/autostore.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -13,13 +13,30 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './products.css',
 })
 export class Products implements OnInit{
+  // Varaibles Producto
   productos: ProductoInterface[] = [];
   nuevoProducto: ProductoInterface = this.resetearFormulario();
+  productoSeleccionado: ProductoInterface | null = null;
+
+  // Varaible para Ajustes de producto
+  ajuste: AjusteRequestInterface = this.resetearAjuste();
+
+  // Variable para la carga de los datos
   isLoading: boolean = true;
+
+  // Variables para mensajes
   successMessage: string | null = null;
   errorMessage: string | null = null;
-  mostrarModal: boolean = false;
 
+  // Variables MODAL
+  // Crear producto
+  mostrarModal: boolean = false;
+  // Cambiar Stock
+  mostrarModalStock: boolean = false
+  // Editar producto
+  mostrarModalEditar: boolean = false;
+  // Alternar estado
+  mostrarModalAlternar: boolean = false
 
   constructor(private productoService: ProductoService, private cdr: ChangeDetectorRef){}
 
@@ -41,13 +58,38 @@ export class Products implements OnInit{
     }
   }
 
+  private resetearAjuste(): AjusteRequestInterface{
+    return{
+    tipo: 'ENTRADA',
+    cantidad: 0,
+    motivo: ''
+    }
+  }
 
-  abrirModal() {
+  abrirModalCrearProducto() {
     this.mostrarModal = true;
   }
 
   cerrarModal() {
     this.mostrarModal = false;
+  }
+
+  abrirModalEditarProducto() {
+    this.mostrarModal = true
+  }
+
+    abrirModalAlternarEstado() {
+    this.mostrarModal = true
+  }
+
+  abrirModalAjustarStock(producto: ProductoInterface) {
+    this.productoSeleccionado = producto;
+    this.ajuste = this.resetearAjuste();
+    this.mostrarModalStock = true;
+  }
+
+  cerrarModalStock() {
+    this.mostrarModalStock = false
   }
 
   guardarProducto() {
@@ -89,6 +131,30 @@ export class Products implements OnInit{
         this.cdr.markForCheck();
       }
     });
+  }
+
+  guardarAjusteStock(): void {
+    if(!this.productoSeleccionado || !this.productoSeleccionado.id) return;
+
+    this.successMessage = null;
+    this.errorMessage = null;
+
+    this.productoService.ajustarStock(this.productoSeleccionado.id, this.ajuste).subscribe({
+      next: (data) => {
+        const index = this.productos.findIndex(p => p.id === data.id);
+        if(index !== 1){
+          this.productos[index] = data;
+        }
+        this.cerrarModalStock();
+        this.successMessage = `Inventario de "${data.nombre}" ajustado con éxito`
+        setTimeout(() => this.successMessage = null, 3000);
+      },
+      error: (error) => {
+        console.error('Error al ajustar stock:', error);
+        // Capturar el mensaje de error que fue configurado en el back(ej. "No hay suficiente stock")
+        this.errorMessage = `Error: ${error.error || 'No se pudo realizar el ajuste'}`;
+      }
+    })
   }
 
 }
