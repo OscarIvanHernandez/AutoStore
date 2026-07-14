@@ -65,6 +65,16 @@ export class ProductoService {
     );
   }
 
+    // PUT /api/productos/{id}
+  actualizarEstado(producto: ProductoInterface): Observable<ProductoInterface>{
+    console.log('📡 Petición POST a:', `${this.apiURL}/${producto.id}/estado`);
+    return this.http.put<ProductoInterface>(`${this.apiURL}/${producto.id}/estado`, producto).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
+      })
+    );
+  }
+
   // DELETE /api/productos/{id}
   eliminar(id: number): Observable<void> {
     console.log('📡 Petición POST a:', `${this.apiURL}/${id}`);

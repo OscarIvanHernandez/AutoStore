@@ -76,6 +76,18 @@ public class ProductoController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    // PUT /api/productos/cambiar-estado/{id} -> Actualizar un el estado de un producto
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Producto> updateState(@PathVariable Long id) {
+        return productoService.obtenerPorId(id).map(productoExistente -> {
+            // Actualizamos el campo
+            productoExistente.setActivo(!productoExistente.getActivo());
+            
+            Producto actualizado = productoService.guardar(productoExistente);
+            return ResponseEntity.ok(actualizado);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     // DELETE /api/productos/{id} -> Eliminar un producto existente
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
