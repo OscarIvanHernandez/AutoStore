@@ -79,3 +79,10 @@ input {
   width: 90%;
 }
 
+/* Si la fila tiene la clase .inactivo, se vuelve un poco transparente */
+.product-field.inactivo {
+  opacity: 0.5;
+  background-color: #f1f5f9; /* Un gris más apagado */
+  text-decoration: line-through; /* Opcional: raya el texto si te gusta el efecto */
+}
+

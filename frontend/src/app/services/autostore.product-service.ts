@@ -57,7 +57,7 @@ export class ProductoService {
 
   // PUT /api/productos/{id}
   actualizar(producto: ProductoInterface): Observable<ProductoInterface>{
-    console.log('📡 Petición POST a:', `${this.apiURL}/${producto.id}`);
+    console.log('📡 Petición PUT a:', `${this.apiURL}/${producto.id}`);
     return this.http.put<ProductoInterface>(`${this.apiURL}/${producto.id}`, producto).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
@@ -65,9 +65,9 @@ export class ProductoService {
     );
   }
 
-    // PUT /api/productos/{id}
+    // PUT /api/productos/{id}/estado
   actualizarEstado(producto: ProductoInterface): Observable<ProductoInterface>{
-    console.log('📡 Petición POST a:', `${this.apiURL}/${producto.id}/estado`);
+    console.log('📡 Petición PUT a:', `${this.apiURL}/${producto.id}/estado`);
     return this.http.put<ProductoInterface>(`${this.apiURL}/${producto.id}/estado`, producto).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
