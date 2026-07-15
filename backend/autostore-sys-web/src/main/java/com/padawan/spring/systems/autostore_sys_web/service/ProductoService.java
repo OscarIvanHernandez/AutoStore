@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,6 +31,11 @@ public class ProductoService {
     // Listar todos los productos activos
     public List<Producto> listarActivos(){
         return productoRepository.findByActivoTrue();
+    }
+
+    // Listar todos los productos
+    public List<Producto> listarTodos(){
+        return productoRepository.findAll();
     }
 
     //Obtener un prodcuto por su ID

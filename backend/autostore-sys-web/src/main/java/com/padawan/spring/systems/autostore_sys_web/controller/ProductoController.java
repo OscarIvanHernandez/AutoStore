@@ -29,9 +29,15 @@ public class ProductoController {
         this.productoService = productoService;
     }
 
-    // GET /api/productos -> Listar todos los activos
+    // GET /api/productos -> Listar todos
     @GetMapping
     public List<Producto> getAll(){
+        return productoService.listarTodos();
+    }
+
+    // GET /api/productos -> Listar todos los activos
+    @GetMapping("/activos")
+    public List<Producto> getAllActives(){
         return productoService.listarActivos();
     }
 
