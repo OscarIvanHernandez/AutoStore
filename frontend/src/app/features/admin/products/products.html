@@ -31,7 +31,7 @@
           <th class="col-3">Marca</th>
           <th class="col-4">Precio de mostrador</th>
           <th class="col-5">Stock</th>
-          <th class="col-6">Acciones </th>
+          <th class="col-6">Acciones_</th>
         </thead>
         <tbody>
           <tr class="product-field" *ngFor="let producto of productos">
@@ -142,6 +142,37 @@
         <div class="modal-actions">
           <button type="button" class="btn-secondary" (click)="cerrarModalStock()">Cancelar</button>
           <button type="submit" class="btn-primary">Aplicar Ajuste</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModalAlternar && productoSeleccionado">
+    <div class="modal-card">
+      <h2>Cambiar estado del producto</h2>
+      <p style="margin-bottom: 15px; color: #64748b;">
+        Producto: <strong>{{ productoSeleccionado.nombre }}</strong> <br>
+        Estado actual: <strong>{{ productoSeleccionado.activo }}</strong>
+      </p>
+
+      <form (ngSubmit)="cambiarEstado()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Estado del producto</label>
+            <div>
+              <label>
+                <input type="radio" name="Estado" [(ngModel)] = "productoSeleccionado.activo" [value]="true">Activo
+              </label>
+              <label>
+                <input type="radio" name="Estado" [(ngModel)] = "productoSeleccionado.activo" [value]="false">Inactivo
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarModalStock()">Cerrarr</button>
+          <button type="submit" class="btn-primary">Aplicar Cambio</button>
         </div>
       </form>
     </div>

@@ -81,7 +81,7 @@ export class Products implements OnInit{
     abrirModalAlternarEstado(producto: ProductoInterface) {
     this.productoSeleccionado = producto;
 
-    this.mostrarModalEditar = true
+    this.mostrarModalAlternar = true
   }
 
   abrirModalAjustarStock(producto: ProductoInterface) {
