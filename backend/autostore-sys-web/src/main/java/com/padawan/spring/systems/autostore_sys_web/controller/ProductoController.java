@@ -63,7 +63,7 @@ public class ProductoController {
     }
 
     // PUT /api/productos/{id} -> Actualizar un producto existente
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/editar")
     public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
         return productoService.obtenerPorId(id).map(productoExistente -> {
             // Actualizamos los campos permitidos
