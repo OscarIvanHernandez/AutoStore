@@ -17,6 +17,7 @@ export class Products implements OnInit{
   productos: ProductoInterface[] = [];
   nuevoProducto: ProductoInterface = this.resetearFormulario();
   productoSeleccionado: ProductoInterface | null = null;
+  productoEditar: ProductoInterface = this.resetearFormulario();
 
   // Varaible para Ajustes de producto
   ajuste: AjusteRequestInterface = this.resetearAjuste();
@@ -74,11 +75,16 @@ export class Products implements OnInit{
     this.mostrarModal = false;
   }
 
-  abrirModalEditarProducto() {
-    this.mostrarModal = true
+  abrirModalEditarProducto(producto: ProductoInterface) {
+    this.productoEditar = {...producto};
+    this.mostrarModalEditar = true;
   }
 
-    abrirModalAlternarEstado(producto: ProductoInterface) {
+  cerrarModalEditar() {
+    this.mostrarModalEditar = false;
+  }
+
+  abrirModalAlternarEstado(producto: ProductoInterface) {
     this.productoSeleccionado = producto;
 
     this.mostrarModalAlternar = true
@@ -131,6 +137,32 @@ export class Products implements OnInit{
         this.errorMessage = `Hubo un error al cargar los horarios. (${error.status})`;
         this.isLoading = false;
         this.cdr.markForCheck();
+      }
+    });
+  }
+
+  editarProducto() {
+    if(!this.productoEditar || !this.productoEditar.id) return;
+
+    this.successMessage = null;
+    this.errorMessage = null;
+
+    this.productoService.actualizar(this.productoEditar.id, this.productoEditar).subscribe({
+      next: (data) => {
+        const index = this.productos.findIndex(p => p.id === data.id);
+        if(index !== 1){
+          this.productos[index] = data;
+        }
+        this.successMessage = 'Producto editado correctamente.';
+        this.cerrarModalEditar();
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 1500)
+      },
+      error: (error) => {
+        this.cerrarModal();
+        console.error('Error al editar el producto: ', error);
+        this.errorMessage =`Error al editar el producto: (${error.status}`;
       }
     });
   }

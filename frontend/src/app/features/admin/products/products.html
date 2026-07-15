@@ -31,7 +31,7 @@
           <th class="col-3">Marca</th>
           <th class="col-4">Precio de mostrador</th>
           <th class="col-5">Stock</th>
-          <th class="col-6">Acciones_</th>
+          <th class="col-6">Acciones</th>
         </thead>
         <tbody>
           <tr class="product-field" *ngFor="let producto of productos">
@@ -42,7 +42,7 @@
             <td>Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
             <td style="text-align: end;">
               <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
-              <button class="btn-icon"  title="Editar datos">📝</button>
+              <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos">📝</button>
               <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'">
                 {{ producto.activo ? '❌' : '🔄' }}
               </button>
@@ -102,6 +102,60 @@
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar en Inventario</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModalEditar">
+    <section class="modal-card">
+      <h2>Registrar Nuevo Producto</h2>
+
+      <form (ngSubmit)="editarProducto()">
+        <div class="form-grid">
+          <div class="form-input">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" [(ngModel)]="productoEditar.nombre" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Marca:</label>
+            <input type="text" [(ngModel)]="productoEditar.marca" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Categoría:</label>
+            <input type="text" [(ngModel)]="productoEditar.categoria" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Proveedor:</label>
+            <input type="text" [(ngModel)]="productoEditar.proveedor" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Precio Compra:</label>
+            <input type="text" [(ngModel)]="productoEditar.precioCompra" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Precio Venta Mostrador:</label>
+            <input type="text" [(ngModel)]="productoEditar.precioVentaMostrador" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Precio Venta Taller:</label>
+            <input type="text" [(ngModel)]="productoEditar.precioVentaTaller" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+
+          <div class="form-input">
+            <label>Stock Minimo:</label>
+            <input type="text" [(ngModel)]="productoEditar.stockMinimo" [ngModelOptions] ="{standalone: true}" required>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
           <button type="submit" class="btn-primary">Guardar en Inventario</button>
         </div>
       </form>

@@ -74,9 +74,8 @@ public class ProductoController {
             productoExistente.setPrecioCompra(producto.getPrecioCompra());
             productoExistente.setPrecioVentaMostrador(producto.getPrecioVentaMostrador());
             productoExistente.setPrecioVentaTaller(producto.getPrecioVentaTaller());
-            productoExistente.setStockActual(producto.getStockActual());
             productoExistente.setStockMinimo(producto.getStockMinimo());
-            productoExistente.setFoto(producto.getFoto());
+            //productoExistente.setFoto(producto.getFoto());
             
             Producto actualizado = productoService.guardar(productoExistente);
             return ResponseEntity.ok(actualizado);

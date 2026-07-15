@@ -40,7 +40,7 @@ public class ProductoService {
 
     //Obtener un prodcuto por su ID
     public Optional<Producto> obtenerPorId(Long id){
-        return productoRepository.findById(id).filter(Producto::getActivo);
+        return productoRepository.findById(id);//.filter(Producto::getActivo);
 
     }
 
