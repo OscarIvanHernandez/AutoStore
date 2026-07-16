@@ -1,6 +1,9 @@
 package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import com.padawan.spring.systems.autostore_sys_web.service.ProductoService;
+
+import jakarta.validation.Valid;
+
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,14 +60,14 @@ public class ProductoController {
 
     // GET /api/productos -> Crear un nuevo producto
     @PostMapping
-    public ResponseEntity<Producto> create(@RequestBody Producto producto) {
+    public ResponseEntity<Producto> create(@Valid @RequestBody Producto producto) {
         Producto createdProducto = productoService.guardar(producto);
         return ResponseEntity.ok(createdProducto);
     }
 
     // PUT /api/productos/{id} -> Actualizar un producto existente
     @PutMapping("/{id}/editar")
-    public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
+    public ResponseEntity<Producto> update(@PathVariable Long id, @Valid @RequestBody Producto producto) {
         return productoService.obtenerPorId(id).map(productoExistente -> {
             // Actualizamos los campos permitidos
             productoExistente.setNombre(producto.getNombre());
