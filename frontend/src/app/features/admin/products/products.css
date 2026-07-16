@@ -19,17 +19,33 @@
   background-color: #fff;
   border-radius: 24px;
   width: 100%;
-  padding: 8px;
-  box-shadow: o 3px 3px 3px #fff;
+  box-shadow: 0 3px 3px 3px #99999973;
 }
 
 table {
   width: 100%;
   text-align: center;
+  border-collapse: collapse; /* Une los bordes en una sola línea */
 }
+
+td, th {
+  padding: 12px;
+  text-align: left;
+}
+
+td{
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  border-bottom: 3px solid #acacac46;
+  background-color: #f5f9fc;
+}
+
 th.col-1{
   width: 20%;
   text-align: initial;
+  border-radius: 24px 0 0 0;
 }
 th.col-2{width: auto;}
 th.col-3{width: auto;}
@@ -37,7 +53,8 @@ th.col-4{width: auto;}
 th.col-5{width: auto;}
 th.col-6{
     width: auto;
-    text-align: end;}
+    text-align: end;
+    border-radius: 0 24px 0 0;}
 /*ESTILOS PARA MODAL*/
 .modal-overlay {
   position: fixed;
