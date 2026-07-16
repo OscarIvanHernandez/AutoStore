@@ -43,7 +43,7 @@ th {
 }
 
 th.col-1{
-  width: 20%;
+  width: auto;
   text-align: initial;
   border-radius: 24px 0 0 0;
 }
