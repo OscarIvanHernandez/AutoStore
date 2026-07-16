@@ -33,11 +33,11 @@ export class Products implements OnInit{
   // Crear producto
   mostrarModal: boolean = false;
   // Cambiar Stock
-  mostrarModalStock: boolean = false
+  mostrarModalStock: boolean = false;
   // Editar producto
   mostrarModalEditar: boolean = false;
   // Alternar estado
-  mostrarModalAlternar: boolean = false
+  mostrarModalAlternar: boolean = false;
 
   constructor(private productoService: ProductoService, private cdr: ChangeDetectorRef){}
 
@@ -87,7 +87,11 @@ export class Products implements OnInit{
   abrirModalAlternarEstado(producto: ProductoInterface) {
     this.productoSeleccionado = producto;
 
-    this.mostrarModalAlternar = true
+    this.mostrarModalAlternar = true;
+  }
+
+  cerrarModalAlternar() {
+    this.mostrarModalAlternar = false;
   }
 
   abrirModalAjustarStock(producto: ProductoInterface) {
@@ -97,7 +101,7 @@ export class Products implements OnInit{
   }
 
   cerrarModalStock() {
-    this.mostrarModalStock = false
+    this.mostrarModalStock = false;
   }
 
   guardarProducto() {
