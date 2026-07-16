@@ -40,6 +40,7 @@ td{
 th {
   border-bottom: 3px solid #acacac46;
   background-color: #f5f9fc;
+  color: #74798e; /* Color para el texto de las columnas */
 }
 
 th.col-1{
