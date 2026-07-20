@@ -77,9 +77,13 @@
 
           <div class="form-input">
             <label>Marca:</label>
-            <input type="text" [(ngModel)]="nuevoProducto.marca" [ngModelOptions] ="{standalone: true}" required #marcaModel = "ngModel">
-            <span class="text-danger" *ngIf="marcaModel.invalid && marcaModel.touched">
-              Este campos es obligatorio.
+            <input
+              type="text"
+              [(ngModel)]="nuevoProducto.marca"
+              required
+              #marcaModel = "ngModel">
+            <span class="text-danger" *ngIf="marcaModel.invalid && (marcaModel.touched || productoForm.submitted)">
+              <span *ngIf="marcaModel.errors?.['required']">Este campos es obligatorio.</span>
             </span>
           </div>
 
