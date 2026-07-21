@@ -1,6 +1,7 @@
 import { AjusteRequestInterface, ProductoInterface } from './../../../services/autostore.models';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import {ProductoService} from '../../../services/autostore.product-service';
+import { MatIconModule } from '@angular/material/icon';
+import {ProductoService } from '../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, ],
+  imports: [CommonModule, FormsModule, MatIconModule ],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
