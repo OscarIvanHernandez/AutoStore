@@ -110,9 +110,9 @@
           </div>
 
           <div class="form-input">
-            <label>Precio Compra:</label>
+            <label>Precio de compra:</label>
             <input
-            type="text"
+            type="number"
             name="precio-compra"
             [(ngModel)]="nuevoProducto.precioCompra"
             required
@@ -125,9 +125,9 @@
           </div>
 
           <div class="form-input">
-            <label>Precio Venta Mostrador:</label>
+            <label>Precio de venta en mostrador:</label>
             <input
-            type="text"
+            type="number"
             name="venta-mostrador"
             [(ngModel)]="nuevoProducto.precioVentaMostrador"
             [ngModelOptions] ="{standalone: true}"
@@ -141,9 +141,9 @@
           </div>
 
           <div class="form-input">
-            <label>Precio Venta Taller:</label>
+            <label>Precio de venta para taller:</label>
             <input
-            type="text"
+            type="number"
             name="venta-taller"
             [(ngModel)]="nuevoProducto.precioVentaTaller"
             min="0"
@@ -154,9 +154,9 @@
           </div>
 
           <div class="form-input">
-            <label>Stock Inicial:</label>
+            <label>Stock inicial:</label>
             <input
-            type="text"
+            type="number"
             name="stock-inicial"
             [(ngModel)]="nuevoProducto.stockActual"
             required
@@ -164,7 +164,7 @@
             #stockActualModel = "ngModel">
             <span class="text-danger" *ngIf="stockActualModel.invalid && (stockActualModel.touched && productoForm.submitted)">
               <span *ngIf="stockActualModel.errors?.['required']">Este campo es obligatorio</span>
-              <span *ngIf="stockActualModel.errors?.['min']">Debe haber al menos mas de 1 en stock.</span>
+              <span *ngIf="stockActualModel.errors?.['min']">Cantidad en stock invalidad.</span>
             </span>
           </div>
         </div>
