@@ -79,6 +79,7 @@
             <label>Marca:</label>
             <input
               type="text"
+              name = "marca"
               [(ngModel)]="nuevoProducto.marca"
               required
               #marcaModel = "ngModel">
@@ -91,6 +92,7 @@
             <label>Categoría:</label>
             <input
             type="text"
+            name="categoria"
             [(ngModel)]="nuevoProducto.categoria"
             required
             #categoriaModel = "ngModel">
@@ -103,6 +105,7 @@
             <label>Proveedor:</label>
             <input
             type="text"
+            name="proveedor"
             [(ngModel)]="nuevoProducto.proveedor">
           </div>
 
@@ -110,6 +113,7 @@
             <label>Precio Compra:</label>
             <input
             type="text"
+            name="precio-compra"
             [(ngModel)]="nuevoProducto.precioCompra"
             required
             min = "0.1"
@@ -124,6 +128,7 @@
             <label>Precio Venta Mostrador:</label>
             <input
             type="text"
+            name="venta-mostrador"
             [(ngModel)]="nuevoProducto.precioVentaMostrador"
             [ngModelOptions] ="{standalone: true}"
             required
@@ -137,20 +142,29 @@
 
           <div class="form-input">
             <label>Precio Venta Taller:</label>
-            <input type="text" [(ngModel)]="nuevoProducto.precioVentaTaller" [ngModelOptions] ="{standalone: true}" required>
+            <input
+            type="text"
+            name="venta-taller"
+            [(ngModel)]="nuevoProducto.precioVentaTaller"
+            min="0"
+            #pTallerModel="ngModel">
+            <span class="text-danger" *ngIf="pTallerModel.invalid && productoForm.submitted">
+              <span *ngIf="pTallerModel.errors?.['min']">El precio no es valido.</span>
+            </span>
           </div>
 
           <div class="form-input">
             <label>Stock Inicial:</label>
             <input
             type="text"
+            name="stock-inicial"
             [(ngModel)]="nuevoProducto.stockActual"
             required
             min = "1"
-            #stockActaulModel = "ngModel">
-            <span class="text-danger" *ngIf="stockActaulModel.invalid && (stockActaulModel.touched && productoForm.submitted)">
-              <span *ngIf="stockActaulModel.errors?.['required']">Este campo es obligatorio</span>
-              <span *ngIf="stockActaulModel.errors?.['min']">Debe haber al menos mas de 1 en stock.</span>
+            #stockActualModel = "ngModel">
+            <span class="text-danger" *ngIf="stockActualModel.invalid && (stockActualModel.touched && productoForm.submitted)">
+              <span *ngIf="stockActualModel.errors?.['required']">Este campo es obligatorio</span>
+              <span *ngIf="stockActualModel.errors?.['min']">Debe haber al menos mas de 1 en stock.</span>
             </span>
           </div>
         </div>
