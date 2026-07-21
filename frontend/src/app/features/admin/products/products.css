@@ -96,6 +96,21 @@ input {
   width: 90%;
 }
 
+.span-text {
+  display: inline-block;
+  width: 90%;
+  background-color: #ff00001f;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 0 0 18px 18px;
+}
+
+.error-text {
+  padding-left: 5%;
+  font-size: 14px;
+  color: #ff3232e8;
+}
+
 /* Si la fila tiene la clase .inactivo, se vuelve un poco transparente */
 .product-field.inactivo {
   opacity: 0.5;

@@ -69,9 +69,9 @@
               required
               minlength="3"
               #nombreModel = "ngModel">
-            <span class="text-danger" *ngIf="nombreModel.invalid && (nombreModel.touched || productoForm.submitted)">
-              <span *ngIf="nombreModel.errors?.['required']">El nombre del producto es obligatorio</span>
-              <span *ngIf="nombreModel.errors?.['minlength']">Debe tener al menos 3 caracteres</span>
+            <span class="span-text" *ngIf="nombreModel.invalid && (nombreModel.touched || productoForm.submitted)">
+              <span class="error-text" *ngIf="nombreModel.errors?.['required']">El nombre del producto es obligatorio</span>
+              <span class="error-text" *ngIf="nombreModel.errors?.['minlength']">Debe tener al menos 3 caracteres</span>
             </span>
           </div>
 
@@ -83,8 +83,8 @@
               [(ngModel)]="nuevoProducto.marca"
               required
               #marcaModel = "ngModel">
-            <span class="text-danger" *ngIf="marcaModel.invalid && (marcaModel.touched || productoForm.submitted)">
-              <span *ngIf="marcaModel.errors?.['required']">Este campos es obligatorio.</span>
+            <span class="span-text" *ngIf="marcaModel.invalid && (marcaModel.touched || productoForm.submitted)">
+              <span class="error-text" *ngIf="marcaModel.errors?.['required']">Este campos es obligatorio.</span>
             </span>
           </div>
 
@@ -96,8 +96,8 @@
             [(ngModel)]="nuevoProducto.categoria"
             required
             #categoriaModel = "ngModel">
-            <span class="text-danger" *ngIf="categoriaModel.invalid && (categoriaModel.touched || productoForm.submitted)">
-              <span *ngIf="categoriaModel.errors?.['required']">Este campo es obligatorio.</span>
+            <span class="span-text" *ngIf="categoriaModel.invalid && (categoriaModel.touched || productoForm.submitted)">
+              <span class="error-text" *ngIf="categoriaModel.errors?.['required']">Este campo es obligatorio.</span>
             </span>
           </div>
 
@@ -118,9 +118,9 @@
             required
             min = "0.1"
             #precioModel = "ngModel">
-            <span class="text-danger" *ngIf="precioModel.invalid && (precioModel.touched || productoForm.submitted)">
-              <span *ngIf="precioModel.errors?.['requierd']">Este campo es obligatorio.</span>
-              <span *ngIf="precioModel.errors?.['min']">El precio de compra debe ser mayor a $0.</span>
+            <span class="span-text" *ngIf="precioModel.invalid && (precioModel.touched || productoForm.submitted)">
+              <span class="error-text" *ngIf="precioModel.errors?.['requierd']">Este campo es obligatorio.</span>
+              <span class="error-text" *ngIf="precioModel.errors?.['min']">El precio de compra debe ser mayor a $0.</span>
             </span>
           </div>
 
@@ -134,9 +134,9 @@
             required
             min="0.1"
             #pMostradorModel = "ngModel">
-            <span class="text-danger" *ngIf="pMostradorModel.invalid && (pMostradorModel.touched || productoForm.submitted)">
-              <span *ngIf="pMostradorModel.errors?.['required']">Este campo es obligatorio.</span>
-              <span *ngIf="pMostradorModel.errors?.['min']">Debe ser un valor mayor a $0.</span>
+            <span class="span-text" *ngIf="pMostradorModel.invalid && (pMostradorModel.touched || productoForm.submitted)">
+              <span class="error-text" *ngIf="pMostradorModel.errors?.['required']">Este campo es obligatorio.</span>
+              <span class="error-text" *ngIf="pMostradorModel.errors?.['min']">Debe ser un valor mayor a $0.</span>
             </span>
           </div>
 
@@ -148,8 +148,8 @@
             [(ngModel)]="nuevoProducto.precioVentaTaller"
             min="0"
             #pTallerModel="ngModel">
-            <span class="text-danger" *ngIf="pTallerModel.invalid && productoForm.submitted">
-              <span *ngIf="pTallerModel.errors?.['min']">El precio no es valido.</span>
+            <span class="span-text" *ngIf="pTallerModel.invalid && productoForm.submitted">
+              <span class="error-text" *ngIf="pTallerModel.errors?.['min']">El precio no es valido.</span>
             </span>
           </div>
 
@@ -162,9 +162,9 @@
             required
             min = "1"
             #stockActualModel = "ngModel">
-            <span class="text-danger" *ngIf="stockActualModel.invalid && (stockActualModel.touched && productoForm.submitted)">
-              <span *ngIf="stockActualModel.errors?.['required']">Este campo es obligatorio</span>
-              <span *ngIf="stockActualModel.errors?.['min']">Cantidad en stock invalidad.</span>
+            <span class="span-text" *ngIf="stockActualModel.invalid && (stockActualModel.touched && productoForm.submitted)">
+              <span class="error-text" *ngIf="stockActualModel.errors?.['required']">Este campo es obligatorio</span>
+              <span class="error-text" *ngIf="stockActualModel.errors?.['min']">Cantidad en stock invalidad.</span>
             </span>
           </div>
         </div>
