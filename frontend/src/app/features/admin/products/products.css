@@ -111,6 +111,16 @@ input {
   color: #ff3232e8;
 }
 
+/*Estilos para icono de info en texto de error de inputs Agregar producto Modal*/
+.material-icons {
+  font-size: 16px;
+}
+
+.mat-icon {
+  height: 15px;
+  width: 18px;
+}
+
 /* Si la fila tiene la clase .inactivo, se vuelve un poco transparente */
 .product-field.inactivo {
   opacity: 0.5;
