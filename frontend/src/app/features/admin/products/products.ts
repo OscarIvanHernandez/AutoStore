@@ -4,12 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import {ProductoService } from '../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
 
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule ],
+  imports: [CommonModule, FormsModule, MatIconModule, AgregarProducto],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
@@ -69,6 +70,8 @@ export class Products implements OnInit{
   }
 
   abrirModalCrearProducto() {
+    this.successMessage = null;
+    this.errorMessage = null;
     this.mostrarModal = true;
   }
 
@@ -105,7 +108,29 @@ export class Products implements OnInit{
     this.mostrarModalStock = false;
   }
 
-  guardarProducto() {
+  guardarProducto(producto: ProductoInterface) {
+    this.successMessage = null;
+    this.errorMessage = null;
+
+    this.productoService.crear(producto).subscribe({
+      next: (data) => {
+        // Se añade el nuevo producto
+        this.productos.push(data);
+        this.cerrarModal();
+        this.successMessage = 'Nuevo producto agregado correctamente.';
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 1500)
+      },
+      error: (error) => {
+        this.cerrarModal();
+        console.error('Error al crear el producto: ', error);
+        this.errorMessage =`Error al crear el producto: (${error.status}`;
+      }
+    });
+  }
+
+  guardarProducto_() {
     this.successMessage = null;
     this.errorMessage = null;
 

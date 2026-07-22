@@ -13,5 +13,27 @@ body{
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
+/*ESTILO GLOBAL PARA MODAL*/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que flote sobre el navbar y aside */
+}
+
+.modal-card {
+  background: white;
+  padding: 32px;
+  border-radius: 8px;
+  width: 600px; /* Ancho cómodo para 2 columnas de inputs */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
 /*  ### VARIABLES ### */
 
