@@ -2,7 +2,7 @@
   <section class="modal-card">
     <h2>Editar Producto</h2>
 
-    <form (ngSubmit)="guardarCambios()">
+    <form #productoForm="ngForm" (ngSubmit)="guardarCambios()">
       <div class="form-grid">
         <div class="form-input">
           <label>Nombre:</label>
@@ -11,9 +11,13 @@
           name="nombre"
           [(ngModel)]="productoEditar.nombre"
           required
+          minlength="3"
           #nombreModel = "ngModel">
-          <span class="text-danger" *ngIf="nombreModel.invalid && nombreModel.touched">
-            Este campo es obligatorio.
+          <span class="text-danger" *ngIf="nombreModel.invalid && (nombreModel.touched || productoForm.submitted)">
+            <span class="error-text" *ngIf="nombreModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              El nombre del producto es obligatorio</span>
+            <span class="error-text" *ngIf="nombreModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+              Debe tener al menos 3 caracteres</span>
           </span>
         </div>
 
@@ -25,8 +29,9 @@
           [(ngModel)]="productoEditar.marca"
           required
           #marcaModel = "ngModel">
-          <span class="text-danger" *ngIf="marcaModel.invalid && marcaModel.touched">
-            Este campo es obligatorio.
+          <span class="text-danger" *ngIf="marcaModel.invalid && (marcaModel.touched || productoForm.submitted) ">
+            <span class="error-text" *ngIf="marcaModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              Este campos es obligatorio.</span>
           </span>
         </div>
 
@@ -38,8 +43,9 @@
           [(ngModel)]="productoEditar.categoria"
           required
           #categoriaModel = "ngModel">
-          <span clas="text-danger" *ngIf="categoriaModel.invalid && categoriaModel.touched">
-            Este campo es obligatorio.
+          <span clas="text-danger" *ngIf="categoriaModel.invalid && (categoriaModel.touched || productoForm.submitted) ">
+            <span class="error-text" *ngIf="categoriaModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              Este campo es obligatorio.</span>
           </span>
         </div>
 
@@ -49,7 +55,7 @@
           type="text"
           name="proveedor"
           [(ngModel)]="productoEditar.proveedor"
-          required>
+          >
         </div>
 
         <div class="form-input">
@@ -61,8 +67,11 @@
           required
           min = "0.1"
           #precioModel = "ngModel">
-          <span class="text-danger" *ngIf="precioModel.invalid && precioModel.touched">
-            El precio de compra debe ser mayor a $0.
+          <span class="text-danger" *ngIf="precioModel.invalid && (precioModel.touched || productoForm.submitted) ">
+            <span class="error-text" *ngIf="precioModel.errors?.['requierd']"><mat-icon fontIcon="info"></mat-icon>
+              Este campo es obligatorio.</span>
+            <span class="error-text" *ngIf="precioModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El precio de compra debe ser mayor a $0.</span>
           </span>
         </div>
 
@@ -72,10 +81,14 @@
           type="number"
           name="precio-mostrador"
           [(ngModel)]="productoEditar.precioVentaMostrador"
-          required min="0.1"
+          required
+          min="0.1"
           #pMostradorModel = "ngModel">
-          <span class="text-danger" *ngIf="pMostradorModel.invalid && pMostradorModel.touched">
-            Debe ser un valor mayor a $0.
+          <span class="text-danger" *ngIf="pMostradorModel.invalid && (pMostradorModel.touched || productoForm.submitted) ">
+            <span class="error-text" *ngIf="pMostradorModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              Este campo es obligatorio.</span>
+            <span class="error-text" *ngIf="pMostradorModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              Debe ser un valor mayor a $0.</span>
           </span>
         </div>
 
@@ -85,7 +98,12 @@
           type="number"
           name="precio-taller"
           [(ngModel)]="productoEditar.precioVentaTaller"
-          required>
+          min="0"
+          #pTallerModel="ngModel">
+          <span class="span-text" *ngIf="pTallerModel.invalid && productoForm.submitted">
+            <span class="error-text" *ngIf="pTallerModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El precio no es valido.</span>
+          </span>
         </div>
 
         <div class="form-input">
@@ -97,14 +115,17 @@
           required
           min="1"
           #stockMinModel = "ngModel">
-          <span class="text-danger" *ngIf="stockMinModel.invalid && stockMinModel.touched">
-            Stock mínimo debe ser al menos de 1.
+          <span class="span-text" *ngIf="stockMinModel.invalid && (stockMinModel.touched && productoForm.submitted)">
+            <span class="error-text" *ngIf="stockMinModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              Este campo es obligatorio</span>
+            <span class="error-text" *ngIf="stockMinModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              Cantidad en stock invalidad.</span>
           </span>
         </div>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn-secondary" (click)="cerrar()">Cancelar</button>
-        <button type="submit" class="btn-primary">Guardar en Inventario</button>
+        <button type="submit" class="btn-primary" [disabled]="productoForm.invalid">Guardar en Inventario</button>
       </div>
     </form>
   </section>
