@@ -1,0 +1,43 @@
+.form-grid {
+  margin-bottom: 24px;
+}
+
+.form-input {
+margin: 8px;
+padding-left: 50px;
+width: 100%;
+font-size: 1.1rem;
+}
+
+label {
+  padding-right: 1rem;
+}
+
+input {
+  width: 90%;
+}
+
+.span-text {
+  display: inline-block;
+  width: 90%;
+  background-color: #ff00001f;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 0 0 18px 18px;
+}
+
+.error-text {
+  padding-left: 5%;
+  font-size: 14px;
+  color: #ff3232e8;
+}
+
+/*Estilos para icono de info en texto de error de inputs Agregar producto Modal*/
+.material-icons {
+  font-size: 16px;
+}
+
+.mat-icon {
+  height: 15px;
+  width: 18px;
+}
