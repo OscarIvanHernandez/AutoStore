@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
 import { EditarProducto } from './modales/editar-producto/editar-producto';
+import { InventarioProducto } from './modales/inventario-producto/inventario-producto';
 
 
 @Component({
@@ -16,7 +17,8 @@ import { EditarProducto } from './modales/editar-producto/editar-producto';
     FormsModule,
     MatIconModule,
     AgregarProducto,
-    EditarProducto
+    EditarProducto,
+    InventarioProducto
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',
@@ -204,16 +206,16 @@ export class Products implements OnInit{
     });
   }
 
-  guardarAjusteStock(): void {
-    if(!this.productoSeleccionado || !this.productoSeleccionado.id) return;
+  guardarAjusteStock(producto: ProductoInterface, ajuste: AjusteRequestInterface): void {
+    if(!producto || !producto.id) return;
 
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.ajustarStock(this.productoSeleccionado.id, this.ajuste).subscribe({
+    this.productoService.ajustarStock(producto.id, ajuste).subscribe({
       next: (data) => {
         const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== 1){
+        if(index !== -1){
           this.productos[index] = data;
         }
         this.cerrarModalStock();

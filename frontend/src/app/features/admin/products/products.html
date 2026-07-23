@@ -65,7 +65,8 @@
   [visible]="mostrarModalEditar"
   [producto]="productoEditar"
   (close)="cerrarModalEditar()"
-  (update)="editarProducto($event)"/>
+  (update)="editarProducto($event)"
+  />
 
   <div class="modal-overlay" *ngIf="mostrarModalStock && productoSeleccionado">
     <div class="modal-card">
