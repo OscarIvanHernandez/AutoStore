@@ -55,7 +55,7 @@
         <div class="form-input">
           <label>Precio Compra:</label>
           <input
-          type="text"
+          type="number"
           name="precio-compra"
           [(ngModel)]="productoEditar.precioCompra"
           required
@@ -69,7 +69,7 @@
         <div class="form-input">
           <label>Precio Venta Mostrador:</label>
           <input
-          type="text"
+          type="number"
           name="precio-mostrador"
           [(ngModel)]="productoEditar.precioVentaMostrador"
           required min="0.1"
@@ -82,7 +82,7 @@
         <div class="form-input">
           <label>Precio Venta Taller:</label>
           <input
-          type="text"
+          type="number"
           name="precio-taller"
           [(ngModel)]="productoEditar.precioVentaTaller"
           required>
@@ -91,7 +91,7 @@
         <div class="form-input">
           <label>Stock Minimo:</label>
           <input
-          type="text"
+          type="number"
           name="stock-minimo"
           [(ngModel)]="productoEditar.stockMinimo"
           required
