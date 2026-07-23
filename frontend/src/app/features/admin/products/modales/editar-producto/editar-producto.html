@@ -6,7 +6,12 @@
       <div class="form-grid">
         <div class="form-input">
           <label>Nombre:</label>
-          <input type="text" name="nombre" [(ngModel)]="productoEditar.nombre" [ngModelOptions] ="{standalone: true}" required #nombreModel = "ngModel">
+          <input
+          type="text"
+          name="nombre"
+          [(ngModel)]="productoEditar.nombre"
+          required
+          #nombreModel = "ngModel">
           <span class="text-danger" *ngIf="nombreModel.invalid && nombreModel.touched">
             Este campo es obligatorio.
           </span>
@@ -14,7 +19,12 @@
 
         <div class="form-input">
           <label>Marca:</label>
-          <input type="text" [(ngModel)]="productoEditar.marca" [ngModelOptions] ="{standalone: true}" required #marcaModel = "ngModel">
+          <input
+          type="text"
+          name="marca"
+          [(ngModel)]="productoEditar.marca"
+          required
+          #marcaModel = "ngModel">
           <span class="text-danger" *ngIf="marcaModel.invalid && marcaModel.touched">
             Este campo es obligatorio.
           </span>
@@ -22,7 +32,12 @@
 
         <div class="form-input">
           <label>Categoría:</label>
-          <input type="text" [(ngModel)]="productoEditar.categoria" [ngModelOptions] ="{standalone: true}" required #categoriaModel = "ngModel">
+          <input
+          type="text"
+          name="categoria"
+          [(ngModel)]="productoEditar.categoria"
+          required
+          #categoriaModel = "ngModel">
           <span clas="text-danger" *ngIf="categoriaModel.invalid && categoriaModel.touched">
             Este campo es obligatorio.
           </span>
@@ -30,12 +45,22 @@
 
         <div class="form-input">
           <label>Proveedor:</label>
-          <input type="text" [(ngModel)]="productoEditar.proveedor" [ngModelOptions] ="{standalone: true}" required>
+          <input
+          type="text"
+          name="proveedor"
+          [(ngModel)]="productoEditar.proveedor"
+          required>
         </div>
 
         <div class="form-input">
           <label>Precio Compra:</label>
-          <input type="text" [(ngModel)]="productoEditar.precioCompra" [ngModelOptions] ="{standalone: true}" required min = "0.1" #precioModel = "ngModel">
+          <input
+          type="text"
+          name="precio-compra"
+          [(ngModel)]="productoEditar.precioCompra"
+          required
+          min = "0.1"
+          #precioModel = "ngModel">
           <span class="text-danger" *ngIf="precioModel.invalid && precioModel.touched">
             El precio de compra debe ser mayor a $0.
           </span>
@@ -43,7 +68,12 @@
 
         <div class="form-input">
           <label>Precio Venta Mostrador:</label>
-          <input type="text" [(ngModel)]="productoEditar.precioVentaMostrador" [ngModelOptions] ="{standalone: true}" required min="0.1" #pMostradorModel = "ngModel">
+          <input
+          type="text"
+          name="precio-mostrador"
+          [(ngModel)]="productoEditar.precioVentaMostrador"
+          required min="0.1"
+          #pMostradorModel = "ngModel">
           <span class="text-danger" *ngIf="pMostradorModel.invalid && pMostradorModel.touched">
             Debe ser un valor mayor a $0.
           </span>
@@ -51,12 +81,22 @@
 
         <div class="form-input">
           <label>Precio Venta Taller:</label>
-          <input type="text" [(ngModel)]="productoEditar.precioVentaTaller" [ngModelOptions] ="{standalone: true}" required>
+          <input
+          type="text"
+          name="precio-taller"
+          [(ngModel)]="productoEditar.precioVentaTaller"
+          required>
         </div>
 
         <div class="form-input">
           <label>Stock Minimo:</label>
-          <input type="text" [(ngModel)]="productoEditar.stockMinimo" [ngModelOptions] ="{standalone: true}" required min="1" #stockMinModel = "ngModel">
+          <input
+          type="text"
+          name="stock-minimo"
+          [(ngModel)]="productoEditar.stockMinimo"
+          required
+          min="1"
+          #stockMinModel = "ngModel">
           <span class="text-danger" *ngIf="stockMinModel.invalid && stockMinModel.touched">
             Stock mínimo debe ser al menos de 1.
           </span>
