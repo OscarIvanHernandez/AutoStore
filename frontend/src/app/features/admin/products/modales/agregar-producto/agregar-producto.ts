@@ -6,9 +6,10 @@ import { ProductoInterface } from '../../../../../services/autostore.models';
 
 @Component({
   selector: 'app-agregar-producto',
+  standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './agregar-producto.html',
-  styleUrl: './agregar-producto.css',
+  styleUrls: ['./agregar-producto.css'],
 })
 export class AgregarProducto {
   @Input() visible = false;

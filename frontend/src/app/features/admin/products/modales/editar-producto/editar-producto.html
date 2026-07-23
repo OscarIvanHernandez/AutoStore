@@ -1,1 +1,71 @@
-<p>editar-producto works!</p>
+<div class="modal-overlay" *ngIf="visible && productoEditar">
+  <section class="modal-card">
+    <h2>Editar Producto</h2>
+
+    <form (ngSubmit)="guardarCambios()">
+      <div class="form-grid">
+        <div class="form-input">
+          <label>Nombre:</label>
+          <input type="text" name="nombre" [(ngModel)]="productoEditar.nombre" [ngModelOptions] ="{standalone: true}" required #nombreModel = "ngModel">
+          <span class="text-danger" *ngIf="nombreModel.invalid && nombreModel.touched">
+            Este campo es obligatorio.
+          </span>
+        </div>
+
+        <div class="form-input">
+          <label>Marca:</label>
+          <input type="text" [(ngModel)]="productoEditar.marca" [ngModelOptions] ="{standalone: true}" required #marcaModel = "ngModel">
+          <span class="text-danger" *ngIf="marcaModel.invalid && marcaModel.touched">
+            Este campo es obligatorio.
+          </span>
+        </div>
+
+        <div class="form-input">
+          <label>Categoría:</label>
+          <input type="text" [(ngModel)]="productoEditar.categoria" [ngModelOptions] ="{standalone: true}" required #categoriaModel = "ngModel">
+          <span clas="text-danger" *ngIf="categoriaModel.invalid && categoriaModel.touched">
+            Este campo es obligatorio.
+          </span>
+        </div>
+
+        <div class="form-input">
+          <label>Proveedor:</label>
+          <input type="text" [(ngModel)]="productoEditar.proveedor" [ngModelOptions] ="{standalone: true}" required>
+        </div>
+
+        <div class="form-input">
+          <label>Precio Compra:</label>
+          <input type="text" [(ngModel)]="productoEditar.precioCompra" [ngModelOptions] ="{standalone: true}" required min = "0.1" #precioModel = "ngModel">
+          <span class="text-danger" *ngIf="precioModel.invalid && precioModel.touched">
+            El precio de compra debe ser mayor a $0.
+          </span>
+        </div>
+
+        <div class="form-input">
+          <label>Precio Venta Mostrador:</label>
+          <input type="text" [(ngModel)]="productoEditar.precioVentaMostrador" [ngModelOptions] ="{standalone: true}" required min="0.1" #pMostradorModel = "ngModel">
+          <span class="text-danger" *ngIf="pMostradorModel.invalid && pMostradorModel.touched">
+            Debe ser un valor mayor a $0.
+          </span>
+        </div>
+
+        <div class="form-input">
+          <label>Precio Venta Taller:</label>
+          <input type="text" [(ngModel)]="productoEditar.precioVentaTaller" [ngModelOptions] ="{standalone: true}" required>
+        </div>
+
+        <div class="form-input">
+          <label>Stock Minimo:</label>
+          <input type="text" [(ngModel)]="productoEditar.stockMinimo" [ngModelOptions] ="{standalone: true}" required min="1" #stockMinModel = "ngModel">
+          <span class="text-danger" *ngIf="stockMinModel.invalid && stockMinModel.touched">
+            Stock mínimo debe ser al menos de 1.
+          </span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cerrar()">Cancelar</button>
+        <button type="submit" class="btn-primary">Guardar en Inventario</button>
+      </div>
+    </form>
+  </section>
+</div>

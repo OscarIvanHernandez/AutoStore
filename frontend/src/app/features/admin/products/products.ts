@@ -5,12 +5,19 @@ import {ProductoService } from '../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
+import { EditarProducto } from './modales/editar-producto/editar-producto';
 
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, AgregarProducto],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    AgregarProducto,
+    EditarProducto
+  ],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
@@ -171,16 +178,16 @@ export class Products implements OnInit{
     });
   }
 
-  editarProducto() {
-    if(!this.productoEditar || !this.productoEditar.id) return;
+  editarProducto(producto: ProductoInterface) {
+    if(!producto || !producto.id) return;
 
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.actualizar(this.productoEditar.id, this.productoEditar).subscribe({
+    this.productoService.actualizar(producto.id, producto).subscribe({
       next: (data) => {
         const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== 1){
+        if(index !== -1){
           this.productos[index] = data;
         }
         this.successMessage = 'Producto editado correctamente.';
@@ -190,9 +197,9 @@ export class Products implements OnInit{
         }, 1500)
       },
       error: (error) => {
-        this.cerrarModal();
+        this.cerrarModalEditar();
         console.error('Error al editar el producto: ', error);
-        this.errorMessage =`Error al editar el producto: (${error.status}`;
+        this.errorMessage = `Error al editar el producto: (${error.status})`;
       }
     });
   }
