@@ -26,7 +26,6 @@ import { InventarioProducto } from './modales/inventario-producto/inventario-pro
 export class Products implements OnInit{
   // Varaibles Producto
   productos: ProductoInterface[] = [];
-  nuevoProducto: ProductoInterface = this.resetearFormulario();
   productoSeleccionado: ProductoInterface | null = null;
   productoEditar: ProductoInterface = this.resetearFormulario();
 
@@ -109,7 +108,6 @@ export class Products implements OnInit{
 
   abrirModalAjustarStock(producto: ProductoInterface) {
     this.productoSeleccionado = producto;
-    this.ajuste = this.resetearAjuste();
     this.mostrarModalStock = true;
   }
 
@@ -126,29 +124,6 @@ export class Products implements OnInit{
         // Se añade el nuevo producto
         this.productos.push(data);
         this.cerrarModal();
-        this.successMessage = 'Nuevo producto agregado correctamente.';
-        setTimeout(() => {
-          this.successMessage = null;
-        }, 1500)
-      },
-      error: (error) => {
-        this.cerrarModal();
-        console.error('Error al crear el producto: ', error);
-        this.errorMessage =`Error al crear el producto: (${error.status}`;
-      }
-    });
-  }
-
-  guardarProducto_() {
-    this.successMessage = null;
-    this.errorMessage = null;
-
-    this.productoService.crear(this.nuevoProducto).subscribe({
-      next: (data) => {
-        // Se añade el nuevo producto
-        this.productos.push(data);
-        this.cerrarModal();
-        this.nuevoProducto = this.resetearFormulario();
         this.successMessage = 'Nuevo producto agregado correctamente.';
         setTimeout(() => {
           this.successMessage = null;
