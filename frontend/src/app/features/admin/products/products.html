@@ -68,44 +68,13 @@
   (update)="editarProducto($event)"
   />
 
-  <div class="modal-overlay" *ngIf="mostrarModalStock && productoSeleccionado">
-    <div class="modal-card">
-      <h2>Ajustar Inventario</h2>
-      <p style="margin-bottom: 15px; color: #64748b;">
-        Producto: <strong>{{ productoSeleccionado.nombre }}</strong> <br>
-        Stock actual: <strong>{{ productoSeleccionado.stockActual }} piezas</strong>
-      </p>
-
-      <form (ngSubmit)="guardarAjusteStock()">
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Tipo de Ajuste</label>
-            <select name="tipoMovimiento" [(ngModel)]="ajuste.tipo" required>
-              <option value="ENTRADA">➕ Entrada (Suma al inventario)</option>
-              <option value="SALIDA">➖ Salida (Resta del inventario)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Cantidad de piezas</label>
-            <input type="number" name="cantidadAjuste" [(ngModel)]="ajuste.cantidad" min="1" required>
-          </div>
-
-          <div class="form-group" style="grid-column: span 2;">
-            <label>Motivo del ajuste</label>
-            <input type="text" name="motivoAjuste" [(ngModel)]="ajuste.motivo" placeholder="Ej. Ajuste por merma, conteo anual, compra..." required>
-          </div>
-
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="cerrarModalStock()">Cancelar</button>
-          <button type="submit" class="btn-primary">Aplicar Ajuste</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-inventario-producto
+  *ngIf="mostrarModalStock"
+  [visible]="mostrarModalStock"
+  [producto]="productoSeleccionado"
+  (close)="cerrarModalStock()"
+  (update)="guardarAjusteStock($event.producto, $event.ajuste)"
+  />
 
   <div class="modal-overlay" *ngIf="mostrarModalAlternar && productoSeleccionado">
     <div class="modal-card">
