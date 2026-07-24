@@ -6,7 +6,7 @@
       Stock actual: <strong>{{ productoAjustar.stockActual }} piezas</strong>
     </p>
 
-    <form (ngSubmit)="guardarCambios()">
+    <form #ajusteForm="ngForm" (ngSubmit)="guardarCambios()">
       <div class="form-grid">
 
         <div class="form-group">
@@ -19,12 +19,34 @@
 
         <div class="form-group">
           <label>Cantidad de piezas</label>
-          <input type="number" name="cantidadAjuste" [(ngModel)]="nuevoAjuste.cantidad" min="1" required>
+          <input
+          type="number"
+          name="cantidadAjuste"
+          [(ngModel)]="nuevoAjuste.cantidad"
+          min="1"
+          required
+          #ajusteCantidadModel="ngModel">
+          <span class="span-text" *ngIf="ajusteCantidadModel.invalid && (ajusteCantidadModel.touched || ajusteForm.submitted)">
+            <span class="error-text" *ngIf="ajusteCantidadModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              La cantidad es obligatoria</span>
+            <span class="error-text" *ngIf="ajusteCantidadModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El valor en la cantidad es invalido</span>
+          </span>
         </div>
 
         <div class="form-group" style="grid-column: span 2;">
           <label>Motivo del ajuste</label>
-          <input type="text" name="motivoAjuste" [(ngModel)]="nuevoAjuste.motivo" placeholder="Ej. Ajuste por merma, conteo anual, compra..." required>
+          <input
+          type="text"
+          name="motivoAjuste"
+          [(ngModel)]="nuevoAjuste.motivo"
+          placeholder="Ej. Ajuste por merma, conteo anual, compra..."
+          required
+          #motivoModel="ngModel">
+          <span class="span-text" *ngIf="motivoModel.invalid && (motivoModel.touched || ajusteForm.submitted)">
+            <span class="error-text" *ngIf="motivoModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              El motivo de ajuste es obligatoria</span>
+          </span>
         </div>
 
       </div>
