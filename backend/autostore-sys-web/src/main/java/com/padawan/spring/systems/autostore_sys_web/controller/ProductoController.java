@@ -87,10 +87,10 @@ public class ProductoController {
 
     // PUT /api/productos/cambiar-estado/{id} -> Actualizar un el estado de un producto
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<Producto> updateState(@PathVariable Long id) {
+    public ResponseEntity<Producto> updateState(@PathVariable Long id, @RequestBody boolean nuevoEstado) {
         return productoService.obtenerPorId(id).map(productoExistente -> {
             // Actualizamos el campo
-            productoExistente.setActivo(!productoExistente.getActivo());
+            productoExistente.setActivo(nuevoEstado);
             
             Producto actualizado = productoService.guardar(productoExistente);
             return ResponseEntity.ok(actualizado);
