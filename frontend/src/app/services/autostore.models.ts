@@ -19,3 +19,9 @@ export interface AjusteRequestInterface {
   motivo: string;
 
 }
+
+export interface EstadoProductoInterface {
+  id?: number;
+  nombre: string;
+  activo: boolean;
+}
