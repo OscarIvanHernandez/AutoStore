@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
 import { EditarProducto } from './modales/editar-producto/editar-producto';
 import { InventarioProducto } from './modales/inventario-producto/inventario-producto';
+import { EstadoProducto } from './modales/estado-producto/estado-producto';
 
 
 @Component({
@@ -18,7 +19,8 @@ import { InventarioProducto } from './modales/inventario-producto/inventario-pro
     MatIconModule,
     AgregarProducto,
     EditarProducto,
-    InventarioProducto
+    InventarioProducto,
+    EstadoProducto
   ],
   templateUrl: './products.html',
   styleUrl: './products.css',
@@ -205,16 +207,16 @@ export class Products implements OnInit{
     })
   }
 
-    cambiarEstado(): void {
-    if(!this.productoSeleccionado || !this.productoSeleccionado.id) return;
+    cambiarEstado(producto: ProductoInterface): void {
+    if(!producto || !producto.id) return;
 
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.actualizarEstado(this.productoSeleccionado).subscribe({
+    this.productoService.actualizarEstado(producto).subscribe({
       next: (data) => {
         const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== 1){
+        if(index !== -1){
           this.productos[index] = data;
         }
         // Mensaje dinámico según el nuevo estado

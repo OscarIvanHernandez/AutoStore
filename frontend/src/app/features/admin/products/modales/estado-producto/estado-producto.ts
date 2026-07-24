@@ -18,20 +18,25 @@ export class EstadoProducto implements OnChanges {
   @Output() close = new EventEmitter<void>();
   @Output() update = new EventEmitter<ProductoInterface>();
 
-  productoEstado: ProductoInterface | null = null;
+  productoActualEstado: ProductoInterface | null = null;
+  productoNuevoEstado: ProductoInterface | null = null;
 
   ngOnChanges() {
     if(this.producto) {
-      this.productoEstado = {...this.producto};
+      this.productoActualEstado = {...this.producto};
+      this.productoNuevoEstado = {...this.producto};
     } else {
-      this.productoEstado = null;
+      this.productoActualEstado = null;
+      this.productoNuevoEstado = null;
     }
   }
 
   guardarCambios() {
-    if (this.productoEstado) {
-      this.update.emit({...this.productoEstado});
+    if (this.productoNuevoEstado) {
+      this.update.emit({...this.productoNuevoEstado});
     }
+    this.productoActualEstado = null;
+    this.productoNuevoEstado = null;
     this.cerrar();
   }
 
