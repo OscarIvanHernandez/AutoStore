@@ -80,14 +80,17 @@ export class Products implements OnInit{
     }
   }
 
-  private showSuccesMessage(message: string | null, duration: number): void {
+  private showSuccesMessage(message: string, duration: number): void {
+    this.successMessage = message;
+    this.cdr.detectChanges();
+
     setTimeout(() => {
-      this.successMessage = message;
+      this.successMessage = null;
       this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string | null, duration: number): void {
+  private showErrorMessage(message: string, duration: number): void {
     setTimeout(() => {
       this.errorMessage = message;
       this.cdr.detectChanges();
@@ -138,7 +141,27 @@ export class Products implements OnInit{
     this.mostrarModalStock = false;
   }
 
-  guardarProducto(producto: ProductoInterface) {
+  cargarProductos(): void {
+    this.isLoading = true;
+    this.productoService.getProductosActivos().subscribe({
+      next: (productos) => {
+        console.log('Productos cargados:', productos);
+        this.productos = productos;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error al cargar productos:', error);
+        this.showErrorMessage(
+          `Hubo un error al cargar los horarios. (${error.status})`,
+          12000
+        );
+      }
+    });
+  }
+
+    guardarProducto(producto: ProductoInterface) {
     this.successMessage = null;
     this.errorMessage = null;
 
@@ -147,33 +170,17 @@ export class Products implements OnInit{
         // Se añade el nuevo producto
         this.productos.push(data);
         this.cerrarModal();
-        this.successMessage = 'Nuevo producto agregado correctamente.';
-        setTimeout(() => {
-          this.successMessage = null;
-        }, 1500)
+        this.showSuccesMessage(
+          'Nuevo producto agregado correctamente.',
+          8000
+        );
       },
       error: (error) => {
         this.cerrarModal();
         console.error('Error al crear el producto: ', error);
-        this.errorMessage =`Error al crear el producto: (${error.status}`;
-      }
-    });
-  }
-
-  cargarProductos(): void {
-    this.isLoading = true;
-    this.productoService.getProductosActivos().subscribe({
-      next: (productos) => {
-        console.log('Productos cargados:', productos);
-        this.productos = productos;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error al cargar productos:', error);
-        this.errorMessage = `Hubo un error al cargar los horarios. (${error.status})`;
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        this.showErrorMessage(
+          `Error al crear el producto: (${error.status}`,
+          8000);
       }
     });
   }
@@ -190,16 +197,19 @@ export class Products implements OnInit{
         if(index !== -1){
           this.productos[index] = data;
         }
-        this.successMessage = 'Producto editado correctamente.';
         this.cerrarModalEditar();
-        setTimeout(() => {
-          this.successMessage = null;
-        }, 1500)
+        this.showSuccesMessage(
+          'El producto fue editado correctamente.',
+          8000
+        );
       },
       error: (error) => {
         this.cerrarModalEditar();
         console.error('Error al editar el producto: ', error);
-        this.errorMessage = `Error al editar el producto: (${error.status})`;
+        this.showErrorMessage(
+          `Error al editar el producto: (${error.status})`,
+          8000
+        );
       }
     });
   }
@@ -220,20 +230,12 @@ export class Products implements OnInit{
         if (ajuste.tipo === 'ENTRADA') {
           this.showSuccesMessage(
             `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
-            500
-          );
-          this.showSuccesMessage(
-            null,
             8000
           );
         } else {
           this.showSuccesMessage(
             `Ajuste exitoso: Retirado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
-            500
-          );
-          this.showSuccesMessage(
-              null,
-              8000
+            8000
           );
         }
       },
@@ -242,15 +244,10 @@ export class Products implements OnInit{
         // Capturar el mensaje de error que fue configurado en el back(ej. "No hay suficiente stock")
         this.showErrorMessage(`
           Error: ${error.error || 'No se pudo realizar el ajuste'}`,
-          500
-        );
-        this.showErrorMessage(
-          null,
           8000
         );
-
       }
-    })
+    });
   }
 
   cambiarEstado(productoEstado: EstadoProductoInterface): void {
@@ -268,10 +265,6 @@ export class Products implements OnInit{
         const accion = data.activo ? 'activado' : 'desactivado';
         this.showSuccesMessage(
           `Producto "${data.nombre}" ${accion} con éxito.`,
-          500
-        );
-        this.showSuccesMessage(
-          null,
           5000
         );
       },
@@ -279,14 +272,10 @@ export class Products implements OnInit{
         console.error('Error al cambiar el estado del producto:', error);
         this.showErrorMessage(
           'ERROR: No fue posible cambiar el estado del producto.',
-          500
-        );
-        this.showErrorMessage(
-          null,
           5000
         );
       }
-    })
+    });
   }
 
 }
