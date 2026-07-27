@@ -65,10 +65,11 @@ export class ProductoService {
     );
   }
 
-    // PUT /api/productos/{id}/estado
-  actualizarEstado(producto: ProductoInterface): Observable<ProductoInterface>{
-    console.log('📡 Petición PUT a:', `${this.apiURL}/${producto.id}/estado`);
-    return this.http.patch<ProductoInterface>(`${this.apiURL}/${producto.id}/estado`, producto).pipe(
+  // PATCH /api/productos/{id}/estado
+  actualizarEstado(producto: ProductoInterface): Observable<ProductoInterface> {
+    const nuevoEstado = producto.activo ?? true;
+    console.log('📡 Petición PATCH a:', `${this.apiURL}/${producto.id}/estado`, { nuevoEstado });
+    return this.http.patch<ProductoInterface>(`${this.apiURL}/${producto.id}/estado`, nuevoEstado).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
