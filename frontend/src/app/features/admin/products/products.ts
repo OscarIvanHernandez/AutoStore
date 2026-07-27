@@ -80,6 +80,20 @@ export class Products implements OnInit{
     }
   }
 
+  private showSuccesMessage(message: string | null, duration: number): void {
+    setTimeout(() => {
+      this.successMessage = message;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
+  private showErrorMessage(message: string | null, duration: number): void {
+    setTimeout(() => {
+      this.errorMessage = message;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
   abrirModalCrearProducto() {
     this.successMessage = null;
     this.errorMessage = null;
@@ -203,13 +217,38 @@ export class Products implements OnInit{
           this.productos[index] = data;
         }
         this.cerrarModalStock();
-        this.successMessage = `Inventario de "${data.nombre}" ajustado con éxito`
-        setTimeout(() => this.successMessage = null, 3000);
+        if (ajuste.tipo === 'ENTRADA') {
+          this.showSuccesMessage(
+            `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
+            500
+          );
+          this.showSuccesMessage(
+            null,
+            8000
+          );
+        } else {
+          this.showSuccesMessage(
+            `Ajuste exitoso: Retirado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
+            500
+          );
+          this.showSuccesMessage(
+              null,
+              8000
+          );
+        }
       },
       error: (error) => {
         console.error('Error al ajustar stock:', error);
         // Capturar el mensaje de error que fue configurado en el back(ej. "No hay suficiente stock")
-        this.errorMessage = `Error: ${error.error || 'No se pudo realizar el ajuste'}`;
+        this.showErrorMessage(`
+          Error: ${error.error || 'No se pudo realizar el ajuste'}`,
+          500
+        );
+        this.showErrorMessage(
+          null,
+          8000
+        );
+
       }
     })
   }
