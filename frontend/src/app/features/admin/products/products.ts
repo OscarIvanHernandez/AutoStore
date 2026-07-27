@@ -266,27 +266,25 @@ export class Products implements OnInit{
           this.productos[index] = data;
         }
         const accion = data.activo ? 'activado' : 'desactivado';
-        //this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
-        //this.cdr.markForCheck();
-        setTimeout(() => {
-          this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
-          this.cdr.detectChanges();
-        }, 500);
-        setTimeout(() => {
-          this.successMessage = null
-          this.cdr.detectChanges();
-        }, 5000);
+        this.showSuccesMessage(
+          `Producto "${data.nombre}" ${accion} con éxito.`,
+          500
+        );
+        this.showSuccesMessage(
+          null,
+          5000
+        );
       },
       error: (error) => {
         console.error('Error al cambiar el estado del producto:', error);
-        setTimeout(() => {
-          this.errorMessage = 'ERROR: No fue posible cambiar el estado del producto.';
-          this.cdr.detectChanges();
-        }, 500);
-        setTimeout(() => {
-          this.errorMessage = null
-          this.cdr.detectChanges();
-        }, 5000);
+        this.showErrorMessage(
+          'ERROR: No fue posible cambiar el estado del producto.',
+          500
+        );
+        this.showErrorMessage(
+          null,
+          5000
+        );
       }
     })
   }
