@@ -227,13 +227,27 @@ export class Products implements OnInit{
           this.productos[index] = data;
         }
         const accion = data.activo ? 'activado' : 'desactivado';
-        this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
-        setTimeout(() => this.successMessage = null, 3000);
+        //this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
+        //this.cdr.markForCheck();
+        setTimeout(() => {
+          this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
+          this.cdr.detectChanges();
+        }, 500);
+        setTimeout(() => {
+          this.successMessage = null
+          this.cdr.detectChanges();
+        }, 5000);
       },
       error: (error) => {
         console.error('Error al cambiar el estado del producto:', error);
-        this.errorMessage = 'No se pudo cambiar el estado del producto.';
-        setTimeout(() => this.errorMessage = null, 3000);
+        setTimeout(() => {
+          this.errorMessage = 'ERROR: No fue posible cambiar el estado del producto.';
+          this.cdr.detectChanges();
+        }, 500);
+        setTimeout(() => {
+          this.errorMessage = null
+          this.cdr.detectChanges();
+        }, 5000);
       }
     })
   }
