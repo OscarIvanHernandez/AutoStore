@@ -79,7 +79,7 @@
   <app-estado-producto
   *ngIf="mostrarModalAlternar"
   [visible]="mostrarModalAlternar"
-  [producto]="productoSeleccionado"
+  [productoEstado]="productoEstadoSeleccionado"
   (close)="cerrarModalAlternar()"
   (update)="cambiarEstado($event)"
   />

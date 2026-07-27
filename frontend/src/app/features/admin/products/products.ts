@@ -1,4 +1,4 @@
-import { AjusteRequestInterface, ProductoInterface } from './../../../services/autostore.models';
+import { AjusteRequestInterface, EstadoProductoInterface, ProductoInterface } from './../../../services/autostore.models';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import {ProductoService } from '../../../services/autostore.product-service';
@@ -29,6 +29,7 @@ export class Products implements OnInit{
   // Varaibles Producto
   productos: ProductoInterface[] = [];
   productoSeleccionado: ProductoInterface | null = null;
+  productoEstadoSeleccionado: EstadoProductoInterface | null = null;
   productoEditar: ProductoInterface = this.resetearFormulario();
 
   // Varaible para Ajustes de producto
@@ -100,11 +101,17 @@ export class Products implements OnInit{
 
   abrirModalAlternarEstado(producto: ProductoInterface) {
     this.productoSeleccionado = producto;
+    this.productoEstadoSeleccionado = {
+      id: producto.id,
+      nombre: producto.nombre,
+      activo: producto.activo ?? true,
+    };
 
     this.mostrarModalAlternar = true;
   }
 
   cerrarModalAlternar() {
+    this.productoEstadoSeleccionado = null;
     this.mostrarModalAlternar = false;
   }
 
@@ -207,19 +214,18 @@ export class Products implements OnInit{
     })
   }
 
-    cambiarEstado(producto: ProductoInterface): void {
-    if(!producto || !producto.id) return;
+  cambiarEstado(productoEstado: EstadoProductoInterface): void {
+    if(!productoEstado || !productoEstado.id) return;
 
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.actualizarEstado(producto).subscribe({
+    this.productoService.actualizarEstado(productoEstado).subscribe({
       next: (data) => {
         const index = this.productos.findIndex(p => p.id === data.id);
         if(index !== -1){
           this.productos[index] = data;
         }
-        // Mensaje dinámico según el nuevo estado
         const accion = data.activo ? 'activado' : 'desactivado';
         this.successMessage = `Producto "${data.nombre}" ${accion} con éxito.`;
         setTimeout(() => this.successMessage = null, 3000);

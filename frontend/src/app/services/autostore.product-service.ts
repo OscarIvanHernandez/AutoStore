@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { ProductoInterface, AjusteRequestInterface } from './autostore.models';
+import { ProductoInterface, AjusteRequestInterface, EstadoProductoInterface } from './autostore.models';
 
 
 @Injectable({
@@ -66,10 +66,10 @@ export class ProductoService {
   }
 
   // PATCH /api/productos/{id}/estado
-  actualizarEstado(producto: ProductoInterface): Observable<ProductoInterface> {
-    const nuevoEstado = producto.activo ?? true;
-    console.log('📡 Petición PATCH a:', `${this.apiURL}/${producto.id}/estado`, { nuevoEstado });
-    return this.http.patch<ProductoInterface>(`${this.apiURL}/${producto.id}/estado`, nuevoEstado).pipe(
+  actualizarEstado(estado: EstadoProductoInterface): Observable<ProductoInterface> {
+    const nuevoEstado = estado.activo ?? true;
+    console.log('📡 Petición PATCH a:', `${this.apiURL}/${estado.id}/estado`, { nuevoEstado });
+    return this.http.patch<ProductoInterface>(`${this.apiURL}/${estado.id}/estado`, nuevoEstado).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
