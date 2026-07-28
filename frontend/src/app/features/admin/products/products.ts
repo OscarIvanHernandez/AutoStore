@@ -91,8 +91,11 @@ export class Products implements OnInit{
   }
 
   private showErrorMessage(message: string, duration: number): void {
+    this.errorMessage = message;
+    this.cdr.detectChanges();
+
     setTimeout(() => {
-      this.errorMessage = message;
+      this.errorMessage = null;
       this.cdr.detectChanges();
     }, duration);
   }
