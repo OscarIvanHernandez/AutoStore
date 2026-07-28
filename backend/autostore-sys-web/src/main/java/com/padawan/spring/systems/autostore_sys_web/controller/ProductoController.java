@@ -5,9 +5,12 @@ import com.padawan.spring.systems.autostore_sys_web.service.ProductoService;
 import jakarta.validation.Valid;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.ProductoSpecification;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,8 +57,13 @@ public class ProductoController {
 
     // GET /api/productos/search?q=xxx --> Buscar productos
     @GetMapping("/search")
-    public List<Producto> search(@RequestParam("q") String query) {
-        return productoService.buscar(query);
+    public ResponseEntity<List<Producto>> search(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) Boolean activo) {
+        Specification<Producto> spec = ProductoSpecification.conFiltros(q, categoria, activo);
+        List<Producto> resultados = productoService.buscarConEspecificacion(spec);
+        return ResponseEntity.ok(resultados);
     }
 
     // GET /api/productos -> Crear un nuevo producto

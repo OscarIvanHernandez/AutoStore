@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -65,6 +66,10 @@ public class ProductoService {
     // Buscar por nombre, marca o categoría
     public List<Producto> buscar(String criterio) {
         return productoRepository.searchProductos(criterio);
+    }
+
+    public List<Producto> buscarConEspecificacion(Specification<Producto> spec){
+        return productoRepository.findAll(spec);
     }
 
     // Verificar si un producto tiene stock bajo (Criterio de aceptación)
