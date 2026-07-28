@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ProductoInterface, AjusteRequestInterface, EstadoProductoInterface } from './autostore.models';
@@ -36,9 +36,19 @@ export class ProductoService {
   }
 
   // GET /api/productos/search?q=..
-  buscar(query: string): Observable<ProductoInterface[]>{
-    console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params: { q:query } });
-    return this.http.get<ProductoInterface[]>(`${this.apiURL}/search`, { params: { q: query } }).pipe(
+  buscar(filtros: {q?: string; catgoria?: string; activo?: boolean}): Observable<ProductoInterface[]>{
+    let params = new HttpParams();
+    if (filtros.q) {
+      params = params.set('q', filtros.q);
+    }
+    if (filtros.catgoria) {
+      params = params.set('categoria', filtros.catgoria);
+    }
+    if (filtros.activo !== undefined && filtros.activo !== null) {
+      params = params.set('activo', filtros.activo.toString());
+    }
+    console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
+    return this.http.get<ProductoInterface[]>(`${this.apiURL}/search`, { params }).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
