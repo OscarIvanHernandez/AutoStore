@@ -26,7 +26,7 @@ export class Navbar {
       id: 'productos',
       nombre: '📦 Productos',
       ruta: 'productos',
-      placeholder: 'Ej: Motorcraft, Llanta 15, Lubricante...'
+      placeholder: 'Ej: nombre, marca, categoría'
     },
     {
       id: 'clientes',
