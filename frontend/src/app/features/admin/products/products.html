@@ -23,6 +23,14 @@
       <p>No hay productos registrados en inventario</p>
     </div>
 
+    <div class="filtros-estado">
+      <select [(ngModel)]="estadoSeleccionado" (change)="filtrarProductos()">
+        <option value="">Todos los productos</option>
+        <option value="activo">Solo Activos</option>
+        <option value="inactivo">Solo Inactivos</option>
+      </select>
+    </div>
+
     <div *ngIf="productos.length > 0" class="products-card-content">
       <table class="products-table">
         <thead>

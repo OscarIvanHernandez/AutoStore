@@ -59,9 +59,12 @@ public class ProductoController {
     @GetMapping("/search")
     public ResponseEntity<List<Producto>> search(
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) String marca,
             @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) String estado) {
-        Specification<Producto> spec = ProductoSpecification.conFiltros(q, categoria, estado);
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false, name = "activo") String activoParam) {
+        String estadoFiltro = estado != null ? estado : activoParam;
+        Specification<Producto> spec = ProductoSpecification.conFiltros(q, marca, categoria, estadoFiltro);
         List<Producto> resultados = productoService.buscarConEspecificacion(spec);
         return ResponseEntity.ok(resultados);
     }

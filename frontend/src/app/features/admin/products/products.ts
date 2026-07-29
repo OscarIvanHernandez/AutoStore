@@ -67,12 +67,18 @@ export class Products implements OnInit{
   ngOnInit(): void{
     this.route.queryParams.subscribe(params => {
       const q = params['q'];
+      const marca = params['marca'];
       const categoria = params['categoria'];
+      const estado = params['estado'];
       const activoParam = params['activo'];
       const activo = activoParam === undefined ? undefined : activoParam === 'true';
 
-      if (q || categoria || activoParam !== undefined) {
-        this.buscarProductos({ q, categoria, activo });
+      if (q || marca || categoria || estado || activoParam !== undefined) {
+        if (estado?.trim()) {
+          this.estadoSeleccionado = estado.trim();
+        }
+
+        this.buscarProductos({ q, marca, categoria, activo });
       } else {
         this.cargarProductos();
       }
@@ -166,12 +172,27 @@ export class Products implements OnInit{
   }
 
   filtrarProductos(): void{
+    if (!this.textoBusqueda && !this.estadoSeleccionado) {
+      this.cargarProductos();
+      return;
+    }
+
     this.productoService.buscar({
       q: this.textoBusqueda,
       estado: this.estadoSeleccionado,
     }).subscribe({
-      next:(data) => this.productos = data,
-      error:(err) => console.error(err)
+      next:(data) => {
+        console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
+        this.productos = data;
+        this.cdr.detectChanges();
+      },
+      error:(err) => {
+        console.error(err);
+        this.showErrorMessage(
+          'Hubo un error al filtrar los productos',
+          8000
+        )
+      }
     });
   }
 
@@ -195,7 +216,7 @@ export class Products implements OnInit{
     });
   }
 
-  private buscarProductos(filtros: { q?: string; categoria?: string; activo?: boolean }): void {
+  private buscarProductos(filtros: { q?: string; marca?: string; categoria?: string; activo?: boolean }): void {
     this.isLoading = true;
     this.productoService.buscar(filtros).subscribe({
       next: (productos) => {

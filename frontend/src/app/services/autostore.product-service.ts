@@ -36,16 +36,19 @@ export class ProductoService {
   }
 
   // GET /api/productos/search?q=..
-  buscar(filtros: {q?: string; categoria?: string; estado?: string}): Observable<ProductoInterface[]> {
+  buscar(filtros: {q?: string; marca?: string; categoria?: string; estado?: string}): Observable<ProductoInterface[]> {
     let params = new HttpParams();
     if (filtros.q) {
       params = params.set('q', filtros.q);
     }
+    if (filtros.marca) {
+      params = params.set('marca', filtros.marca)
+    }
     if (filtros.categoria) {
       params = params.set('categoria', filtros.categoria);
     }
-    if (filtros.estado !== undefined && filtros.estado !== null) {
-      params = params.set('activo', filtros.estado.toString());
+    if (filtros.estado?.trim()) {
+      params = params.set('estado', filtros.estado.trim());
     }
     console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
     return this.http.get<ProductoInterface[]>(`${this.apiURL}/search`, { params }).pipe(
