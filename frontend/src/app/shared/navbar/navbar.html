@@ -1,1 +1,23 @@
-<p>navbar works!</p>
+<div class="search-container">
+
+  <!-- 1. El selector de contexto -->
+  <select [(ngModel)]="contextoSeleccionado" class="search-select">
+    <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
+      {{ opcion.nombre }}
+    </option>
+  </select>
+
+  <!-- 2. La barra de búsqueda con el placeholder dinámico -->
+  <input
+    type="text"
+    [placeholder]="contextoSeleccionado.placeholder"
+    [(ngModel)]="terminoBusqueda"
+    (keyup.enter)="ejecutarBusqueda()"
+    class="search-input">
+
+  <!-- Botón opcional de la lupa -->
+  <button (click)="ejecutarBusqueda()" class="search-button">
+    🔍
+  </button>
+
+</div>
