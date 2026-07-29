@@ -60,8 +60,8 @@ public class ProductoController {
     public ResponseEntity<List<Producto>> search(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) Boolean activo) {
-        Specification<Producto> spec = ProductoSpecification.conFiltros(q, categoria, activo);
+            @RequestParam(required = false) String estado) {
+        Specification<Producto> spec = ProductoSpecification.conFiltros(q, categoria, estado);
         List<Producto> resultados = productoService.buscarConEspecificacion(spec);
         return ResponseEntity.ok(resultados);
     }
