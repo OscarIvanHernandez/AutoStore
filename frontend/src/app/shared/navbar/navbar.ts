@@ -46,7 +46,7 @@ export class Navbar {
 
   constructor(private router: Router){}
 
-  ejecutarBusqueda() {
+  ejecutarBusqueda(): void {
     if (this.terminoBusqueda?.trim()) {
       const ruta = this.contextoSeleccionado.ruta.startsWith('/')
         ? this.contextoSeleccionado.ruta

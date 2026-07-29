@@ -53,6 +53,11 @@ export class Products implements OnInit{
   // Alternar estado
   mostrarModalAlternar: boolean = false;
 
+  // Variables para los filtro de busqueda
+  textoBusqueda: string  = '';
+  estadoSeleccionado: string  = '';
+
+
   constructor(
     private productoService: ProductoService,
     private cdr: ChangeDetectorRef,
@@ -158,6 +163,16 @@ export class Products implements OnInit{
 
   cerrarModalStock() {
     this.mostrarModalStock = false;
+  }
+
+  filtrarProductos(): void{
+    this.productoService.buscar({
+      q: this.textoBusqueda,
+      estado: this.estadoSeleccionado,
+    }).subscribe({
+      next:(data) => this.productos = data,
+      error:(err) => console.error(err)
+    });
   }
 
   cargarProductos(): void {
