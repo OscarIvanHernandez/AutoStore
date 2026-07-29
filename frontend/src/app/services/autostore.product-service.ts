@@ -36,13 +36,13 @@ export class ProductoService {
   }
 
   // GET /api/productos/search?q=..
-  buscar(filtros: {q?: string; catgoria?: string; activo?: boolean}): Observable<ProductoInterface[]>{
+  buscar(filtros: {q?: string; categoria?: string; activo?: boolean}): Observable<ProductoInterface[]> {
     let params = new HttpParams();
     if (filtros.q) {
       params = params.set('q', filtros.q);
     }
-    if (filtros.catgoria) {
-      params = params.set('categoria', filtros.catgoria);
+    if (filtros.categoria) {
+      params = params.set('categoria', filtros.categoria);
     }
     if (filtros.activo !== undefined && filtros.activo !== null) {
       params = params.set('activo', filtros.activo.toString());

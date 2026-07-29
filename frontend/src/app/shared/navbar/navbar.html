@@ -15,6 +15,10 @@
     (keyup.enter)="ejecutarBusqueda()"
     class="search-input">
 
+  <p class="search-hint" *ngIf="contextoSeleccionado.id === 'productos'">
+    Ejemplo de búsqueda para productos: <strong>tipo: productos — nombre, marca, activo</strong>
+  </p>
+
   <!-- Botón opcional de la lupa -->
   <button (click)="ejecutarBusqueda()" class="search-button">
     🔍

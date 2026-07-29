@@ -25,7 +25,7 @@ export class Navbar {
     {
       id: 'productos',
       nombre: '📦 Productos',
-      ruta: '/productos',
+      ruta: 'productos',
       placeholder: 'Ej: Motorcraft, Llanta 15, Lubricante...'
     },
     {
@@ -48,8 +48,11 @@ export class Navbar {
 
   ejecutarBusqueda() {
     if (this.terminoBusqueda?.trim()) {
-      // Navegamos a la ruta del contexto seleccionado (ej: /productos?q=llanta)
-      this.router.navigate([this.contextoSeleccionado.ruta], {
+      const ruta = this.contextoSeleccionado.ruta.startsWith('/')
+        ? this.contextoSeleccionado.ruta
+        : `/admin/${this.contextoSeleccionado.ruta}`;
+
+      this.router.navigate([ruta], {
         queryParams: { q: this.terminoBusqueda }
       });
 

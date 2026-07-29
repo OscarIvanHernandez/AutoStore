@@ -1,5 +1,6 @@
 import { AjusteRequestInterface, EstadoProductoInterface, ProductoInterface } from './../../../services/autostore.models';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import {ProductoService } from '../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
@@ -52,10 +53,25 @@ export class Products implements OnInit{
   // Alternar estado
   mostrarModalAlternar: boolean = false;
 
-  constructor(private productoService: ProductoService, private cdr: ChangeDetectorRef){}
+  constructor(
+    private productoService: ProductoService,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
+  ){}
 
   ngOnInit(): void{
-    this.cargarProductos();
+    this.route.queryParams.subscribe(params => {
+      const q = params['q'];
+      const categoria = params['categoria'];
+      const activoParam = params['activo'];
+      const activo = activoParam === undefined ? undefined : activoParam === 'true';
+
+      if (q || categoria || activoParam !== undefined) {
+        this.buscarProductos({ q, categoria, activo });
+      } else {
+        this.cargarProductos();
+      }
+    });
   }
 
   private resetearFormulario(): ProductoInterface{
@@ -158,6 +174,26 @@ export class Products implements OnInit{
         console.error('Error al cargar productos:', error);
         this.showErrorMessage(
           `Hubo un error al cargar los horarios. (${error.status})`,
+          12000
+        );
+      }
+    });
+  }
+
+  private buscarProductos(filtros: { q?: string; categoria?: string; activo?: boolean }): void {
+    this.isLoading = true;
+    this.productoService.buscar(filtros).subscribe({
+      next: (productos) => {
+        console.log('Productos buscados:', productos);
+        this.productos = productos;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error al buscar productos:', error);
+        this.showErrorMessage(
+          `Hubo un error al buscar productos. (${error.status})`,
           12000
         );
       }
