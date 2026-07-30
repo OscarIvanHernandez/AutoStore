@@ -20,7 +20,9 @@
           class="search-input">
       </div>
 
-
+      <button class="btn-clear" *ngIf="terminoBusqueda" (click)="limpiarBusqueda()">
+        ✖
+      </button>
       <button (click)="ejecutarBusqueda()" class="search-button">
         🔍
       </button>

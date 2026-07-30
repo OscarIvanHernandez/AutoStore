@@ -62,4 +62,15 @@ export class Navbar {
       // this.terminoBusqueda = '';
     }
   }
+
+  limpiarBusqueda() {
+    this.terminoBusqueda='';
+
+    const ruta = this.contextoSeleccionado.ruta.startsWith('/')
+      ? this.contextoSeleccionado.ruta
+      : `/admin/${this.contextoSeleccionado.ruta}`;
+
+    this.router.navigate([ruta]);
+  }
+
 }
