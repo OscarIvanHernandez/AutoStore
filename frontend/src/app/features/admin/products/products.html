@@ -47,7 +47,11 @@
             <td>{{producto.categoria}}</td>
             <td>{{producto.marca}}</td>
             <td>${{producto.precioVentaMostrador}}</td>
-            <td>Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}</td>
+            <td class="stock-field">
+              <div [ngClass]="{'low-stock': producto.stockActual <= producto.stockMinimo,
+                'in-stock': producto.stockActual > producto.stockMinimo}">Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}
+              </div>
+            </td>
             <td style="text-align: end;">
               <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
               <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos">📝</button>

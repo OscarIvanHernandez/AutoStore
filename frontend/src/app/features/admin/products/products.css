@@ -56,6 +56,28 @@ th.col-6{
     text-align: end;
     border-radius: 0 24px 0 0;}
 
+.stock-field {
+  text-align: center;
+}
+
+.stock-field > div {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 12px;
+  width: fit-content;
+  min-width: 0;
+}
+
+.low-stock {
+  background-color: #d64f4fa9;
+  color: #fff;
+}
+
+.in-stock {
+  background-color: #00b40f9f;
+  color: #fff;
+}
+
 /* Si la fila tiene la clase .inactivo, se vuelve un poco transparente */
 .product-field.inactivo {
   opacity: 0.5;
