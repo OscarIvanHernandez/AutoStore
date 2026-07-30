@@ -1,23 +1,29 @@
-<div class="search-container">
+<header class="header">
 
-  <!-- 1. El selector de contexto -->
-  <select [(ngModel)]="contextoSeleccionado" class="search-select">
-    <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
-      {{ opcion.nombre }}
-    </option>
-  </select>
+  <div class="search-container">
+      <!-- 1. El selector de contexto -->
+      <div class="context-container">
+        <select [(ngModel)]="contextoSeleccionado" class="search-select">
+          <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
+            {{ opcion.nombre }}
+          </option>
+        </select>
+      </div>
 
-  <!-- 2. La barra de búsqueda con el placeholder dinámico -->
-  <input
-    type="text"
-    [placeholder]="contextoSeleccionado.placeholder"
-    [(ngModel)]="terminoBusqueda"
-    (keyup.enter)="ejecutarBusqueda()"
-    class="search-input">
+      <!-- 2. La barra de búsqueda con el placeholder dinámico -->
+      <div class="search-input">
+        <input
+          type="text"
+          [placeholder]="contextoSeleccionado.placeholder"
+          [(ngModel)]="terminoBusqueda"
+          (keyup.enter)="ejecutarBusqueda()"
+          class="search-input">
+      </div>
 
-  <!-- Botón opcional de la lupa -->
-  <button (click)="ejecutarBusqueda()" class="search-button">
-    🔍
-  </button>
 
-</div>
+      <button (click)="ejecutarBusqueda()" class="search-button">
+        🔍
+      </button>
+
+  </div>
+</header>

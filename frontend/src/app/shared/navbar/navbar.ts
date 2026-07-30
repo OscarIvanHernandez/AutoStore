@@ -13,7 +13,9 @@ interface ContextoBusqueda{
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
