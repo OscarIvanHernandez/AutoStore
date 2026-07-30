@@ -1,0 +1,12 @@
+.header {
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    grid-template-areas: "left-area right-area";
+    justify-content: center;
+    align-items: center;;
+    width: 100%;
+}
+
+.search-container{
+  grid-area: right-area;
+}

@@ -1,0 +1,31 @@
+<header class="header">
+
+  <div class="search-container">
+      <!-- 1. El selector de contexto -->
+      <div class="context-container">
+        <select [(ngModel)]="contextoSeleccionado" class="search-select">
+          <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
+            {{ opcion.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <!-- 2. La barra de búsqueda con el placeholder dinámico -->
+      <div class="search-input">
+        <input
+          type="text"
+          [placeholder]="contextoSeleccionado.placeholder"
+          [(ngModel)]="terminoBusqueda"
+          (keyup.enter)="ejecutarBusqueda()"
+          class="search-input">
+      </div>
+
+      <button class="btn-clear" *ngIf="terminoBusqueda" (click)="limpiarBusqueda()">
+        ✖
+      </button>
+      <button (click)="ejecutarBusqueda()" class="search-button">
+        🔍
+      </button>
+
+  </div>
+</header>

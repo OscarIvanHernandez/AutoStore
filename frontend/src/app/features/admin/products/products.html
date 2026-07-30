@@ -1,0 +1,98 @@
+<div class="products-content">
+
+  <div *ngIf="isLoading" class="loading-state">
+    <p class="alert-warning"> Cargando tus productos, un momemento...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <section class="products-header-content">
+      <div class="products-header-info">
+        <h1>Inventario</h1>
+        <p>{{ productos.length }} productos</p>
+      </div>
+
+      <div class="products-header-actions">
+        <button (click)="abrirModalCrearProducto()">Agregar producto</button>
+      </div>
+    </section>
+
+    <div *ngIf="successMessage" class="alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="productos.length === 0" class="empty-state">
+      <p>No hay productos registrados en inventario</p>
+    </div>
+
+    <div class="filtros-estado">
+      <select [(ngModel)]="estadoSeleccionado" (change)="filtrarProductos()">
+        <option value="">Todos los productos</option>
+        <option value="activo">Solo Activos</option>
+        <option value="inactivo">Solo Inactivos</option>
+      </select>
+    </div>
+
+    <div *ngIf="productos.length > 0" class="products-card-content">
+      <table class="products-table">
+        <thead>
+          <th class="col-1">Producto</th>
+          <th class="col-2">Categoría</th>
+          <th class="col-3">Marca</th>
+          <th class="col-4">Precio de mostrador</th>
+          <th class="col-5">Stock</th>
+          <th class="col-6">Acciones</th>
+        </thead>
+        <tbody>
+          <tr class="product-field" *ngFor="let producto of productos">
+            <td style="text-align: initial;">{{producto.nombre}}</td>
+            <td>{{producto.categoria}}</td>
+            <td>{{producto.marca}}</td>
+            <td>${{producto.precioVentaMostrador}}</td>
+            <td class="stock-field">
+              <div [ngClass]="{'low-stock': producto.stockActual <= producto.stockMinimo,
+                'in-stock': producto.stockActual > producto.stockMinimo}">Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}
+              </div>
+            </td>
+            <td style="text-align: end;">
+              <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
+              <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos">📝</button>
+              <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'">
+                {{ producto.activo ? '❌' : '🔄' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <app-agregar-producto
+    *ngIf="mostrarModal"
+    [visible]="mostrarModal"
+    (close)="cerrarModal()"
+    (save)="guardarProducto($event)"
+  />
+
+  <app-editar-producto
+  *ngIf="mostrarModalEditar"
+  [visible]="mostrarModalEditar"
+  [producto]="productoEditar"
+  (close)="cerrarModalEditar()"
+  (update)="editarProducto($event)"
+  />
+
+  <app-inventario-producto
+  *ngIf="mostrarModalStock"
+  [visible]="mostrarModalStock"
+  [producto]="productoSeleccionado"
+  (close)="cerrarModalStock()"
+  (update)="guardarAjusteStock($event.producto, $event.ajuste)"
+  />
+
+  <app-estado-producto
+  *ngIf="mostrarModalAlternar"
+  [visible]="mostrarModalAlternar"
+  [productoEstado]="productoEstadoSeleccionado"
+  (close)="cerrarModalAlternar()"
+  (update)="cambiarEstado($event)"
+  />
+</div>
