@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -67,4 +68,13 @@ public class Venta {
     @Column(nullable = false, columnDefinition = "VARCHAR(25) DEFAULT 'EFECTIVO'")
     @NotBlank(message = "El metodo de pago es obligatorio")
     private String metodoPago;
+
+    // Validación: clienteId - nullable, solo si tipoVenta = CREDITO
+    @AssertTrue(message = "El clienteId es obligatorio sí el tipo de venta es a CREDITOS")
+    public boolean isClienteIdValido(){
+        if (tipoVenta == TipoVenta.CREDITO) {
+            return clienteId != null;
+        }
+        return true;
+    }
 }
