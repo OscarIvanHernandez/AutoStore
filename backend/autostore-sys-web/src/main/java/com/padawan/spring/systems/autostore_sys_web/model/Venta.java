@@ -10,11 +10,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -51,11 +54,17 @@ public class Venta {
     @Positive(message = "El total de venta no puede ser negativo")
     private BigDecimal total;
 
-    //private Enum tipoVenta
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoVenta tipoVenta = TipoVenta.CONTADO; // Default
 
     private Long clienteId;
 
-    //private Enum estado;
-    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoVenta estado;
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(25) DEFAULT 'EFECTIVO'")
+    @NotBlank(message = "El metodo de pago es obligatorio")
     private String metodoPago;
 }
