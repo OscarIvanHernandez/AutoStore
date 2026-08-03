@@ -2,6 +2,8 @@ package com.padawan.spring.systems.autostore_sys_web.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -15,7 +17,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -69,6 +73,10 @@ public class Venta {
     @NotBlank(message = "El metodo de pago es obligatorio")
     private String metodoPago;
 
+    // Relación inversa con DetalleVenta
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true) 
+    private List<DetalleVenta> detalles = new ArrayList<>();
+
     // Validación: clienteId - nullable, solo si tipoVenta = CREDITO
     @AssertTrue(message = "El clienteId es obligatorio sí el tipo de venta es a CREDITOS")
     public boolean isClienteIdValido(){
@@ -76,5 +84,15 @@ public class Venta {
             return clienteId != null;
         }
         return true;
+    }
+
+    public void addDetalle(DetalleVenta detalle) {
+        detalle.setVenta(this);
+        detalles.add(detalle);
+    }
+
+    public void removeDetalle(DetalleVenta detalle) {
+        detalles.remove(detalle);
+        detalle.setVenta(null);
     }
 }
