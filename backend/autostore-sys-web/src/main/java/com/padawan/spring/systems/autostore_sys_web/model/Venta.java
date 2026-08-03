@@ -37,26 +37,12 @@ public class Venta {
     @GeneratedValue(strategy  = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
     private LocalDateTime fechaVenta;
 
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime fechaVentaConFiado;   // Campo Extra: Fecha sí un cliente pide fiado
-
-    @Column(precision = 19, scale = 2)
-    @NotNull(message = "El subtotal de venta es obligatorio")
-    @Positive(message = "El subtotal no puede ser negativo")
-    @Min(value = 1, message = "El subtotal de venta no puede ser 0" )
     private BigDecimal subtotal;
     
-    @Column(columnDefinition = "DECIMAL(19,2) DEFAULT 0.00")
-    @Positive(message = "El descuento no puede ser negativo")
     private BigDecimal descuento = BigDecimal.ZERO;
-    
-    @Column(columnDefinition = "DECIMAL(19,2) DEFAULT 0.00")
-    @Positive(message = "El total de venta no puede ser negativo")
+
     private BigDecimal total;
 
     @Enumerated(EnumType.STRING)
@@ -69,8 +55,7 @@ public class Venta {
     @Column(nullable = false)
     private EstadoVenta estado;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(25) DEFAULT 'EFECTIVO'")
-    @NotBlank(message = "El metodo de pago es obligatorio")
+
     private String metodoPago;
 
     // Relación inversa con DetalleVenta
