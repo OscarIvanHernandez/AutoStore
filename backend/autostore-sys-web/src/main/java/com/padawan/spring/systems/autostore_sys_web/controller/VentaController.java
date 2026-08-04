@@ -54,16 +54,16 @@ public class VentaController {
     }
 
     // GET /api/ventas/hoy[cite: 1]
-    //@GetMapping("/hoy")
-    //public ResponseEntity<List<Venta>> obtenerVentasDeHoy() {
-    //    return ResponseEntity.ok(ventaService.obtenerVentasDelDia());
-    //}
+    @GetMapping("/hoy")
+    public ResponseEntity<List<Venta>> obtenerVentasDeHoy() {
+        return ResponseEntity.ok(ventaService.obtenerVentasDelDia());
+    }
 
     // PUT /api/ventas/{id}/cancelar[cite: 1]
-    //@PutMapping("/{id}/cancelar")
-    //public ResponseEntity<Venta> cancelarVenta(@PathVariable Long id) {
-    //    return ResponseEntity.ok(ventaService.cancelarVenta(id));
-    //}
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Venta> cancelarVenta(@PathVariable Long id) {
+        return ResponseEntity.ok(ventaService.cancelarVenta(id));
+    }
     
 
 }

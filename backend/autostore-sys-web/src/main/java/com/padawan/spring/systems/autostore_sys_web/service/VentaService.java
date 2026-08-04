@@ -2,6 +2,8 @@ package com.padawan.spring.systems.autostore_sys_web.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,6 +115,49 @@ public class VentaService {
     // Obtener venta por ID
     public Optional<Venta> obtenerPorId(Long id) {
         return ventaRepository.findById(id);
+    }
+
+    // Obtener ventas del dia
+    public List<Venta> obtenerVentasDelDia() {
+        LocalDateTime inicio = LocalDate.now().atStartOfDay();
+
+        LocalDateTime fin = LocalDate.now().atTime(LocalTime.MAX);
+
+        return ventaRepository.findByFechaVentaBetween(inicio, fin);
+    }
+
+    // Cancelar una venta realizada en el dia de hoy
+    public Venta cancelarVenta( Long id) {
+        // Buscar venta y validar que no esta ya cancelada
+        Venta venta = ventaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Venta no encontrada con ID: " + id));
+        
+        if (venta.getEstado() == EstadoVenta.CANCELADA) {
+            throw new RuntimeException("La venta ya se encuentra cancelada");
+        }
+
+        // Validar que la venta haya sido realizada el dia de hoy
+        LocalDate fechaVenta = venta.getFechaVenta().toLocalDate();
+        LocalDate hoy = LocalDate.now();
+
+        if (!fechaVenta.equals(hoy)) {
+            throw new RuntimeException("Solo se pueden cancelar ventas realizadas el dia de hoy");
+        }
+
+        // Revertir stock de cada producto
+
+        for (DetalleVenta detalle: venta.getDetalles()) {
+            Producto producto = detalle.getProducto();
+
+            // Se devuelven las unidades al stock
+            producto.setStockActual(producto.getStockActual() + detalle.getCantidad());
+            productoRepository.save(producto);
+        }
+
+        // Cambiar el estado de la venta
+        venta.setEstado(EstadoVenta.CANCELADA);
+
+        return ventaRepository.save(venta);
     }
 
 }
