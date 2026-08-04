@@ -127,6 +127,7 @@ public class VentaService {
     }
 
     // Cancelar una venta realizada en el dia de hoy
+   @Transactional 
     public Venta cancelarVenta( Long id) {
         // Buscar venta y validar que no esta ya cancelada
         Venta venta = ventaRepository.findById(id)
