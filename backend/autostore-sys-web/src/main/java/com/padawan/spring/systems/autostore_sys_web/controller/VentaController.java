@@ -46,10 +46,12 @@ public class VentaController {
     }
 
     // GET /api/ventas/{id}[cite: 1]
-    //@GetMapping("/{id}")
-    //public ResponseEntity<Venta> obtenerVenta(@PathVariable Long id) {
-    //    return ResponseEntity.ok(ventaService.obtenerPorId(id));
-    //}
+    @GetMapping("/{id}")
+    public ResponseEntity<Venta> obtenerVenta(@PathVariable Long id) {
+        return ventaService.obtenerPorId(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
 
     // GET /api/ventas/hoy[cite: 1]
     //@GetMapping("/hoy")

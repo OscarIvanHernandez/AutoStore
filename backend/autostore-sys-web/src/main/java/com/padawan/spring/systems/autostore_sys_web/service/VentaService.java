@@ -3,6 +3,7 @@ package com.padawan.spring.systems.autostore_sys_web.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -107,6 +108,11 @@ public class VentaService {
     // Obtener todas las ventas realizadas
     public List<Venta> obtenerTodas() {
         return ventaRepository.findAll();
+    }
+
+    // Obtener venta por ID
+    public Optional<Venta> obtenerPorId(Long id) {
+        return ventaRepository.findById(id);
     }
 
 }
