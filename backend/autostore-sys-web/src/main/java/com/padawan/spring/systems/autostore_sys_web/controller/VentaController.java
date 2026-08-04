@@ -40,10 +40,10 @@ public class VentaController {
     }
     
     // GET /api/ventas[cite: 1]
-    //@GetMapping
-    //public ResponseEntity<List<Venta>> listarVentas() {
-    //    return ResponseEntity.ok(ventaService.obtenerTodas());
-    //}
+    @GetMapping
+    public ResponseEntity<List<Venta>> listarVentas() {
+        return ResponseEntity.ok(ventaService.obtenerTodas());
+    }
 
     // GET /api/ventas/{id}[cite: 1]
     //@GetMapping("/{id}")

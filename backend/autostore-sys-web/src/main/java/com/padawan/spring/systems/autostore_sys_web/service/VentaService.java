@@ -104,4 +104,9 @@ public class VentaService {
         return ventaRepository.save(venta);
     }
 
+    // Obtener todas las ventas realizadas
+    public List<Venta> obtenerTodas() {
+        return ventaRepository.findAll();
+    }
+
 }
