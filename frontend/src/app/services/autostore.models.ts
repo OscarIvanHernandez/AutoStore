@@ -25,3 +25,25 @@ export interface EstadoProductoInterface {
   nombre: string;
   activo: boolean;
 }
+
+export interface ItemCarrito {
+  productoId: number,
+  nombre: string,
+  cantidad: number,
+  precioTipo: 'MOSTRADOR' | 'TALLER';
+  precioUnitario: number,
+  subTotal: number,
+  stockMaximo: number;
+
+}
+
+export interface VentaRequest {
+  productos: {
+    id: number,
+    cantidad: number;
+    precioTipo: 'MOSTRADOR' | 'TALLER';
+  }[],
+  descuento: number,
+  tipoVenta: 'CONTADO' | 'CREDITO'
+  clienteId?: number;
+}
