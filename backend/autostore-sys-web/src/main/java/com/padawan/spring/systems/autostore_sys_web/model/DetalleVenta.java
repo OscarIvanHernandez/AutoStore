@@ -29,21 +29,20 @@ public class DetalleVenta {
     private Long id;
     
     @ManyToOne(optional = false)
-    @JoinColumn(name = "venta_id", nullable = false)
+    @JoinColumn(name = "venta_id")
     private Venta venta;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "producto_id", nullable = false)
+    @JoinColumn(name = "producto_id")
     private Producto producto;
     
-    @Column(nullable = false)
-    @Positive(message = "La cantidad no puede ser negativa")
+
     private Integer cantidad;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+
     private BigDecimal precioUnitario;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+
     private BigDecimal subtotal;
 
     @PrePersist
