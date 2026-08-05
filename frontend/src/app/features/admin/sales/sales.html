@@ -1,4 +1,4 @@
-<div class="pos-container flex gap-4 p-4">
+<div class="sales-container">
 
   <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->
   <div class="w-2/3">
@@ -21,6 +21,20 @@
           <span class="font-bold">${{ prod.precioMostrador }} — Stock: {{ prod.stock }}</span>
         </li>
       </ul>
+      <div class="products-card-content">
+        <table>
+          <thead class="search-products-header">
+            <td>
+              <input
+              type="text"
+              placeholder="🔍 Buscar por nombre o marca para agregar..."
+              [(ngModel)]="busquedaTexto"
+              (input)="BuscarProducto()"
+              class="w-full p-2 border rounded">
+            </td>
+          </thead>
+        </table>
+      </div>
     </div>
 
     <!-- Tabla del Carrito -->

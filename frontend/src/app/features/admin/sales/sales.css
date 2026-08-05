@@ -1,0 +1,8 @@
+.sales-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "left-area right-area";
+    justify-content: center;
+    align-items: center;;
+    width: 100%;
+}
