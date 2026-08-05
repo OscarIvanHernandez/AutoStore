@@ -45,5 +45,5 @@ export interface VentaRequest {
   }[],
   descuento: number,
   tipoVenta: 'CONTADO' | 'CREDITO'
-  clienteId?: number;
+  clienteId?: number | null;
 }
