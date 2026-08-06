@@ -1,8 +1,8 @@
 <div class="sales-container">
 
   <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->
-  <div class="w-2/3">
-    <!-- Buscador de Productos -->
+  <div class="left-container">
+    <!-- Buscador de Productos
     <div class="search-box relative">
       <input
         type="text"
@@ -11,7 +11,7 @@
         (input)="BuscarProducto()"
         class="w-full p-2 border rounded">
 
-      <!-- Resultados desplegables -->
+      Resultados desplegables
       <ul *ngIf="productosEncontrados.length > 0" class="absolute bg-white border w-full shadow-lg z-10">
         <li
           *ngFor="let prod of productosEncontrados"
@@ -21,23 +21,50 @@
           <span class="font-bold">${{ prod.precioMostrador }} — Stock: {{ prod.stock }}</span>
         </li>
       </ul>
-      <div class="products-card-content">
-        <table>
-          <thead class="search-products-header">
-            <td>
-              <input
-              type="text"
-              placeholder="🔍 Buscar por nombre o marca para agregar..."
-              [(ngModel)]="busquedaTexto"
-              (input)="BuscarProducto()"
-              class="w-full p-2 border rounded">
-            </td>
-          </thead>
-        </table>
-      </div>
     </div>
+    -->
+    <div class="products-card-content">
+      <div class="search-container">
+        <input
+          type="text"
+          placeholder="🔍 Buscar por nombre o marca para agregar..."
+          [(ngModel)]="busquedaTexto"
+          (input)="BuscarProducto()"
+          class="w-full p-2 border rounded">
+      </div>
+      <table>
+        <thead>
+        </thead>
+        <tbody *ngIf="productosEncontrados.length > 0">
+          <tr class="product-field" *ngFor="let producto of productosEncontrados">
+            <td class="icon-product"></td>
+            <td class="nombre-product">{{producto.nombre}}</td>
+            <td class="marca-product">{{producto.marca}}</td>
+            <td class="categoria-product">{{producto.categoria}}</td>
+            <td class="precio-product">{{producto.precioVentaMostrador}}</td>
+            <td class="stock-product">{{producto.stockActual}}</td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="!busquedaTexto">
+          <tr class="product-field" *ngFor="let producto of productos">
+            <td class="icon-product"></td>
+            <td class="nombre-product">{{producto.nombre}}</td>
+            <td class="marca-categoria">
+              <div>
+                <span>{{producto.marca}}</span>
+                <span>{{producto.categoria}}</span>
+              </div>
+            </td>
+            <td class="precio-product">{{producto.precioVentaMostrador}}</td>
+            <td class="stock-product">{{producto.stockActual}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <!-- Tabla del Carrito -->
+  <!-- COLUMNA DERECHA: Resumen y Cobro -->
+  <div class="right-container">
     <table class="w-full mt-4 border-collapse border">
       <thead>
         <tr class="bg-gray-200">
@@ -73,10 +100,7 @@
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <!-- COLUMNA DERECHA: Resumen y Cobro -->
-  <div class="w-1/3 bg-gray-50 p-4 border rounded">
     <h3 class="text-xl font-bold mb-4">Resumen de Venta</h3>
 
     <div class="mb-4">

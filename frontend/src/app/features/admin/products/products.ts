@@ -198,7 +198,7 @@ export class Products implements OnInit{
 
   cargarProductos(): void {
     this.isLoading = true;
-    this.productoService.getProductosActivos().subscribe({
+    this.productoService.getProductos().subscribe({
       next: (productos) => {
         console.log('Productos cargados:', productos);
         this.productos = productos;

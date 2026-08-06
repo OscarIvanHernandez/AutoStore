@@ -14,11 +14,20 @@ export class ProductoService {
 
   constructor(private http: HttpClient){}
 
-
   // GET /api/productos
-  getProductosActivos(): Observable<ProductoInterface[]> {
+  getProductos(): Observable<ProductoInterface[]> {
   console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<ProductoInterface[]>(this.apiURL).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
+      })
+    );
+  }
+
+  // GET /api/productos/activos
+  getProductosActivos(): Observable<ProductoInterface[]> {
+  console.log('📡 Petición GET a:', this.apiURL);
+    return this.http.get<ProductoInterface[]>(`${this.apiURL}/activos`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
