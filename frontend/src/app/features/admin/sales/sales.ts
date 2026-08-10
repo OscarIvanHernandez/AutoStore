@@ -166,15 +166,17 @@ export class Sales implements OnInit {
     }
     const procesarVenta: VentaRequest = {
       productos: this.carrito.map(item => ({
-        id: item.productoId,
+        productoId: item.productoId,
         cantidad: item.cantidad,
         precioTipo: item.precioTipo
       })),
       descuento: this.descuento,
       tipoVenta: this.tipoVenta,
-      clienteId: this.tipoVenta === 'CREDITO' ? this.clienteIdSeleccionado : null
+      ...(this.tipoVenta === 'CREDITO' && this.clienteIdSeleccionado !== null
+        ? { clienteId: this.clienteIdSeleccionado }
+        : {})
     };
-
+    console.log('PAYLOAD A ENVIAR:', procesarVenta);
     this.ventaService.crearVenta(procesarVenta).subscribe({
       next: (ventaCreada) => {
         alert('Venta Procesada con éxito');

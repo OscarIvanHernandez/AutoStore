@@ -9,9 +9,15 @@ public class ProductoVentaDTO {
     private Integer cantidad;
     private String precioTipo; // "MOSTRADOR" o "TALLER"
 
-    public Long getProductoId() {
+    public Long getId() {
         return this.id;
     }
+
+    public void setId(Long value) {
+        this.id = value;
+    }
+
+
 
     public Integer getCantidad() {
         return this.cantidad;
@@ -21,9 +27,6 @@ public class ProductoVentaDTO {
         return this.precioTipo;
     }
 
-    public void setProductoId(Long value) {
-        this.id = value;
-    }
 
     public void setCantidad(Integer value) {
         this.cantidad = value;

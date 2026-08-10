@@ -6,7 +6,7 @@
 .sales-main {
   display: flex;
   flex-direction: column;
-  height: 100vh;           /* o 100% si está dentro de otro contenedor */
+  height: 100%;           /* o 100% si está dentro de otro contenedor */
   overflow: hidden;        /* evita desborde global */
 }
 
@@ -75,7 +75,7 @@
   padding: 10px 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 20px;
   box-sizing: border-box;
 }
 

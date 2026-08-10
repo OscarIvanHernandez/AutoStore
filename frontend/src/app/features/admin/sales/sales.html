@@ -9,28 +9,8 @@
   </section>
   <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->
   <div class="sales-container">
-    <div class="left-container">
-      <!-- Buscador de Productos
-      <div class="search-box relative">
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre o marca para agregar..."
-          [(ngModel)]="busquedaTexto"
-          (input)="BuscarProducto()"
-          class="w-full p-2 border rounded">
 
-        Resultados desplegables
-        <ul *ngIf="productosEncontrados.length > 0" class="absolute bg-white border w-full shadow-lg z-10">
-          <li
-            *ngFor="let prod of productosEncontrados"
-            (click)="agregarAlCarrito(prod)"
-            class="p-2 hover:bg-gray-100 cursor-pointer flex justify-between">
-            <span>{{ prod.nombre }} ({{ prod.marca }})</span>
-            <span class="font-bold">${{ prod.precioMostrador }} — Stock: {{ prod.stock }}</span>
-          </li>
-        </ul>
-      </div>
-      -->
+    <div class="left-container">
       <div class="products-card-content">
         <div class="search-container">
           <input

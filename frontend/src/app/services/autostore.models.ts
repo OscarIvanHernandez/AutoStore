@@ -39,7 +39,7 @@ export interface ItemCarrito {
 
 export interface VentaRequest {
   productos: {
-    id: number,
+    productoId: number,
     cantidad: number;
     precioTipo: 'MOSTRADOR' | 'TALLER';
   }[],
