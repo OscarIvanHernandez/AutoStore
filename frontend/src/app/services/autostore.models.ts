@@ -61,7 +61,7 @@ export interface DetalleVentaResponse {
   }
 }
 
-export interface Venta {
+export interface VentaInterface {
   id: number;
   fechaVenta: string;
   subtotal: number;

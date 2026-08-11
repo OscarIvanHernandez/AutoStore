@@ -1,1 +1,45 @@
-<p>sales-history works!</p>
+<table class="w-full border-collapse">
+  <thead>
+    <tr>
+      <th>Folio</th>
+      <th>Fecha</th>
+      <th>Tipo</th>
+      <th>Total</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let venta of listaVentas">
+      <td>#{{ venta.id }}</td>
+      <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ venta.tipoVenta }}</td>
+      <td>${{ venta.total }}</td>
+      <td>
+        <span [class.text-green-600]="venta.estado === 'COMPLETADA'"
+              [class.text-red-600]="venta.estado === 'CANCELADA'">
+          {{ venta.estado }}
+        </span>
+      </td>
+      <td>
+        <!-- Botón para ver el desglose de detalles -->
+        <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal o Sección de Detalle de la Venta Seleccionada -->
+<div *ngIf="ventaSeleccionada" class="modal-detalle">
+  <h3>Detalle de Venta #{{ ventaSeleccionada.id }}</h3>
+
+  <ul>
+    <li *ngFor="let det of ventaSeleccionada.detalles">
+      {{ det.cantidad }}x {{ det.producto.nombre }}
+      — Price: ${{ det.precioUnitario }}
+      — Subtotal: ${{ det.subtotal }}
+    </li>
+  </ul>
+
+  <p><strong>Total: ${{ ventaSeleccionada.total }}</strong></p>
+</div>
