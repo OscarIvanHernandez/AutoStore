@@ -47,3 +47,29 @@ export interface VentaRequest {
   tipoVenta: 'CONTADO' | 'CREDITO'
   clienteId?: number | null;
 }
+
+export interface DetalleVentaResponse {
+  id: number,
+  cantidad: number,
+  precioUNitario: number,
+  subtotal: number,
+  producto: {
+    id: number,
+    nombre: string,
+    marca?: string,
+    categoria?: string;
+  }
+}
+
+export interface Venta {
+  id: number;
+  fechaVenta: string;
+  subtotal: number;
+  descuento: number;
+  total: number;
+  tipoVenta: 'CONTADO' | 'CREDITO';
+  clienteId?: number | null;
+  estado: 'COMPLETADA' | 'CANCELADA';
+  metodoPago: string;
+  detalles: DetalleVentaResponse[];
+}
