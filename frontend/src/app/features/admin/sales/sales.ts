@@ -16,7 +16,6 @@ export class Sales implements OnInit {
   // Obetener los productos
     productos: ProductoInterface[] = [];
 
-
   successMessage: string | null = null;
   errorMessage: string | null = null;
 
