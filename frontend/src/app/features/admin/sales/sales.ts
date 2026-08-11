@@ -4,11 +4,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/autostore.models';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './sales.html',
   styleUrls: ['./sales.css'],
 })

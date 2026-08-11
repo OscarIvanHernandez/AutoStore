@@ -10,7 +10,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let venta of listaVentas">
+    <tr *ngFor="let venta of ventas">
       <td>#{{ venta.id }}</td>
       <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
       <td>{{ venta.tipoVenta }}</td>
@@ -22,8 +22,9 @@
         </span>
       </td>
       <td>
-        <!-- Botón para ver el desglose de detalles -->
+        <!-- Botón para ver el desglose de detalles
         <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
+        -->
       </td>
     </tr>
   </tbody>
@@ -33,12 +34,13 @@
 <div *ngIf="ventaSeleccionada" class="modal-detalle">
   <h3>Detalle de Venta #{{ ventaSeleccionada.id }}</h3>
 
-  <ul>
+  <ul><!--
     <li *ngFor="let det of ventaSeleccionada.detalles">
       {{ det.cantidad }}x {{ det.producto.nombre }}
       — Price: ${{ det.precioUnitario }}
       — Subtotal: ${{ det.subtotal }}
     </li>
+    -->
   </ul>
 
   <p><strong>Total: ${{ ventaSeleccionada.total }}</strong></p>

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -30,6 +32,7 @@ public class DetalleVenta {
     
     @ManyToOne(optional = false)
     @JoinColumn(name = "venta_id")
+    @JsonBackReference // Indica que esta referencia NO se vuelve a serializar
     private Venta venta;
 
     @ManyToOne(optional = false)

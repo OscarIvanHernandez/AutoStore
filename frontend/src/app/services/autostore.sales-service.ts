@@ -22,9 +22,9 @@ export class SaleService {
     );
   }
 
-  obtenerVentas(): Observable<VentaInterface> {
+  obtenerVentas(): Observable<VentaInterface[]> {
     console.log('📡 Petición GET a:', this.apiURL);
-    return this.http.get<VentaInterface>(`${this.apiURL}`).pipe(
+    return this.http.get<VentaInterface[]>(`${this.apiURL}`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Venta-Service:', response);
       })
