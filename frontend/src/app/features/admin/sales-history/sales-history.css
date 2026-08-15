@@ -16,6 +16,9 @@
 
 }
 
+/*
+  Contenido izquierdo
+*/
 .history-container {
   flex: 1;
   display: grid;
@@ -30,11 +33,14 @@
 .history-card-content {
   flex: 1;
   display: grid;
-  padding: 0 1.5rem;
+  grid-area: left-area;
+  padding-left: 1.5rem;
 
 }
 
-.history-card-content table {
+/*Mismo formato para ambas tablas*/
+.history-card-content table,
+.details-card-content table {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -43,7 +49,6 @@
   border-collapse: collapse;
   background: #ffffff;
   margin-bottom: 1.5rem;
-  margin-right: 1.5rem;
   font-size: 15px;
 }
 
@@ -58,8 +63,11 @@
   overflow-y: auto;
 }
 
+/*Mismo formato para ambas tablas*/
 .history-card-content thead tr,
-.history-card-content tbody tr {
+.history-card-content tbody tr,
+.details-card-content thead tr,
+.details-card-content tbody tr {
   border: 1px solid #c3c3c3a3;
   display: inline-table;
   width: 100%;
@@ -67,11 +75,23 @@
 }
 
 
-
+/*Mismo formato para ambas tablas*/
 .history-card-content thead th,
-.history-card-content tbody td {
+.history-card-content tbody td,
+.details-card-content thead th,
+.details-card-content tbody td {
   width: 20%;
   text-align: center;
   padding: 12px;
+}
+
+/*
+  Contenido derecho
+*/
+.details-card-content {
+  flex: 1;
+  display: grid;
+  grid-area: right-area;
+  padding-right: 1.5rem;
 }
 

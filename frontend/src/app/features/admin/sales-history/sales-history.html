@@ -16,7 +16,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let venta of ventas">
+            <tr *ngFor="let venta of ventas" (click)="verDetallesVenta(venta)">
               <td style="text-align: initial;">#{{ venta.id }}</td>
               <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ venta.tipoVenta }}</td>
@@ -44,27 +44,22 @@
             <tr>
               <th>Detalles de la venta</th>
             </tr>
+            <tr *ngIf="ventaSeleccionada">
+              <th>
+                Folio: #{{ventaSeleccionada.id}}
+              </th>
+            </tr>
           </thead>
-          <tbody>
-
+          <tbody *ngIf="ventaSeleccionada">
+            <tr class="detail-field" *ngFor="let det of ventaSeleccionada.detalles">
+              <td class="det-cantidad">{{det.cantidad}}</td>
+              <td class="det-producto">{{det.producto.nombre}} - {{det.producto.marca}}</td>
+              <td class="det-precioUnitario">̣Precio: ${{det.precioUnitario}}</td>
+              <td class="det-subtotal">Subtotal: ${{det.subtotal}}</td>
+            </tr>
           </tbody>
         </table>
       </div>
   </div>
 </div>
 
-<!-- Modal o Sección de Detalle de la Venta Seleccionada -->
-<div *ngIf="ventaSeleccionada" class="modal-detalle">
-  <h3>Detalle de Venta #{{ ventaSeleccionada.id }}</h3>
-
-  <ul><!--
-    <li *ngFor="let det of ventaSeleccionada.detalles">
-      {{ det.cantidad }}x {{ det.producto.nombre }}
-      — Price: ${{ det.precioUnitario }}
-      — Subtotal: ${{ det.subtotal }}
-    </li>
-    -->
-  </ul>
-
-  <p><strong>Total: ${{ ventaSeleccionada.total }}</strong></p>
-</div>

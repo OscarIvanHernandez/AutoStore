@@ -73,4 +73,8 @@ export class SalesHistory implements OnInit{
       }
     });
   }
+
+  verDetallesVenta(venta: any): void {
+    this.ventaSeleccionada = venta;
+  }
 }

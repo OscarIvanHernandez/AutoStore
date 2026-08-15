@@ -51,7 +51,7 @@ export interface VentaRequest {
 export interface DetalleVentaResponse {
   id: number,
   cantidad: number,
-  precioUNitario: number,
+  precioUnitario: number,
   subtotal: number,
   producto: {
     id: number,
