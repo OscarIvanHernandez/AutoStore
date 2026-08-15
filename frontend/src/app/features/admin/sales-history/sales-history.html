@@ -42,20 +42,26 @@
         <table>
           <thead>
             <tr>
-              <th>Detalles de la venta</th>
+              <th style="text-align: initial;">Detalles de la venta</th>
             </tr>
             <tr *ngIf="ventaSeleccionada">
-              <th>
+              <th style="text-align: initial;">
                 Folio: #{{ventaSeleccionada.id}}
               </th>
+            </tr>
+            <tr>
+              <th>Cantidad</th>
+              <th>Producto</th>
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
             </tr>
           </thead>
           <tbody *ngIf="ventaSeleccionada">
             <tr class="detail-field" *ngFor="let det of ventaSeleccionada.detalles">
               <td class="det-cantidad">{{det.cantidad}}</td>
               <td class="det-producto">{{det.producto.nombre}} - {{det.producto.marca}}</td>
-              <td class="det-precioUnitario">̣Precio: ${{det.precioUnitario}}</td>
-              <td class="det-subtotal">Subtotal: ${{det.subtotal}}</td>
+              <td class="det-precioUnitario">̣${{det.precioUnitario}}</td>
+              <td class="det-subtotal">${{det.subtotal}}</td>
             </tr>
           </tbody>
         </table>
