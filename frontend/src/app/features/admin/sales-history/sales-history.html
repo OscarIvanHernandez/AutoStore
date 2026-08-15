@@ -1,34 +1,57 @@
-<table class="w-full border-collapse">
-  <thead>
-    <tr>
-      <th>Folio</th>
-      <th>Fecha</th>
-      <th>Tipo</th>
-      <th>Total</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let venta of ventas">
-      <td>#{{ venta.id }}</td>
-      <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td>{{ venta.tipoVenta }}</td>
-      <td>${{ venta.total }}</td>
-      <td>
-        <span [class.text-green-600]="venta.estado === 'COMPLETADA'"
-              [class.text-red-600]="venta.estado === 'CANCELADA'">
-          {{ venta.estado }}
-        </span>
-      </td>
-      <td>
-        <!-- Botón para ver el desglose de detalles
-        <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
-        -->
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="history-main">
+  <div class="info-page">
+    <h1>Historial de ventas</h1>
+  </div>
+
+  <div class="history-container">
+      <div class="history-card-content">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th style="text-align: initial;">Folio</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Total</th>
+              <th style="text-align: end;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let venta of ventas">
+              <td style="text-align: initial;">#{{ venta.id }}</td>
+              <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ venta.tipoVenta }}</td>
+              <td>${{ venta.total }}</td>
+              <td style="text-align: end;">
+                <span [class.text-green-600]="venta.estado === 'COMPLETADA'"
+                      [class.text-red-600]="venta.estado === 'CANCELADA'">
+                  {{ venta.estado }}
+                </span>
+              </td>
+              <!--
+              <td>
+                Botón para ver el desglose de detalles
+                <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
+
+              </td>-->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="details-card-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Detalles de la venta</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
+  </div>
+</div>
 
 <!-- Modal o Sección de Detalle de la Venta Seleccionada -->
 <div *ngIf="ventaSeleccionada" class="modal-detalle">
