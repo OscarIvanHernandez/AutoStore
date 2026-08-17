@@ -54,6 +54,13 @@ export class SalesHistory implements OnInit{
     }, duration);
   }
 
+  esVentaDeHoy(fecha: string): boolean {
+    if (!fecha) return false;
+    const fechaVenta = new Date(fecha).toISOString().split('T')[0];
+    const hoy = new Date().toISOString().split('T')[0];
+    return fechaVenta === hoy;
+  }
+
   cargarVentas(): void {
     this.isLoading = true;
     this.saleService.obtenerVentas().subscribe({
@@ -76,5 +83,27 @@ export class SalesHistory implements OnInit{
 
   verDetallesVenta(venta: any): void {
     this.ventaSeleccionada = venta;
+  }
+
+  cancelarVenta(venta: any): void {
+    if(!confirm(`¿Estaás seguro de cancelar la venta #${venta.id}? EL stock será devuelto.`)) {
+      return;
+    }
+
+    this.saleService.cancelarVenta(venta.id).subscribe({
+      next: (update) => {
+        this.showSuccesMessage(
+          'Venta cancelada correctamente. Stock devuelto',
+          2500
+        );
+        this.cargarVentas();
+      }, error: (err) => {
+        this.showErrorMessage(
+          'Hubo un error al cancelar la venta. Operación cancelada',
+          2500
+        );
+        this.cargarVentas();
+      }
+    });
   }
 }
