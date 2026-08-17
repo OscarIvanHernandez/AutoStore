@@ -100,7 +100,7 @@ export class ProductoService {
 
   // DELETE /api/productos/{id}
   eliminar(id: number): Observable<void> {
-    console.log('📡 Petición POST a:', `${this.apiURL}/${id}`);
+    console.log('📡 Petición DELETE a:', `${this.apiURL}/${id}`);
     return this.http.delete<void>( `${this.apiURL}/${id}`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
