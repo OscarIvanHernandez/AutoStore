@@ -66,8 +66,8 @@ public class VentaService {
         //    - Crear el DetalleVenta calculando cantidad * precioUnitario[cite: 1].
         for (ProductoVentaDTO item: request.getProductos()){
             // Buscar productos en BD
-            Producto producto = productoRepository.findById(item.getProductoId())
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + item.getProductoId()));
+            Producto producto = productoRepository.findById(item.getId())
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + item.getId()));
 
             // Validar stock disponible
             if (producto.getStockActual() < item.getCantidad()) {
@@ -127,7 +127,7 @@ public class VentaService {
     }
 
     // Cancelar una venta realizada en el dia de hoy
-   @Transactional 
+    @Transactional 
     public Venta cancelarVenta( Long id) {
         // Buscar venta y validar que no esta ya cancelada
         Venta venta = ventaRepository.findById(id)
