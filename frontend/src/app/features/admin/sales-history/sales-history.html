@@ -64,6 +64,25 @@
               <td class="det-subtotal">${{det.subtotal}}</td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr class="info-client">
+
+            </tr>
+            <tr class="actions">
+              <div>
+                <button
+                *ngIf="ventaSeleccionada?.estado !== 'CANCELADA' && esVentaDeHoy(ventaSeleccionada.fechaVenta)"
+                (click)="cancelarVenta(venta)"
+                class="btn btn-danger btn-sm">
+                Cancelar Venta
+              </button>
+
+              <span *ngIf="venta.estado === 'CANCELADA'" class="badge bg-secondary">
+                CANCELADA
+              </span>
+              </div>
+            </tr>
+          </tfoot>
         </table>
       </div>
   </div>
