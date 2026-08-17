@@ -69,18 +69,21 @@
 
             </tr>
             <tr class="actions">
-              <div>
-                <button
-                *ngIf="ventaSeleccionada?.estado !== 'CANCELADA' && esVentaDeHoy(ventaSeleccionada.fechaVenta)"
-                (click)="cancelarVenta(venta)"
-                class="btn btn-danger btn-sm">
-                Cancelar Venta
-              </button>
+              <td>
+                <span>Acciones</span>
+                <div>
+                  <button
+                  *ngIf="ventaSeleccionada.estado !== 'CANCELADA' && esVentaDeHoy(ventaSeleccionada.fechaVenta)"
+                  (click)="cancelarVenta(ventaSeleccionada)"
+                  class="btn btn-danger btn-sm">
+                  Cancelar Venta
+                  </button>
 
-              <span *ngIf="venta.estado === 'CANCELADA'" class="badge bg-secondary">
-                CANCELADA
-              </span>
-              </div>
+                  <span *ngIf="ventaSeleccionada.estado === 'CANCELADA'" class="badge bg-secondary">
+                    CANCELADA
+                  </span>
+                </div>
+              </td>
             </tr>
           </tfoot>
         </table>

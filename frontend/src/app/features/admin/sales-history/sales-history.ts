@@ -1,3 +1,4 @@
+import { DetalleVentaResponse } from './../../../services/autostore.models';
 import { SaleService } from './../../../services/autostore.sales-service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
@@ -15,7 +16,7 @@ import { VentaInterface } from '../../../services/autostore.models';
 export class SalesHistory implements OnInit{
   //Obtener las ventas
   ventas: VentaInterface[] = [];
-  ventaSeleccionada: VentaInterface | null = null;
+  ventaSeleccionada: VentaInterface = this.ventaAuxForm();
 
   // Variable para la carga de los datos
   isLoading: boolean = true;
@@ -32,6 +33,21 @@ export class SalesHistory implements OnInit{
 
   ngOnInit(): void {
     this.cargarVentas();
+  }
+
+  private ventaAuxForm(): VentaInterface{
+    return{
+        id: 0,
+        fechaVenta: '',
+        subtotal: 0,
+        descuento: 0,
+        total: 0,
+        tipoVenta: 'CONTADO',
+        clienteId: null,
+        estado: 'COMPLETADA',
+        metodoPago: '',
+        detalles: []
+    };
   }
 
   private showSuccesMessage(message: string, duration: number): void {
