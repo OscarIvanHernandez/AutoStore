@@ -39,12 +39,12 @@ export interface ItemCarrito {
 
 export interface VentaRequest {
   productos: {
-    productoId: number,
+    id: number;
     cantidad: number;
     precioTipo: 'MOSTRADOR' | 'TALLER';
-  }[],
-  descuento: number,
-  tipoVenta: 'CONTADO' | 'CREDITO'
+  }[];
+  descuento: number;
+  tipoVenta: 'CONTADO' | 'CREDITO';
   clienteId?: number | null;
 }
 

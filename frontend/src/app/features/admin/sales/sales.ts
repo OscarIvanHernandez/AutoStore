@@ -50,21 +50,21 @@ export class Sales implements OnInit {
 
   private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
   private showErrorMessage(message: string, duration: number): void {
     this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
@@ -75,9 +75,7 @@ export class Sales implements OnInit {
         console.log('Productos cargados:', productos);
         this.productos = productos;
         this.isLoading = false;
-        setTimeout(() =>{
-          this.cdr.detectChanges();
-        }, 1500);
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.isLoading = false;
@@ -166,7 +164,7 @@ export class Sales implements OnInit {
     }
     const procesarVenta: VentaRequest = {
       productos: this.carrito.map(item => ({
-        productoId: item.productoId,
+        id: item.productoId,
         cantidad: item.cantidad,
         precioTipo: item.precioTipo
       })),
@@ -182,6 +180,9 @@ export class Sales implements OnInit {
         alert('Venta Procesada con éxito');
         this.carrito = [];
         this.descuento = 0;
+        this.tipoVenta = 'CONTADO';
+        this.clienteIdSeleccionado = null;
+        this.recalcularTotales();
       },
       error: (err) => alert('Error al procesar la venta: ' + err.error?.message)
     });
