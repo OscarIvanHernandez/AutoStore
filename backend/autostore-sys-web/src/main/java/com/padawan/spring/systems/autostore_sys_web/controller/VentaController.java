@@ -78,7 +78,9 @@ public class VentaController {
             @RequestParam(required = false) Integer anio,
             @RequestParam(required = false) String q) {
 
-        return ResponseEntity.ok(ventaService.buscarVentas(clienteId, mes, anio, q));
+        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
+        List<Venta> resultados = ventaService.buscarConEspecificacion(spec);
+        return ResponseEntity.ok(resultados);
     }
 
     // GET /api/ventas/meses-disponibles

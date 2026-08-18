@@ -129,7 +129,9 @@ public class VentaService {
         return ventaRepository.findByFechaVentaBetween(inicio, fin);
     }
 
-    // Agrega estos métodos dentro de VentaService.java
+    public List<Venta> buscarConEspecificacion(Specification<Venta> spec){
+        return ventaRepository.findAll(spec);
+    }
 
     public List<Venta> buscarVentas(Long clienteId, Integer mes, Integer anio, String q) {
         Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
