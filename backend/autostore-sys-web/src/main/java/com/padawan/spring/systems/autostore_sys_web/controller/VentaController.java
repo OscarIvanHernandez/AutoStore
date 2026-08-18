@@ -1,19 +1,24 @@
 package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
 import com.padawan.spring.systems.autostore_sys_web.service.VentaService;
 
 import jakarta.validation.Valid;
@@ -63,6 +68,23 @@ public class VentaController {
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Venta> cancelarVenta(@PathVariable Long id) {
         return ResponseEntity.ok(ventaService.cancelarVenta(id));
+    }
+
+    // GET /api/ventas/search
+    @GetMapping("/search")
+    public ResponseEntity<List<Venta>> buscarVentas(
+            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) Integer mes,
+            @RequestParam(required = false) Integer anio,
+            @RequestParam(required = false) String q) {
+
+        return ResponseEntity.ok(ventaService.buscarVentas(clienteId, mes, anio, q));
+    }
+
+    // GET /api/ventas/meses-disponibles
+    @GetMapping("/meses-disponibles")
+    public ResponseEntity<List<Map<String, Integer>>> obtenerMesesDisponibles() {
+        return ResponseEntity.ok(ventaService.obtenerMesesDisponibles());
     }
     
 

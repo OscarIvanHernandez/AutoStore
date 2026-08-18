@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
@@ -20,6 +22,7 @@ import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.repository.DetalleVentaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
 
 import jakarta.transaction.Transactional;
 
@@ -124,6 +127,21 @@ public class VentaService {
         LocalDateTime fin = LocalDate.now().atTime(LocalTime.MAX);
 
         return ventaRepository.findByFechaVentaBetween(inicio, fin);
+    }
+
+    // Agrega estos métodos dentro de VentaService.java
+
+    public List<Venta> buscarVentas(Long clienteId, Integer mes, Integer anio, String q) {
+        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
+        return ventaRepository.findAll(spec);
+    }
+
+    public List<Map<String, Integer>> obtenerMesesDisponibles() {
+        List<Object[]> resultados = ventaRepository.findMesesConVentas();
+        return resultados.stream().map(row -> Map.of(
+            "anio", (Integer) row[0],
+            "mes", (Integer) row[1]
+        )).toList();
     }
 
     // Cancelar una venta realizada en el dia de hoy
