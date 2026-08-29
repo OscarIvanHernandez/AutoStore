@@ -134,3 +134,37 @@
     </div>
   </div>
 </div>
+
+<div class="modal-overlay" *ngIf="mostrarModalCobro">
+  <div class="modal-card">
+    <h2>Pago</h2>
+
+    <div class="mb-4">
+      <label for="efectivoRecibido">Efectivo recibido</label>
+      <input
+        id="efectivoRecibido"
+        type="number"
+        min="0"
+        step="0.01"
+        [(ngModel)]="efectivoRecibido"
+        class="w-full p-2 border rounded">
+    </div>
+
+    <div class="mb-4" *ngIf="tipoVenta === 'CONTADO'">
+      <p>Cambio estimado: <strong>${{ cambio }}</strong></p>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" (click)="mostrarModalCobro = false" class="btn-secondary">Cancelar</button>
+      <button type="button" (click)="confirmarVenta()" class="btn-primary">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<app-sale-ticket
+  [visible]="mostrarModalTicket"
+  [venta]="ventaRealizada"
+  [efectivoRecibido]="efectivoRecibido"
+  (close)="cerrarModalTicket()"
+  (nuevaVenta)="limpiarYReiniciarPOS()">
+</app-sale-ticket>

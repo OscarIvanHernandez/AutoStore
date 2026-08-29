@@ -12,6 +12,7 @@ public class VentaRequestDTO {
     private BigDecimal descuento;
     private String tipoVenta; // "CONTADO" o "CREDITO"
     private Long clienteId;   // Opcional
+    private BigDecimal efectivoRecibido;
 
     public List<ProductoVentaDTO> getProductos() {
         return this.productos;
@@ -29,6 +30,10 @@ public class VentaRequestDTO {
         return this.clienteId;
     }
 
+    public BigDecimal getEfectivoRecibido() {
+        return this.efectivoRecibido;
+    }
+
     public void setProductos(List<ProductoVentaDTO> values) {
         this.productos = values;
     }
@@ -43,6 +48,10 @@ public class VentaRequestDTO {
 
     public void setClienteId(Long value) {
         this.clienteId = value;
+    }
+
+    public void setEfectivoRecibido(BigDecimal value) {
+        this.efectivoRecibido = value;
     }
 
 }

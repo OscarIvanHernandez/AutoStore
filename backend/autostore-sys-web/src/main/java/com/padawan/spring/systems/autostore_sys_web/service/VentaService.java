@@ -104,8 +104,20 @@ public class VentaService {
         venta.setSubtotal(subtotalGeneral);
 
         BigDecimal totalFinal = subtotalGeneral.subtract(descuento);
+        totalFinal = totalFinal.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : totalFinal;
+        venta.setTotal(totalFinal);
 
-        venta.setTotal(totalFinal.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : totalFinal);
+        if (tipoVenta == TipoVenta.CONTADO) {
+            BigDecimal efectivoRecibido = request.getEfectivoRecibido() != null ? request.getEfectivoRecibido() : totalFinal;
+            if (efectivoRecibido.compareTo(totalFinal) < 0) {
+                throw new IllegalArgumentException("El efectivo recibido debe ser mayor o igual al total de la venta");
+            }
+            venta.setEfectivoRecibido(efectivoRecibido);
+            venta.setCambio(efectivoRecibido.subtract(totalFinal));
+        } else {
+            venta.setEfectivoRecibido(BigDecimal.ZERO);
+            venta.setCambio(BigDecimal.ZERO);
+        }
 
         return ventaRepository.save(venta);
     }

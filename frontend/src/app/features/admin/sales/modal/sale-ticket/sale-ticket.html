@@ -1,25 +1,47 @@
-<div id="ticket-impresion" class="ticket-container" *ngIf="venta">
-  <div class="text-center">
-    <h3>AutoStore POS</h3>
-    <p>Fecha: {{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
-    <p>Folio: #{{ venta.id }}</p>
-  </div>
-  <hr>
-  <div *ngFor="let item of venta.detalles">
-    <div>{{ item.cantidad }}x {{ item.producto.nombre }}</div>
-    <div class="d-flex justify-content-between">
-      <span>${{ item.precioUnitario }} c/u</span>
-      <span>${{ item.subtotal }}</span>
+<div class="modal-overlay" *ngIf="visible && venta">
+  <div class="modal-card">
+
+    <div class="ticket-header">
+      <h2>🎉 ¡Venta Exitosa!</h2>
+      <p>Folio: #{{ venta.id }}</p>
     </div>
-  </div>
-  <hr>
-  <div><strong>Total: ${{ venta.total }}</strong></div>
-  <div>Efectivo: ${{ efectivoRecibido }}</div>
-  <div>Cambio: ${{ efectivoRecibido - venta.total }}</div>
-  <hr>
-  <div class="text-center">
-    <p>¡Gracias por su compra!</p>
+
+    <!-- Resumen de cambio rápido para el cajero -->
+    <div class="cambio-box" *ngIf="venta.tipoVenta === 'CONTADO'">
+      <span>Efectivo recibido:</span>
+      <strong>${{ efectivoRecibido }}</strong>
+      <br>
+      <span>Cambio a entregar:</span>
+      <strong>${{ cambio }}</strong>
+    </div>
+
+    <!-- VISTA DEL TICKET (Imprimible) -->
+    <div id="ticket-impresion" class="ticket-body">
+      <div class="text-center">
+        <h3>AutoStore POS</h3>
+        <p>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p>Folio: #{{ venta.id }}</p>
+      </div>
+      <hr>
+      <div *ngFor="let item of venta.detalles" class="item-row">
+        <div>{{ item.cantidad }}x {{ item.producto.nombre }}</div>
+        <div class="item-subtotal">
+          <span>${{ item.precioUnitario }} c/u</span>
+          <span>${{ item.subtotal }}</span>
+        </div>
+      </div>
+      <hr>
+      <div class="total-row">
+        <strong>TOTAL:</strong>
+        <strong>${{ venta.total }}</strong>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="modal-actions">
+      <button class="btn-print" (click)="imprimir()">🖨️ Imprimir Ticket</button>
+      <button class="btn-new" (click)="iniciarNuevaVenta()">➕ Nueva Venta</button>
+    </div>
+
   </div>
 </div>
-
-<button class="btn btn-primary" (click)="imprimir()">Imprimir Ticket</button>

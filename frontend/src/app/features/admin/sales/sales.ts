@@ -5,11 +5,12 @@ import { ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/
 import { SaleService } from '../../../services/autostore.sales-service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SaleTicket],
   templateUrl: './sales.html',
   styleUrls: ['./sales.css'],
 })
@@ -42,6 +43,7 @@ export class Sales implements OnInit {
   pasoModal: 'COBRO' | 'EXITO' ='COBRO';
   efectivoRecibido: number = 0;
   ventaRealizada: any = null;
+  mostrarModalTicket: boolean = false;
 
   constructor(
     private productoService: ProductoService,
@@ -73,6 +75,17 @@ export class Sales implements OnInit {
       this.cdr.markForCheck();
     }, duration);
   }
+
+  abrirModalCobro(): void {
+    this.successMessage = null;
+    this.errorMessage = null;
+    this.mostrarModalCobro = true;
+  }
+
+  cerrarModalCobro(): void {
+    this.mostrarModalCobro = false;
+  }
+
 
   cargarProductos(): void {
     this.isLoading = true;
@@ -159,9 +172,82 @@ export class Sales implements OnInit {
     const total = this.subtotalGeneral - this.descuento;
     this.totalFinal = total > 0 ? total : 0;
   }
+  // 1. Abre el modal y valida requerimientos previos
+  get cambio() {
+    return this.efectivoRecibido - this.totalFinal;
+  }
+
+  procesarVenta(): void {
+    if (this.carrito.length === 0) return;
+
+    if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
+      alert("Debe seleccionar un cliente para ventas a crédito.");
+      return;
+    }
+
+    this.efectivoRecibido = this.tipoVenta === 'CONTADO' ? this.totalFinal : 0;
+    this.ventaRealizada = null;
+    this.mostrarModalCobro = true;
+  }
+
+  confirmarVenta(): void {
+    if (this.tipoVenta === 'CONTADO' && this.efectivoRecibido < this.totalFinal) {
+      alert('El efectivo recibido debe cubrir el total de la venta.');
+      return;
+    }
+
+    const payload: VentaRequest = {
+      productos: this.carrito.map(item => ({
+        id: item.productoId,
+        cantidad: item.cantidad,
+        precioTipo: item.precioTipo
+      })),
+      descuento: this.descuento,
+      tipoVenta: this.tipoVenta,
+      ...(this.tipoVenta === 'CONTADO'
+        ? { efectivoRecibido: Number(this.efectivoRecibido) }
+        : {}),
+      ...(this.tipoVenta === 'CREDITO' && this.clienteIdSeleccionado !== null
+        ? { clienteId: this.clienteIdSeleccionado }
+        : {})
+    };
+
+    this.isLoading = true;
+    this.ventaService.crearVenta(payload).subscribe({
+      next: (ventaCreada) => {
+        this.isLoading = false;
+        this.ventaRealizada = ventaCreada;
+        this.mostrarModalCobro = false;
+        this.mostrarModalTicket = true;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        alert('Error al procesar la venta: ' + (err.error?.mensaje || err.error?.message || 'Error desconocido'));
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  cerrarModalTicket(): void {
+    this.mostrarModalTicket = false;
+    this.ventaRealizada = null;
+  }
+
+  limpiarYReiniciarPOS(): void {
+    this.carrito = [];
+    this.descuento = 0;
+    this.tipoVenta = 'CONTADO';
+    this.clienteIdSeleccionado = null;
+    this.efectivoRecibido = 0;
+    this.ventaRealizada = null;
+    this.mostrarModalCobro = false;
+    this.mostrarModalTicket = false;
+    this.recalcularTotales();
+  }
 
   // Enviar la venta
-  procesarVenta(): void {
+  /**procesarVenta(): void {
     if (this.carrito.length === 0) return;
 
     if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
@@ -192,6 +278,6 @@ export class Sales implements OnInit {
       },
       error: (err) => alert('Error al procesar la venta: ' + err.error?.message)
     });
-  }
+  }**/
 
 }

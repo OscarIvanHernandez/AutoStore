@@ -46,6 +46,7 @@ export interface VentaRequest {
   descuento: number;
   tipoVenta: 'CONTADO' | 'CREDITO';
   clienteId?: number | null;
+  efectivoRecibido?: number | null;
 }
 
 export interface DetalleVentaResponse {
@@ -67,6 +68,8 @@ export interface VentaInterface {
   subtotal: number;
   descuento: number;
   total: number;
+  efectivoRecibido?: number | null;
+  cambio?: number | null;
   tipoVenta: 'CONTADO' | 'CREDITO';
   clienteId?: number | null;
   estado: 'COMPLETADA' | 'CANCELADA';

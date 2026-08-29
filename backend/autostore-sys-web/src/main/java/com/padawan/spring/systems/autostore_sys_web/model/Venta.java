@@ -47,6 +47,10 @@ public class Venta {
 
     private BigDecimal total;
 
+    private BigDecimal efectivoRecibido;
+
+    private BigDecimal cambio;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoVenta tipoVenta = TipoVenta.CONTADO; // Default

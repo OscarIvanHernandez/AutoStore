@@ -19,4 +19,11 @@ describe('SaleTicket', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should calculate the change from the effective cash received', () => {
+    component.venta = { id: 15, total: 320, tipoVenta: 'CONTADO' };
+    component.efectivoRecibido = 500;
+
+    expect(component.cambio).toBe(180);
+  });
 });
