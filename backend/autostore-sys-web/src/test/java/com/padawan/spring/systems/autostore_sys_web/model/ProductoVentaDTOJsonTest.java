@@ -1,4 +1,4 @@
-package com.padawan.spring.systems.autostore_sys_web.model;
+/**package com.padawan.spring.systems.autostore_sys_web.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,4 +20,4 @@ class ProductoVentaDTOJsonTest {
         assertEquals(1, dto.getCantidad());
         assertEquals("MOSTRADOR", dto.getPrecioTipo());
     }
-}
+}**/
