@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
 })
 export class Sales implements OnInit {
   // Obetener los productos
-    productos: ProductoInterface[] = [];
+  productos: ProductoInterface[] = [];
 
   successMessage: string | null = null;
   errorMessage: string | null = null;
@@ -36,6 +36,12 @@ export class Sales implements OnInit {
   tipoVenta: 'CONTADO' | 'CREDITO' = 'CONTADO';
   clienteIdSeleccionado: number | null = null;
   descuento: number = 0;
+
+  // Opciones procesar venta
+  mostrarModalCobro: boolean = false;
+  pasoModal: 'COBRO' | 'EXITO' ='COBRO';
+  efectivoRecibido: number = 0;
+  ventaRealizada: any = null;
 
   constructor(
     private productoService: ProductoService,

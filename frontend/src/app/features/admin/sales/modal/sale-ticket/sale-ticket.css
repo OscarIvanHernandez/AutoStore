@@ -1,0 +1,23 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #ticket-impresion, #ticket-impresion * {
+    visibility: visible;
+  }
+  #ticket-impresion {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* Ancho estándar de ticketera */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+  }
+}
+
+.ticket-container {
+  width: 280px;
+  padding: 10px;
+  border: 1px dashed #ccc;
+  font-family: 'Courier New', Courier, monospace;
+}

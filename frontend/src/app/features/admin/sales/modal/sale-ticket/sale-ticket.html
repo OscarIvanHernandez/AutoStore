@@ -1,1 +1,25 @@
-<p>sale-ticket works!</p>
+<div id="ticket-impresion" class="ticket-container" *ngIf="venta">
+  <div class="text-center">
+    <h3>AutoStore POS</h3>
+    <p>Fecha: {{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+    <p>Folio: #{{ venta.id }}</p>
+  </div>
+  <hr>
+  <div *ngFor="let item of venta.detalles">
+    <div>{{ item.cantidad }}x {{ item.producto.nombre }}</div>
+    <div class="d-flex justify-content-between">
+      <span>${{ item.precioUnitario }} c/u</span>
+      <span>${{ item.subtotal }}</span>
+    </div>
+  </div>
+  <hr>
+  <div><strong>Total: ${{ venta.total }}</strong></div>
+  <div>Efectivo: ${{ efectivoRecibido }}</div>
+  <div>Cambio: ${{ efectivoRecibido - venta.total }}</div>
+  <hr>
+  <div class="text-center">
+    <p>¡Gracias por su compra!</p>
+  </div>
+</div>
+
+<button class="btn btn-primary" (click)="imprimir()">Imprimir Ticket</button>
