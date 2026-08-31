@@ -76,3 +76,12 @@ export interface VentaInterface {
   metodoPago: string;
   detalles: DetalleVentaResponse[];
 }
+
+export interface EstadoCaja {
+  id?: number;
+  abierta: boolean;
+  fechaApertura?: string;
+  efectivoInicial?: number;
+  ventasEfectivo?: number;
+  efectivoEsperado?: number;
+}
