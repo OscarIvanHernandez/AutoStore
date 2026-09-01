@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.CorteCaja;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoCajaDTO;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.repository.CorteCajaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
-
-import lombok.var;
 
 @Service
 public class CajaService {
@@ -41,7 +41,11 @@ public class CajaService {
         }
 
         CorteCaja caja = cajaOpt.get();
-        BigDecimal ventasEfectivo = ventaRepository.sumarVentasContadoDesde(caja.getFechaApertura());
+        BigDecimal ventasEfectivo = ventaRepository.sumarVentasContadoDesde(
+            EstadoVenta.COMPLETADA,
+            TipoVenta.CONTADO,
+            caja.getFechaApertura()
+        );
         BigDecimal esperado = caja.getEfectivoInicial().add(ventasEfectivo);
 
         dto.setId(caja.getId());
@@ -58,7 +62,11 @@ public class CajaService {
         CorteCaja caja = corteCajaRepository.findByActivoTrue().
         orElseThrow(() -> new RuntimeException("No hay ninguna caja abierta para cerrar."));
         
-        BigDecimal ventasEfectivo = ventaRepository.sumarVentasContadoDesde(caja.getFechaApertura());
+        BigDecimal ventasEfectivo = ventaRepository.sumarVentasContadoDesde(
+            EstadoVenta.COMPLETADA,
+            TipoVenta.CONTADO,
+            caja.getFechaApertura()
+        );
         BigDecimal esperado = caja.getEfectivoInicial().add(ventasEfectivo);
         BigDecimal diferencia = efectivoReal.subtract(esperado);
 
