@@ -85,3 +85,15 @@ export interface EstadoCaja {
   ventasEfectivo?: number;
   efectivoEsperado?: number;
 }
+
+export interface CorteCaja {
+  id: number;
+  fechaApertura: string;
+  fechaCierre?: string | null;
+  efectivoInicial: number;
+  efectivoEsperado?: number | null;
+  efectivoReal?: number | null;
+  diferencia?: number | null;
+  activo: boolean;
+  usuario?: string; // Usuario sí se devuelve la relación
+}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { EstadoCaja } from './autostore.models';
+import { EstadoCaja, CorteCaja } from './autostore.models';
 import { response } from 'express';
 
 @Injectable({
@@ -34,6 +34,15 @@ export class CajaService {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post(`${this.apiURL}/cierre`, { efectivoReal }).pipe(
       tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/');
+      })
+    );
+  }
+
+  obtenerHistorialCaja(): Observable<CorteCaja[]> {
+    console.log('📡 Petición GET a:', this.apiURL);
+    return this.http.get<CorteCaja[]>(`${this.apiURL}/historial`).pipe(
+      tap(responde => {
         console.log('📊 Respuesta recibida en AutoStore/');
       })
     );
