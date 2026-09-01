@@ -13,6 +13,9 @@
       <button *ngIf="cajaAbierta" (click)="mostrarModalCierre = true" class="btn btn-warning">
         🔒 Corte de Caja
       </button>
+      <button *ngIf="!cajaAbierta" type="button" (click)="abrirModalApertura()" class="btn btn-primary">
+        Abrir caja
+      </button>
     </div>
   </section>
   <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->

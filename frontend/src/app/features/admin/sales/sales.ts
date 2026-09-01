@@ -114,8 +114,12 @@ export class Sales implements OnInit {
     });
   }
 
-    confirmarApertura(): void {
+  confirmarApertura(): void {
     this.onAbrirCaja(this.efectivoInicialInput);
+  }
+
+  abrirModalApertura(): void {
+    this.mostrarModalApertura = true;
   }
 
   confirmarCierre(): void {
@@ -127,6 +131,9 @@ export class Sales implements OnInit {
       next: () => {
         this.mostrarModalApertura = false;
         this.verificarEstadoCaja();
+      },
+      error: () => {
+        this.mostrarModalApertura = true;
       }
     });
   }
