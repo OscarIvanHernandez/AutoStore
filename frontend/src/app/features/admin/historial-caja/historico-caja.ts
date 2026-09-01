@@ -55,14 +55,14 @@ export class HistoricoCaja implements OnInit {
       },1500);
       this.cdr.markForCheck();
     },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al cargar el historico:', error);
-        this.showErrorMessage(
-          `Hubo un error al cargar el historico. (${error.status})`,
-          12000
-        );
-      }
+    error: (error) => {
+      this.isLoading = false;
+      console.error('Error al cargar el historico:', error);
+      this.showErrorMessage(
+        `Hubo un error al cargar el historico. (${error.status})`,
+        12000
+      );
+    }
   });
   }
 }
