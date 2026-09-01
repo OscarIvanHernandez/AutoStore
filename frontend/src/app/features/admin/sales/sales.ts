@@ -1,16 +1,18 @@
+import { CajaService } from './../../../services/autostore.caja-service';
 import { ProductoService } from './../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/autostore.models';
+import { EstadoCaja, ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/autostore.models';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Caja } from './modal/caja/caja';
 import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SaleTicket],
+  imports: [CommonModule, FormsModule, RouterLink, Caja, SaleTicket],
   templateUrl: './sales.html',
   styleUrls: ['./sales.css'],
 })
@@ -45,14 +47,26 @@ export class Sales implements OnInit {
   ventaRealizada: any = null;
   mostrarModalTicket: boolean = false;
 
+  // Propiedades de estado de caja
+  cajaAbierta: boolean = false;
+  datosCaja: EstadoCaja | null = null;
+  mostrarModalApertura: boolean = false;
+  mostrarModalCierre: boolean = false;
+
+  // Variables de formularios de caja
+  efectivoInicialInput: number = 0;
+  efectivoRealInput: number = 0;
+
   constructor(
     private productoService: ProductoService,
     private ventaService: SaleService,
+    private cajaService: CajaService,
     private cdr: ChangeDetectorRef
 
   ) {}
 
   ngOnInit(): void {
+    this.verificarEstadoCaja();
     this.cargarProductos();
   }
 
@@ -84,6 +98,46 @@ export class Sales implements OnInit {
 
   cerrarModalCobro(): void {
     this.mostrarModalCobro = false;
+  }
+
+  verificarEstadoCaja(): void {
+  this.cajaService.obtenerEstado().subscribe({
+      next: (estado) => {
+        this.datosCaja = estado;
+        this.cajaAbierta = estado.abierta;
+        if (!this.cajaAbierta) {
+          this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
+        } else {
+          this.cargarProductos();
+        }
+      }
+    });
+  }
+
+    confirmarApertura(): void {
+    this.onAbrirCaja(this.efectivoInicialInput);
+  }
+
+  confirmarCierre(): void {
+    this.onCerrarCaja(this.efectivoRealInput);
+  }
+
+  onAbrirCaja(efectivoInicial: number): void {
+    this.cajaService.abrirCaja(efectivoInicial).subscribe({
+      next: () => {
+        this.mostrarModalApertura = false;
+        this.verificarEstadoCaja();
+      }
+    });
+  }
+
+  onCerrarCaja(efectivoReal: number): void {
+    this.cajaService.cerrarCaja(efectivoReal).subscribe({
+      next: () => {
+        this.mostrarModalCierre = false;
+        this.verificarEstadoCaja();
+      }
+    });
   }
 
 

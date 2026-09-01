@@ -1,0 +1,27 @@
+<div class="modal-overlay" *ngIf="visible">
+  <div class="modal-card">
+    <ng-container *ngIf="tipo === 'apertura'">
+      <h2>⚠️ Apertura de Caja Requerida</h2>
+      <p>Ingrese el dinero base (fondo de caja) para iniciar a vender.</p>
+      <input type="number" [(ngModel)]="efectivoInicial" placeholder="Ej. 500.00" min="0">
+      <div class="modal-actions">
+        <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
+        <button type="button" (click)="confirmarApertura()" [disabled]="efectivoInicial < 0">
+          Abrir Caja
+        </button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="tipo === 'cierre'">
+      <h2>🔒 Corte de Caja</h2>
+      <p>Ingrese el efectivo real en caja para cerrar la jornada.</p>
+      <input type="number" [(ngModel)]="efectivoReal" placeholder="Ej. 1200.00" min="0">
+      <div class="modal-actions">
+        <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
+        <button type="button" (click)="confirmarCierre()" [disabled]="efectivoReal < 0">
+          Confirmar cierre
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>

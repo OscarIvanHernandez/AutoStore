@@ -4,7 +4,12 @@
       <h1>Punto de venta</h1>
     </div>
     <div class="info-right">
-
+      <span *ngIf="cajaAbierta" class="badge bg-success">
+        🟢 Caja Abierta (Inicial: ${{ datosCaja?.efectivoInicial }})
+      </span>
+      <button *ngIf="cajaAbierta" (click)="mostrarModalCierre = true" class="btn btn-warning">
+        🔒 Corte de Caja
+      </button>
     </div>
   </section>
   <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->
@@ -160,6 +165,22 @@
     </div>
   </div>
 </div>
+
+<app-caja
+  [visible]="mostrarModalApertura"
+  tipo="apertura"
+  [efectivoInicial]="efectivoInicialInput"
+  (close)="mostrarModalApertura = false"
+  (confirmApertura)="onAbrirCaja($event)">
+</app-caja>
+
+<app-caja
+  [visible]="mostrarModalCierre"
+  tipo="cierre"
+  [efectivoReal]="efectivoRealInput"
+  (close)="mostrarModalCierre = false"
+  (confirmCierre)="onCerrarCaja($event)">
+</app-caja>
 
 <app-sale-ticket
   [visible]="mostrarModalTicket"
