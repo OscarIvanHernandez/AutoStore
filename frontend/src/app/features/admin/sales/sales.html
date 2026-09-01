@@ -5,7 +5,10 @@
     </div>
     <div class="info-right">
       <span *ngIf="cajaAbierta" class="badge bg-success">
-        🟢 Caja Abierta (Inicial: ${{ datosCaja?.efectivoInicial }})
+        🟢 Caja Abierta (Base: ${{ datosCaja?.efectivoInicial ?? 0 }})
+      </span>
+      <span *ngIf="cajaAbierta" class="badge bg-info">
+        💵 Efectivo esperado: ${{ datosCaja?.efectivoEsperado ?? 0 }}
       </span>
       <button *ngIf="cajaAbierta" (click)="mostrarModalCierre = true" class="btn btn-warning">
         🔒 Corte de Caja

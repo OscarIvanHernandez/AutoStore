@@ -273,6 +273,7 @@ export class Sales implements OnInit {
         this.ventaRealizada = ventaCreada;
         this.mostrarModalCobro = false;
         this.mostrarModalTicket = true;
+        this.verificarEstadoCaja();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -297,6 +298,7 @@ export class Sales implements OnInit {
     this.ventaRealizada = null;
     this.mostrarModalCobro = false;
     this.mostrarModalTicket = false;
+    this.verificarEstadoCaja();
     this.recalcularTotales();
   }
 
