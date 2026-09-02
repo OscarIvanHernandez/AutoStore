@@ -4,7 +4,7 @@ import { Dashboard } from './features/admin/dashboard/dashboard';
 import { Products } from './features/admin/products/products';
 import { Sales } from './features/admin/sales/sales';
 import { SalesHistory } from './features/admin/sales-history/sales-history';
-import { HistoricoCaja } from './features/admin/historial-caja/historico-caja';
+import { HistoricoCaja } from './features/admin/historico-caja/historico-caja';
 
 export const routes: Routes = [
   // Espacio para rutas publicas
