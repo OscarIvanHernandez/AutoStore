@@ -1,1 +1,51 @@
-<p>historial-caja works!</p>
+<div class="historical-main">
+    <section class="info-historical">
+      <div class="info-left">
+        <h1>Historico de Caja</h1>
+      </div>
+      <div class="info-right">
+
+      </div>
+  </section>
+    <div class="sales-container">
+
+    <div class="left-container">
+      <div class="products-card-content">
+        <div class="search-container">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Fecha de apertura</th>
+              <th>Fecha de cierre</th>
+              <th>Efectivo inicial</th>
+              <th>Efectivo esperado</th>
+              <th>Efectivo real</th>
+              <th>Diferencia</th>
+              <th>Activo</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="historico.length > 0">
+            <tr class="product-field" *ngFor="let elem of historico">
+              <td>{{elem.id}}</td>
+              <td>{{elem.fechaApertura}}</td>
+              <td>{{elem.fechaCierre}}</td>
+              <td>{{elem.efectivoInicial}}</td>
+              <td>{{elem.efectivoEsperado}}</td>
+              <td>{{elem.efectivoReal}}</td>
+              <td>{{elem.diferencia}}</td>
+              <td>{{elem.activo}}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <button routerLink="/admin/ventas/historial">Historial de ventas</button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+</div>

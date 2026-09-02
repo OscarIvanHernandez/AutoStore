@@ -2,15 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CajaService } from '../../../services/autostore.caja-service';
 import { CorteCaja } from '../../../services/autostore.models';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-historico-caja',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './historico-caja.html',
   styleUrl: './historico-caja.css',
 })
 export class HistoricoCaja implements OnInit {
-  historial: CorteCaja[] = [];
+  historico: CorteCaja[] = [];
 
   isLoading: boolean = false;
 
@@ -49,10 +51,9 @@ export class HistoricoCaja implements OnInit {
   cargarHistorial(): void{
     this.cajaService.obtenerHistorialCaja().subscribe({
     next: (data) => {
-      setTimeout(() => {
-        this.historial = data;
+        this.historico = data;
         this.isLoading = false
-      },1500);
+        setTimeout(()=>{},2000);
       this.cdr.markForCheck();
     },
     error: (error) => {
