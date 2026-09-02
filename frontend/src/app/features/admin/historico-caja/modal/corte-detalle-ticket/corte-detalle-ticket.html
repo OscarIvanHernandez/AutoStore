@@ -1,0 +1,40 @@
+<div class="modal-backdrop" *ngIf="visible && corte">
+  <div class="modal-content">
+    <div id="corte-print-zone" class="ticket-body">
+      <div class="text-center">
+        <h3>AutoStore POS</h3>
+        <h4>RESUMEN DE CORTE DE CAJA</h4>
+        <p>Folio Corte: #{{ corte.id }}</p>
+      </div>
+      <hr>
+      <p><strong>Apertura:</strong> {{ corte.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><strong>Cierre:</strong> {{ corte.fechaCierre | date:'dd/MM/yyyy HH:mm' }}</p>
+      <hr>
+      <div class="row">
+        <span>Fondo Inicial:</span>
+        <span>${{ corte.efectivoInicial | number:'1.2-2' }}</span>
+      </div>
+      <div class="row">
+        <span>Efectivo Esperado:</span>
+        <span>${{ corte.efectivoEsperado | number:'1.2-2' }}</span>
+      </div>
+      <div class="row">
+        <span>Efectivo Real (Contado):</span>
+        <span>${{ corte.efectivoReal | number:'1.2-2' }}</span>
+      </div>
+      <hr>
+      <div class="row total">
+        <strong>Diferencia:</strong>
+        <strong [style.color]="(corte.diferencia || 0) >= 0 ? 'green' : 'red'">
+          ${{ corte.diferencia | number:'1.2-2' }}
+        </strong>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="imprimir()">🖨️ Imprimir Resumen</button>
+      <button (click)="cerrar()">Cerrar</button>
+    </div>
+  </div>
+
+</div>

@@ -7,8 +7,7 @@
 
       </div>
   </section>
-    <div class="sales-container">
-
+  <div class="sales-container">
     <div class="left-container">
       <div class="products-card-content">
         <div class="search-container">
@@ -48,4 +47,14 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <app-corte-detalle-ticket
+  *ngIf="mostrarCorteDetalle"
+  [visible]="mostrarCorteDetalle"
+  [corte]="corteSeleccionado"
+  (close)="cerrarModalCorteDetalle()"
+  ()
+  />
 </div>
+

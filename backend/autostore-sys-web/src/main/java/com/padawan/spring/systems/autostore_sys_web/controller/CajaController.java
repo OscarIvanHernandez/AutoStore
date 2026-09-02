@@ -1,12 +1,15 @@
 package com.padawan.spring.systems.autostore_sys_web.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.padawan.spring.systems.autostore_sys_web.model.AperturaCajaDTO;
@@ -43,5 +46,19 @@ public class CajaController {
     @GetMapping("/historial")
     public ResponseEntity<List<CorteCaja>> obtenerHistorial() {
         return ResponseEntity.ok(cajaService.obtenerHistorial());
+    }
+
+    @GetMapping("/historial/filtrar")
+    public ResponseEntity<List<CorteCaja>> buscarPorFechas(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+        List<CorteCaja> historial = cajaService.obtenerHistorial();
+        List<CorteCaja> filtrado = historial.stream()
+                .filter(corte -> corte != null
+                        && corte.getFechaApertura() != null
+                        && !corte.getFechaApertura().isBefore(inicio)
+                        && !corte.getFechaApertura().isAfter(fin))
+                .toList();
+        return ResponseEntity.ok(filtrado);
     }
 }

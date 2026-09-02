@@ -1,5 +1,6 @@
 package com.padawan.spring.systems.autostore_sys_web.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,4 +12,9 @@ public interface CorteCajaRepository extends JpaRepository<CorteCaja, Long> {
     Optional<CorteCaja> findByActivoTrue();
     boolean existsByActivoTrue();
     List<CorteCaja> findAllByOrderByFechaAperturaDesc();
+
+    List<CorteCaja> findByFechaAperturaBetweenOrderByFechaAperturaDesc(
+    LocalDateTime inicio, 
+    LocalDateTime fin
+    );
 }

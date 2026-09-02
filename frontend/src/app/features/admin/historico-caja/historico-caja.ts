@@ -3,11 +3,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CajaService } from '../../../services/autostore.caja-service';
 import { CorteCaja } from '../../../services/autostore.models';
 import { FormsModule } from '@angular/forms';
+import { CorteDetalleTicket } from './modal/corte-detalle-ticket/corte-detalle-ticket';
 
 @Component({
   selector: 'app-historico-caja',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CorteDetalleTicket],
   templateUrl: './historico-caja.html',
   styleUrl: './historico-caja.css',
 })
@@ -20,6 +21,9 @@ export class HistoricoCaja implements OnInit {
   fechaFin: string = '';
 
   isLoading: boolean = false;
+
+  mostrarCorteDetalle: boolean = false;
+  cerrarCorteDetalle: boolean = false;
 
   successMessage: string | null = null;
   errorMessage: string | null = null;
@@ -53,6 +57,15 @@ export class HistoricoCaja implements OnInit {
     }, duration);
   }
 
+  abrirCorteDetalle(corteDetalle: CorteCaja): void {
+    this.corteSeleccionado = corteDetalle;
+    this.mostrarCorteDetalle = true;
+  }
+
+  cerrarModalCorteDetalle(): void {
+    this.mostrarCorteDetalle = false;
+  }
+
   cargarHistorial(): void{
     this.cajaService.obtenerHistorialCaja().subscribe({
     next: (data) => {
@@ -70,5 +83,34 @@ export class HistoricoCaja implements OnInit {
       );
     }
   });
+  }
+
+  filtrarPorFechas(): void {
+    if (!this.fechaInicio || !this.fechaFin) return;
+    this.isLoading = true;
+    this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).subscribe({
+      next: (data) => {
+        this.historico = data;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al filtrar cortes:', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  limpiarFiltros(): void {
+    this.fechaInicio = '';
+    this.fechaFin = '';
+    this.cargarHistorial();
+  }
+
+  verTicket(corte: CorteCaja): void {
+    this.corteSeleccionado = corte;
+  }
+
+  cerrarModal(): void {
+    this.corteSeleccionado = null;
   }
 }

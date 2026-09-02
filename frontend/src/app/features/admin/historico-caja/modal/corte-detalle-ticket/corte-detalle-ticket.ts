@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CorteCaja } from '../../../../../services/autostore.models';
 
 @Component({
-  selector: 'app-corte-caja',
+  selector: 'app-corte-detalle-ticket',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './corte-caja.html',
-  styleUrl: './corte-caja.css',
+  templateUrl: './corte-detalle-ticket.html',
+  styleUrl: './corte-detalle-ticket.css',
 })
-export class CorteCaja {
+export class CorteDetalleTicket {
   @Input() visible: boolean = false;
   @Input() corte: CorteCaja | null = null;
   @Output() close = new EventEmitter<void>();

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { EstadoCaja, CorteCaja } from './autostore.models';
 import { response } from 'express';
@@ -16,7 +16,7 @@ export class CajaService {
     console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<EstadoCaja>(`${this.apiURL}/estado-actual`).pipe(
       tap(responde => {
-        console.log('📊 Respuesta recibida en AutoStore/');
+        console.log('📊 Respuesta recibida en AutoStore/  estado-actual');
       })
     );
   }
@@ -25,7 +25,7 @@ export class CajaService {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post(`${this.apiURL}/apertura`, { efectivoInicial }).pipe(
       tap(responde => {
-        console.log('📊 Respuesta recibida en AutoStore/');
+        console.log('📊 Respuesta recibida en AutoStore/  apertura');
       })
     );
   }
@@ -34,7 +34,7 @@ export class CajaService {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post(`${this.apiURL}/cierre`, { efectivoReal }).pipe(
       tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/');
+        console.log('📊 Respuesta recibida en AutoStore/  cierre');
       })
     );
   }
@@ -43,7 +43,18 @@ export class CajaService {
     console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<CorteCaja[]>(`${this.apiURL}/historial`).pipe(
       tap(responde => {
-        console.log('📊 Respuesta recibida en AutoStore/');
+        console.log('📊 Respuesta recibida en AutoStore/  historial/');
+      })
+    );
+  }
+
+  buscarHistorialPorFechas(inicio: string, fin: string): Observable<CorteCaja[]> {
+  const params = new HttpParams()
+    .set('inicio', `${inicio}T00:00:00`)
+    .set('fin', `${fin}T23:59:59`);
+    return this.http.get<CorteCaja[]>(`${this.apiURL}/historial/filtrar`, { params }).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/  historial/filtrar');
       })
     );
   }

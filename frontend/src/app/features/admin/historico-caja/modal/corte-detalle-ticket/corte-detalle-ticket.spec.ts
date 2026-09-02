@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CorteCaja } from './corte-caja';
+import { CorteDetalleTicket } from './corte-detalle-ticket';
 
 describe('CorteCaja', () => {
-  let component: CorteCaja;
-  let fixture: ComponentFixture<CorteCaja>;
+  let component: CorteDetalleTicket;
+  let fixture: ComponentFixture<CorteDetalleTicket>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CorteCaja],
+      imports: [CorteDetalleTicket],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CorteCaja);
+    fixture = TestBed.createComponent(CorteDetalleTicket);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
