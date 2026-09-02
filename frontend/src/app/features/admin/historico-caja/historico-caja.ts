@@ -14,6 +14,11 @@ import { FormsModule } from '@angular/forms';
 export class HistoricoCaja implements OnInit {
   historico: CorteCaja[] = [];
 
+  corteSeleccionado: CorteCaja | null = null;
+
+  fechaInicio: string = '';
+  fechaFin: string = '';
+
   isLoading: boolean = false;
 
   successMessage: string | null = null;
