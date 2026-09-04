@@ -19,6 +19,8 @@ export class HistoricoCaja implements OnInit {
 
   fechaInicio: string = '';
   fechaFin: string = '';
+  historicoFiltrado: CorteCaja[] = [];
+  filtroAplicado: boolean = false;
 
   isLoading: boolean = false;
 
@@ -70,6 +72,8 @@ export class HistoricoCaja implements OnInit {
     this.cajaService.obtenerHistorialCaja().subscribe({
     next: (data) => {
         this.historico = data;
+        this.historicoFiltrado = [];
+        this.filtroAplicado = false;
         this.isLoading = false
         setTimeout(()=>{},2000);
       this.cdr.markForCheck();
@@ -90,12 +94,15 @@ export class HistoricoCaja implements OnInit {
     this.isLoading = true;
     this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).subscribe({
       next: (data) => {
-        this.historico = data;
+        this.historicoFiltrado = data;
+        this.filtroAplicado = true;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error al filtrar cortes:', err);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -103,6 +110,8 @@ export class HistoricoCaja implements OnInit {
   limpiarFiltros(): void {
     this.fechaInicio = '';
     this.fechaFin = '';
+    this.historicoFiltrado = [];
+    this.filtroAplicado = false;
     this.cargarHistorial();
   }
 

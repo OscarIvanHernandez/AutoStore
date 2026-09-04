@@ -39,7 +39,28 @@
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody *ngIf="historico.length > 0">
+          <tbody *ngIf="historicoFiltrado.length > 0">
+            <tr class="product-field" *ngFor="let corte of historicoFiltrado">
+              <td>#{{ corte.id }}</td>
+              <td>{{ corte.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ corte.fechaCierre ? (corte.fechaCierre | date:'dd/MM/yyyy HH:mm') : 'En proceso' }}</td>
+              <td>${{ corte.efectivoInicial | number:'1.2-2' }}</td>
+              <td>${{ corte.efectivoEsperado ? (corte.efectivoEsperado | number:'1.2-2') : '-' }}</td>
+              <td>${{ corte.efectivoReal ? (corte.efectivoReal | number:'1.2-2') : '-' }}</td>
+              <td [style.color]="(corte.diferencia || 0) >= 0 ? 'green' : 'red'">
+                {{ corte.diferencia != null ? ('$' + (corte.diferencia | number:'1.2-2')) : '-' }}
+              </td>
+              <td>
+                <span [class]="corte.activo ? 'badge abierta' : 'badge cerrada'">
+                  {{ corte.activo ? 'ABIERTA' : 'CERRADA' }}
+                </span>
+              </td>
+              <td>
+                <button (click)="abrirCorteDetalle(corte)" class="btn-sm">🖨️ Ticket</button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!filtroAplicado && historico.length > 0">
             <tr class="product-field" *ngFor="let corte of historico">
               <td>#{{ corte.id }}</td>
               <td>{{ corte.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</td>
@@ -60,6 +81,11 @@
               </td>
             </tr>
           </tbody>
+          <tbody *ngIf="filtroAplicado && historicoFiltrado.length === 0">
+            <tr>
+              <td colspan="9">No hay cortes de caja para el rango seleccionado.</td>
+            </tr>
+          </tbody>
           <tfoot>
             <tr>
               <td>
@@ -69,7 +95,7 @@
           </tfoot>
         </table>
         <p *ngIf="isLoading">Cargando cortes de caja...</p>
-        <p *ngIf="!isLoading && historico.length === 0">No hay registros de cortes de caja disponibles.</p>
+        <p *ngIf="!isLoading && !filtroAplicado && historico.length === 0">No hay registros de cortes de caja disponibles.</p>
       </div>
     </div>
   </div>
