@@ -90,7 +90,11 @@ export class HistoricoCaja implements OnInit {
   }
 
   filtrarPorFechas(): void {
-    if (!this.fechaInicio || !this.fechaFin) return;
+    if (!this.fechaInicio && !this.fechaFin) return;
+    if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
+      this.showErrorMessage('La fecha de inicio no puede ser posterior a la fecha de fin.', 5000);
+      return;
+    }
     this.isLoading = true;
     this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).subscribe({
       next: (data) => {

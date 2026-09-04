@@ -48,13 +48,13 @@ export class CajaService {
     );
   }
 
-  buscarHistorialPorFechas(inicio: string, fin: string): Observable<CorteCaja[]> {
-  const params = new HttpParams()
-    .set('inicio', `${inicio}T00:00:00`)
-    .set('fin', `${fin}T23:59:59`);
+  buscarHistorialPorFechas(inicio?: string, fin?: string): Observable<CorteCaja[]> {
+  let params = new HttpParams();
+  if (inicio) params = params.set('inicio', `${inicio}T00:00:00`);
+  if (fin) params = params.set('fin', `${fin}T23:59:59`);
     return this.http.get<CorteCaja[]>(`${this.apiURL}/historial/filtrar`, { params }).pipe(
       tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/  historial/filtrar');
+        console.log('📊 Respuesta recibida en AutoStore/  historial/filtrar', response);
       })
     );
   }

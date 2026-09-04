@@ -50,14 +50,14 @@ public class CajaController {
 
     @GetMapping("/historial/filtrar")
     public ResponseEntity<List<CorteCaja>> buscarPorFechas(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
         List<CorteCaja> historial = cajaService.obtenerHistorial();
         List<CorteCaja> filtrado = historial.stream()
                 .filter(corte -> corte != null
                         && corte.getFechaApertura() != null
-                        && !corte.getFechaApertura().isBefore(inicio)
-                        && !corte.getFechaApertura().isAfter(fin))
+                && (inicio == null || !corte.getFechaApertura().isBefore(inicio))
+                && (fin == null || !corte.getFechaApertura().isAfter(fin)))
                 .toList();
         return ResponseEntity.ok(filtrado);
     }
