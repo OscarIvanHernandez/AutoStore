@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,8 +17,13 @@ export class Clientes implements OnInit {
   clientes: Cliente[] = [];
   stats: DeudoresStats | null = null;
 
+  isLoading: boolean = false;
+  statsLodading: boolean = false;
+
+  successMessage: String | null = null;
+  errorMessage: String | null = null;
+
   filtroBusqueda: string = '';
-  cargando: boolean = false;
 
   // Modales
   mostrarModalCliente: boolean = false;
@@ -30,32 +35,120 @@ export class Clientes implements OnInit {
   montoAbono: number = 0;
   historialAbonos: Abono[] = [];
 
-  constructor(private clienteService: ClienteService) {}
+  constructor(
+    private clienteService: ClienteService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.cargarClientes();
     this.cargarEstadisticas();
   }
 
+  private showSuccesMessage(message: string, duration: number): void {
+    this.successMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.successMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
+  private showErrorMessage(message: string, duration: number): void {
+    this.errorMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.errorMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
   cargarClientes(): void {
-    this.cargando = true;
+    this.isLoading = true;
     this.clienteService.listarClientes(this.filtroBusqueda).subscribe({
       next: (data) => {
+        console.log("Clientes obtenidos: ", data.length);
         this.clientes = data;
-        this.cargando = false;
+        this.isLoading = false;
+        this.showSuccesMessage(
+          "Clientes cargados exitosamente!",
+          2500
+        );
       },
-      error: (err) => console.error('Error al cargar clientes', err)
+      error: (err) => {
+        console.error('Error al cargar clientes', err);
+        this.isLoading = false;
+        this.showErrorMessage(
+          "Hubo un error al cargar los clientes",
+          3500
+        );
+      }
     });
   }
 
   cargarEstadisticas(): void {
+    this.statsLodading = true;
     this.clienteService.obtenerStatsDeudores().subscribe({
-      next: (data) => this.stats = data,
-      error: (err) => console.error('Error al cargar stats', err)
+      next: (data) => {
+        console.log("Estadisticas obtenidas: ", data)
+        this.stats = data,
+        this.statsLodading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar stats', err),
+        this.statsLodading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
   guardarCliente(): void {
+    if (this.clienteForm.id) {
+      this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).subscribe({
+        next: () => {
+          console.log("Cliente: ", this.clienteForm.id, " actualizado")
+          this.cargarClientes();
+          this.cerrarModalCliente();
+          this.showSuccesMessage(
+            "Datos del cliente actualizados correctamente",
+            3500
+          );
+        },
+        error: (err) => {
+          console.error('Error al actualizar cliente', err);
+          this.cerrarModalCliente();
+          this.showErrorMessage(
+            `Error al actualizar cliente: (${err.status})`,
+            3500
+          );
+        }
+      });
+    } else {
+      this.clienteService.crearCliente(this.clienteForm).subscribe({
+        next: () => {
+          console.log("Cliente creado correctamente")
+          this.cargarClientes();
+          this.cerrarModalCliente();
+          this.showSuccesMessage(
+            "Cliente creado correctamente.",
+            3500
+          );
+        },
+        error: (err) => {
+          console.log('Error al crear cliente', err);
+          this.cerrarModalCliente();
+          this.showErrorMessage(
+            `Error al crear cliente: (${err.status})`,
+            3500
+          );
+        }
+      });
+    }
+  }
+  /*guardarCliente(): void {
     if (this.clienteForm.id) {
       this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).subscribe(() => {
         this.cargarClientes();
@@ -67,11 +160,27 @@ export class Clientes implements OnInit {
         this.cerrarModalCliente();
       });
     }
-  }
+  }*/
 
   eliminarCliente(id: number): void {
     if (confirm('¿Desea desactivar este cliente?')) {
-      this.clienteService.eliminarCliente(id).subscribe(() => this.cargarClientes());
+      this.clienteService.eliminarCliente(id).subscribe({
+        next: () => {
+          console.log('Cliente: ', id, " desactivado correctamente");
+          this.cargarClientes();
+          this.showSuccesMessage(
+            'Cliente desactivado',
+            3500
+          )
+        },
+        error: (err) => {
+          console.log('Error al desactivar cliente:',err);
+          this.showErrorMessage(
+            `Error al desactivar cliente: (${err.status})`,
+            3500
+          );
+        }
+      });
     }
   }
 
@@ -92,8 +201,18 @@ export class Clientes implements OnInit {
         this.cargarClientes();
         this.cargarEstadisticas();
         this.cerrarModalAbono();
+        this.showSuccesMessage(
+          `Abono acreditado para cliente(${this.clienteSeleccionado?.id}): (${this.clienteSeleccionado?.nombre})`,
+          3500
+        );
       },
-      error: (err) => alert(err.error?.message || 'Error al procesar abono')
+      error: (err) => {
+        console.log('Error al procesar abono', err)
+        this.showErrorMessage(
+          `Erro al acreditar abono para (${this.clienteSeleccionado?.nombre}): (${err.error?.message})`,
+          3500
+        );
+      }
     });
   }
 
