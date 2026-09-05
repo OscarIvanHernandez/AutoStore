@@ -5,6 +5,7 @@ import { Products } from './features/admin/products/products';
 import { Sales } from './features/admin/sales/sales';
 import { SalesHistory } from './features/admin/sales-history/sales-history';
 import { HistoricoCaja } from './features/admin/historico-caja/historico-caja';
+import { Clientes } from './features/admin/clientes/clientes';
 
 export const routes: Routes = [
   // Espacio para rutas publicas
@@ -19,7 +20,8 @@ export const routes: Routes = [
       {path: 'productos', component: Products},
       {path: 'punto-de-venta', component: Sales},
       {path: 'ventas/historial', component: SalesHistory},
-      {path: 'historico-de-caja', component: HistoricoCaja}
+      {path: 'historico-de-caja', component: HistoricoCaja},
+      {path: 'clientes', component: Clientes}
     ]
   }
 ];
