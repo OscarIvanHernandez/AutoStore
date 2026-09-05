@@ -97,3 +97,29 @@ export interface CorteCaja {
   activo: boolean;
   usuario?: string; // Usuario sí se devuelve la relación
 }
+
+export interface Cliente {
+  id: number;
+  nombre: string;
+  telefono: string;
+  correo?: string;
+  direccion?: string;
+  limiteCredito: number;
+  deudaActual: number;
+  activo: boolean;
+  fechaRegistro?: string;
+}
+
+export interface Abono {
+  id: number;
+  cliente?: Cliente;
+  monto: number;
+  fecha: string;
+  saldoRestante: number;
+}
+
+export interface DeudoresStats {
+  totalDeudores: number;
+  sumaDeudas: number;
+  deudaPromedio: number;
+}
