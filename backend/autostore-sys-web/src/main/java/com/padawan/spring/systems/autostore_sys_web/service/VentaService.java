@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
 import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
@@ -19,6 +20,7 @@ import com.padawan.spring.systems.autostore_sys_web.model.ProductoVentaDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
+import com.padawan.spring.systems.autostore_sys_web.repository.ClienteRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.DetalleVentaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
@@ -35,6 +37,7 @@ public class VentaService {
     private DetalleVentaRepository detalleVentaRepository;
     @Autowired
     private ProductoRepository productoRepository;
+    @Autowired ClienteRepository clienteRepository;
 
     @Transactional
     public Venta crearVenta(VentaRequestDTO request) {
@@ -42,11 +45,8 @@ public class VentaService {
         if (request.getProductos() == null || request.getProductos().isEmpty()) {
             throw new IllegalArgumentException("La venta debe incluir al menos un producto");
         }
-
+        
         TipoVenta tipoVenta = TipoVenta.valueOf(request.getTipoVenta().toUpperCase());
-        if (tipoVenta == TipoVenta.CREDITO && request.getClienteId() == null) {
-            throw new IllegalArgumentException("Las ventas a crédito requieren seleccionar un cliente");
-        }
         
         // 2. Crear la entidad Venta e iterar sobre los productos recibidos
         Venta venta = new Venta();
@@ -107,6 +107,36 @@ public class VentaService {
         totalFinal = totalFinal.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : totalFinal;
         venta.setTotal(totalFinal);
 
+        if (tipoVenta == TipoVenta.CREDITO) {
+            if (request.getClienteId() == null) {
+                throw new IllegalArgumentException("Las ventas a crédito requieren seleccionar un cliente");   
+            }
+            
+            Cliente cliente = clienteRepository.findById(request.getClienteId())
+                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+            if (!cliente.isActivo()) {
+                throw new IllegalStateException("El cliente seleccionado está inactivo.");
+            }
+
+            // Regla ISSUE-16: Validar límite de crédito si es mayor a 0
+            BigDecimal limite = cliente.getLimiteCredito();
+            BigDecimal nuevaDeuda = cliente.getDeudaActual().add(totalFinal);
+
+            if (limite.compareTo(BigDecimal.ZERO) > 0 && nuevaDeuda.compareTo(limite) > 0) {
+                throw new IllegalStateException(
+                    String.format("La venta excede el límite de crédito del cliente. Límite: $%.2f, Deuda actual: $%.2f",
+                            limite, cliente.getDeudaActual())
+                );
+            }
+
+            // Actualizar la deuda acumulada del cliente
+            cliente.setDeudaActual(nuevaDeuda);
+            clienteRepository.save(cliente);
+
+            venta.setClienteId(cliente.getId());
+            
+        }
         if (tipoVenta == TipoVenta.CONTADO) {
             BigDecimal efectivoRecibido = request.getEfectivoRecibido() != null ? request.getEfectivoRecibido() : totalFinal;
             if (efectivoRecibido.compareTo(totalFinal) < 0) {
