@@ -1,0 +1,20 @@
+<div class="modal-overlay" *ngIf="visible">
+  <div class="modal-card">
+    <h3>Editar Cliente</h3>
+
+    <form (ngSubmit)="guardarCambios()">
+      <input type="text" [(ngModel)]="clienteForm.nombre" name="nombre" placeholder="Nombre completo" required />
+      <input type="text" [(ngModel)]="clienteForm.telefono" name="telefono" placeholder="Teléfono" required />
+      <input type="email" [(ngModel)]="clienteForm.correo" name="correo" placeholder="Correo electrónico" />
+      <input type="text" [(ngModel)]="clienteForm.direccion" name="direccion" placeholder="Dirección" />
+
+      <label>Límite Crédito (0 = Sin límite):</label>
+      <input type="number" [(ngModel)]="clienteForm.limiteCredito" name="limiteCredito" min="0" />
+
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">Guardar cambios</button>
+        <button type="button" (click)="cerrar()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

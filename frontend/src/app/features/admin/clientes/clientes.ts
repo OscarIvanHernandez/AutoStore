@@ -2,14 +2,15 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-
+import { Crear } from './modal/crear/crear';
+import { Editar } from './modal/editar/editar';
 import { ClienteService } from '../../../services/autostore.clientes-service';
 import { Abono, Cliente, DeudoresStats } from '../../../services/autostore.models';
 
 @Component({
   selector: 'app-clientes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Crear, Editar],
   templateUrl: './clientes.html',
   styleUrls: ['./clientes.css']
 })
@@ -31,6 +32,7 @@ export class Clientes implements OnInit {
 
   // Formularios
   clienteForm: Partial<Cliente> = this.resetClienteForm();
+  clienteParaEditar: Cliente | null = null;
   clienteSeleccionado: Cliente | null = null;
   montoAbono: number = 0;
   historialAbonos: Abono[] = [];
@@ -148,6 +150,11 @@ export class Clientes implements OnInit {
       });
     }
   }
+
+  guardarClienteDesdeModal(cliente: Partial<Cliente>): void {
+    this.clienteForm = cliente;
+    this.guardarCliente();
+  }
   /*guardarCliente(): void {
     if (this.clienteForm.id) {
       this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).subscribe(() => {
@@ -224,17 +231,21 @@ export class Clientes implements OnInit {
   }
 
   abrirModalEditar(cliente: Cliente): void {
+    this.clienteParaEditar = { ...cliente };
     this.clienteForm = { ...cliente };
     this.mostrarModalCliente = true;
   }
 
   abrirModalNuevo(): void {
+    this.clienteParaEditar = null;
     this.clienteForm = this.resetClienteForm();
     this.mostrarModalCliente = true;
   }
 
   cerrarModalCliente(): void {
     this.mostrarModalCliente = false;
+    this.clienteParaEditar = null;
+    this.clienteForm = this.resetClienteForm();
   }
 
   cerrarModalAbono(): void {
