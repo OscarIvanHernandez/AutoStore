@@ -1,1 +1,102 @@
-<p>clientes works!</p>
+<div class="clientes-container">
+  <h2>👥 Gestión de Clientes y Créditos</h2>
+
+  <!-- Tarjetas Estadísticas de Deudores -->
+  <div class="stats-grid" *ngIf="stats">
+    <div class="stat-card">
+      <p>Clientes Deudores</p>
+      <h3>{{ stats.totalDeudores }}</h3>
+    </div>
+    <div class="stat-card danger">
+      <p>Total en Deudas</p>
+      <h3>${{ stats.sumaDeudas | number:'1.2-2' }}</h3>
+    </div>
+    <div class="stat-card">
+      <p>Deuda Promedio</p>
+      <h3>${{ stats.deudaPromedio | number:'1.2-2' }}</h3>
+    </div>
+  </div>
+
+  <!-- Barra de Filtro y Nuevo Cliente -->
+  <div class="actions-bar">
+    <input
+      type="text"
+      placeholder="Buscar por nombre o teléfono..."
+      [(ngModel)]="filtroBusqueda"
+      (keyup.enter)="cargarClientes()"
+    />
+    <button (click)="cargarClientes()">🔍 Buscar</button>
+    <button (click)="abrirModalNuevo()" class="btn-primary">➕ Nuevo Cliente</button>
+  </div>
+
+  <!-- Tabla de Clientes -->
+  <table class="tabla-clientes">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Límite Crédito</th>
+        <th>Deuda Actual</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cliente of clientes" [class.deudor]="cliente.deudaActual > 0">
+        <td>{{ cliente.nombre }}</td>
+        <td>{{ cliente.telefono }}</td>
+        <td>{{ cliente.limiteCredito > 0 ? ('$' + (cliente.limiteCredito | number:'1.2-2')) : 'Sin límite' }}</td>
+        <td class="monto-deuda">${{ cliente.deudaActual | number:'1.2-2' }}</td>
+        <td>
+          <button (click)="abrirModalEditar(cliente)">✏️ Editar</button>
+          <button (click)="abrirAbono(cliente)" class="btn-success">💰 Abonos</button>
+          <button (click)="eliminarCliente(cliente.id)" class="btn-danger">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal Crear/Editar Cliente -->
+  <div class="modal" *ngIf="mostrarModalCliente">
+    <div class="modal-content">
+      <h3>{{ clienteForm.id ? 'Editar' : 'Nuevo' }} Cliente</h3>
+      <form (ngSubmit)="guardarCliente()">
+        <input type="text" [(ngModel)]="clienteForm.nombre" name="nombre" placeholder="Nombre completo" required />
+        <input type="text" [(ngModel)]="clienteForm.telefono" name="telefono" placeholder="Teléfono" required />
+        <input type="email" [(ngModel)]="clienteForm.correo" name="correo" placeholder="Correo electrónico" />
+        <input type="text" [(ngModel)]="clienteForm.direccion" name="direccion" placeholder="Dirección" />
+        <label>Límite Crédito (0 = Sin límite):</label>
+        <input type="number" [(ngModel)]="clienteForm.limiteCredito" name="limiteCredito" min="0" />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" (click)="cerrarModalCliente()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Abonos -->
+  <div class="modal" *ngIf="mostrarModalAbono && clienteSeleccionado">
+    <div class="modal-content">
+      <h3>Registrar Abono - {{ clienteSeleccionado.nombre }}</h3>
+      <p>Deuda Actual: <strong>${{ clienteSeleccionado.deudaActual | number:'1.2-2' }}</strong></p>
+
+      <div class="abono-form">
+        <input type="number" [(ngModel)]="montoAbono" placeholder="Monto a abonar" [max]="clienteSeleccionado.deudaActual" />
+        <button (click)="procesarAbono()" class="btn-primary">Abonar</button>
+        <button (click)="liquidarDeuda()" class="btn-success">Liquidar Deuda</button>
+      </div>
+
+      <h4>Historial de Abonos</h4>
+      <ul class="historial-abonos">
+        <li *ngFor="let a of historialAbonos">
+          <span>{{ a.fecha | date:'short' }}</span>
+          <strong>Abonado: ${{ a.monto | number:'1.2-2' }}</strong>
+          <small>Resta: ${{ a.saldoRestante | number:'1.2-2' }}</small>
+        </li>
+      </ul>
+
+      <button (click)="cerrarModalAbono()" class="btn-secondary">Cerrar</button>
+    </div>
+  </div>
+</div>
