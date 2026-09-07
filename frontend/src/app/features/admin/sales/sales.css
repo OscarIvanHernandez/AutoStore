@@ -52,6 +52,28 @@
   min-width: 0; /* Previene que los elementos internos estiren la columna */
 }
 
+.credit-limit-warning,
+.credit-limit-error,
+.sales-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.credit-limit-warning {
+  color: #765400;
+  background: #fff3cd;
+  border: 1px solid #ffda6a;
+}
+
+.credit-limit-error,
+.sales-error {
+  color: #842029;
+  background: #f8d7da;
+  border: 1px solid #f1aeb5;
+}
+
 /* Area izquierda para los productos */
 .left-container {
   display: flex;

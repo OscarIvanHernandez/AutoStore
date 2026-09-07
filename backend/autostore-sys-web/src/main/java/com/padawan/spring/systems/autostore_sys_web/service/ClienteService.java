@@ -31,7 +31,7 @@ public class ClienteService {
         if (filtro != null && !filtro.trim().isEmpty()) {
             return clienteRepository.findByNombreContainingIgnoreCaseOrTelefonoContainingAndActivoTrue(filtro, filtro);
         }
-        return clienteRepository.findByActivoTrue();
+        return clienteRepository.findAll();
     }
 
     public Cliente obtenerPorId(Long id) {

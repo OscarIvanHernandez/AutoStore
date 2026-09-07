@@ -2,10 +2,10 @@ package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
-import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
 import com.padawan.spring.systems.autostore_sys_web.service.VentaService;
-
-import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,6 +38,13 @@ public class VentaController {
     @PostMapping
     public ResponseEntity<Venta> crearVenta(@RequestBody VentaRequestDTO request) {
         return ResponseEntity.ok(ventaService.crearVenta(request));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> manejarReglaDeNegocio(IllegalStateException exception) {
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", exception.getMessage());
+        return ResponseEntity.badRequest().body(respuesta);
     }
     
     // GET /api/ventas[cite: 1]

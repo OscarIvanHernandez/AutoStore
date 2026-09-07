@@ -107,6 +107,10 @@ public class VentaService {
         totalFinal = totalFinal.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : totalFinal;
         venta.setTotal(totalFinal);
 
+        BigDecimal efectivoRecibido = request.getEfectivoRecibido() != null
+            ? request.getEfectivoRecibido()
+            : BigDecimal.ZERO;
+
         if (tipoVenta == TipoVenta.CREDITO) {
             if (request.getClienteId() == null) {
                 throw new IllegalArgumentException("Las ventas a crédito requieren seleccionar un cliente");   
@@ -121,7 +125,12 @@ public class VentaService {
 
             // Regla ISSUE-16: Validar límite de crédito si es mayor a 0
             BigDecimal limite = cliente.getLimiteCredito();
-            BigDecimal nuevaDeuda = cliente.getDeudaActual().add(totalFinal);
+            if (efectivoRecibido.compareTo(BigDecimal.ZERO) < 0 || efectivoRecibido.compareTo(totalFinal) > 0) {
+                throw new IllegalArgumentException("El efectivo recibido en una venta a crédito debe estar entre cero y el total de la venta");
+            }
+
+            BigDecimal deudaVenta = totalFinal.subtract(efectivoRecibido);
+            BigDecimal nuevaDeuda = cliente.getDeudaActual().add(deudaVenta);
 
             if (limite.compareTo(BigDecimal.ZERO) > 0 && nuevaDeuda.compareTo(limite) > 0) {
                 throw new IllegalStateException(
@@ -138,14 +147,14 @@ public class VentaService {
             
         }
         if (tipoVenta == TipoVenta.CONTADO) {
-            BigDecimal efectivoRecibido = request.getEfectivoRecibido() != null ? request.getEfectivoRecibido() : totalFinal;
+            efectivoRecibido = request.getEfectivoRecibido() != null ? request.getEfectivoRecibido() : totalFinal;
             if (efectivoRecibido.compareTo(totalFinal) < 0) {
                 throw new IllegalArgumentException("El efectivo recibido debe ser mayor o igual al total de la venta");
             }
             venta.setEfectivoRecibido(efectivoRecibido);
             venta.setCambio(efectivoRecibido.subtract(totalFinal));
         } else {
-            venta.setEfectivoRecibido(BigDecimal.ZERO);
+            venta.setEfectivoRecibido(efectivoRecibido);
             venta.setCambio(BigDecimal.ZERO);
         }
 

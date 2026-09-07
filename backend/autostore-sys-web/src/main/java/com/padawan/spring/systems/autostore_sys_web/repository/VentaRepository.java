@@ -32,4 +32,14 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
         @Param("tipoVenta") TipoVenta tipoVenta,
         @Param("fechaApertura") LocalDateTime fechaApertura
     );
+
+    @Query("SELECT COALESCE(SUM(v.efectivoRecibido), 0) FROM Venta v " +
+        "WHERE v.estado = :estado " +
+        "AND v.tipoVenta = :tipoVenta " +
+        "AND v.fechaVenta >= :fechaApertura")
+    BigDecimal sumarEfectivoRecibidoDesde(
+        @Param("estado") EstadoVenta estado,
+        @Param("tipoVenta") TipoVenta tipoVenta,
+        @Param("fechaApertura") LocalDateTime fechaApertura
+    );
 }

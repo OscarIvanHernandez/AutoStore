@@ -11,6 +11,7 @@ import com.padawan.spring.systems.autostore_sys_web.model.CorteCaja;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoCajaDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
+import com.padawan.spring.systems.autostore_sys_web.repository.AbonoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.CorteCajaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
 
@@ -22,6 +23,9 @@ public class CajaService {
 
     @Autowired
     private VentaRepository ventaRepository;
+
+    @Autowired
+    private AbonoRepository abonoRepository;
 
     public CorteCaja abrirCaja(BigDecimal efectivoInicial) {
         if (corteCajaRepository.existsByActivoTrue()) {
@@ -46,13 +50,20 @@ public class CajaService {
             TipoVenta.CONTADO,
             caja.getFechaApertura()
         );
-        BigDecimal esperado = caja.getEfectivoInicial().add(ventasEfectivo);
+        BigDecimal creditoEfectivo = ventaRepository.sumarEfectivoRecibidoDesde(
+            EstadoVenta.COMPLETADA,
+            TipoVenta.CREDITO,
+            caja.getFechaApertura()
+        );
+        BigDecimal abonos = abonoRepository.sumarAbonosDesde(caja.getFechaApertura());
+        BigDecimal efectivoIngresado = ventasEfectivo.add(creditoEfectivo).add(abonos);
+        BigDecimal esperado = caja.getEfectivoInicial().add(efectivoIngresado);
 
         dto.setId(caja.getId());
         dto.setAbierta(true);
         dto.setFechaApertura(caja.getFechaApertura());
         dto.setEfectivoInicial(caja.getEfectivoInicial());
-        dto.setVentasEfectivo(ventasEfectivo);
+        dto.setVentasEfectivo(efectivoIngresado);
         dto.setEfectivoEsperado(esperado);
         
         return dto;
@@ -67,7 +78,13 @@ public class CajaService {
             TipoVenta.CONTADO,
             caja.getFechaApertura()
         );
-        BigDecimal esperado = caja.getEfectivoInicial().add(ventasEfectivo);
+        BigDecimal creditoEfectivo = ventaRepository.sumarEfectivoRecibidoDesde(
+            EstadoVenta.COMPLETADA,
+            TipoVenta.CREDITO,
+            caja.getFechaApertura()
+        );
+        BigDecimal abonos = abonoRepository.sumarAbonosDesde(caja.getFechaApertura());
+        BigDecimal esperado = caja.getEfectivoInicial().add(ventasEfectivo).add(creditoEfectivo).add(abonos);
         BigDecimal diferencia = efectivoReal.subtract(esperado);
 
         caja.setFechaCierre(LocalDateTime.now());

@@ -2,12 +2,13 @@ import { CajaService } from './../../../services/autostore.caja-service';
 import { ProductoService } from './../../../services/autostore.product-service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { EstadoCaja, ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/autostore.models';
+import { Cliente, EstadoCaja, ItemCarrito, ProductoInterface, VentaRequest } from '../../../services/autostore.models';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Caja } from './modal/caja/caja';
 import { SaleTicket } from './modal/sale-ticket/sale-ticket';
+import { ClienteService } from '../../../services/autostore.clientes-service';
 
 @Component({
   selector: 'app-sales',
@@ -17,6 +18,8 @@ import { SaleTicket } from './modal/sale-ticket/sale-ticket';
   styleUrls: ['./sales.css'],
 })
 export class Sales implements OnInit {
+  private readonly limiteCreditoAdvertencia = 0.8;
+
   // Obetener los productos
   productos: ProductoInterface[] = [];
 
@@ -40,6 +43,9 @@ export class Sales implements OnInit {
   clienteIdSeleccionado: number | null = null;
   descuento: number = 0;
 
+  // Clientes
+  clientes: Cliente[] = [];
+
   // Opciones procesar venta
   mostrarModalCobro: boolean = false;
   pasoModal: 'COBRO' | 'EXITO' ='COBRO';
@@ -61,6 +67,7 @@ export class Sales implements OnInit {
     private productoService: ProductoService,
     private ventaService: SaleService,
     private cajaService: CajaService,
+    private clientesService: ClienteService,
     private cdr: ChangeDetectorRef
 
   ) {}
@@ -98,6 +105,27 @@ export class Sales implements OnInit {
 
   cerrarModalCobro(): void {
     this.mostrarModalCobro = false;
+  }
+
+  cambiarTipoVenta(tipo: 'CONTADO' | 'CREDITO'): void {
+    if (tipo === 'CREDITO') {
+      this.cargarClientes();
+      return;
+    }
+
+    this.clienteIdSeleccionado = null;
+  }
+
+  cargarClientes(): void {
+    this.clientesService.listarClientes().subscribe({
+      next: (dataClientes) => {
+        console.log('clientes: ',dataClientes);
+        this.clientes = dataClientes;
+      },
+      error: (err) => {
+        console.log('Error al cargar clientes: ', err);
+      }
+    })
   }
 
   verificarEstadoCaja(): void {
@@ -238,15 +266,55 @@ export class Sales implements OnInit {
     return this.efectivoRecibido - this.totalFinal;
   }
 
+  get clienteSeleccionado(): Cliente | undefined {
+    return this.clientes.find(cliente => cliente.id === this.clienteIdSeleccionado);
+  }
+
+  get deudaProyectada(): number {
+    const cliente = this.clienteSeleccionado;
+    if (this.tipoVenta !== 'CREDITO' || !cliente) return 0;
+
+    const pagoInicial = Math.max(0, Number(this.efectivoRecibido) || 0);
+    const deudaVenta = Math.max(0, this.totalFinal - pagoInicial);
+    return cliente.deudaActual + deudaVenta;
+  }
+
+  get creditoExcedeLimite(): boolean {
+    const cliente = this.clienteSeleccionado;
+    return Boolean(
+      this.tipoVenta === 'CREDITO' &&
+      cliente &&
+      cliente.limiteCredito > 0 &&
+      this.deudaProyectada > cliente.limiteCredito
+    );
+  }
+
+  get creditoCercaDelLimite(): boolean {
+    const cliente = this.clienteSeleccionado;
+    return Boolean(
+      this.tipoVenta === 'CREDITO' &&
+      !this.creditoExcedeLimite &&
+      cliente &&
+      cliente.limiteCredito > 0 &&
+      this.deudaProyectada >= cliente.limiteCredito * this.limiteCreditoAdvertencia
+    );
+  }
+
   procesarVenta(): void {
     if (this.carrito.length === 0) return;
+
+    this.efectivoRecibido = this.tipoVenta === 'CONTADO' ? this.totalFinal : 0;
 
     if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
       alert("Debe seleccionar un cliente para ventas a crédito.");
       return;
     }
 
-    this.efectivoRecibido = this.tipoVenta === 'CONTADO' ? this.totalFinal : 0;
+    if (this.tipoVenta === 'CREDITO' && this.creditoExcedeLimite) {
+      this.showErrorMessage('La venta excede el límite de crédito del cliente.', 6000);
+      return;
+    }
+
     this.ventaRealizada = null;
     this.mostrarModalCobro = true;
   }
@@ -254,6 +322,11 @@ export class Sales implements OnInit {
   confirmarVenta(): void {
     if (this.tipoVenta === 'CONTADO' && this.efectivoRecibido < this.totalFinal) {
       alert('El efectivo recibido debe cubrir el total de la venta.');
+      return;
+    }
+
+    if (this.tipoVenta === 'CREDITO' && this.creditoExcedeLimite) {
+      this.showErrorMessage('La venta excede el límite de crédito del cliente.', 6000);
       return;
     }
 
@@ -265,9 +338,7 @@ export class Sales implements OnInit {
       })),
       descuento: this.descuento,
       tipoVenta: this.tipoVenta,
-      ...(this.tipoVenta === 'CONTADO'
-        ? { efectivoRecibido: Number(this.efectivoRecibido) }
-        : {}),
+      efectivoRecibido: Number(this.efectivoRecibido),
       ...(this.tipoVenta === 'CREDITO' && this.clienteIdSeleccionado !== null
         ? { clienteId: this.clienteIdSeleccionado }
         : {})
@@ -285,7 +356,10 @@ export class Sales implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        alert('Error al procesar la venta: ' + (err.error?.mensaje || err.error?.message || 'Error desconocido'));
+        this.showErrorMessage(
+          'Error al procesar la venta: ' + (err.error?.mensaje || err.error?.message || 'Error desconocido'),
+          8000
+        );
         this.cdr.markForCheck();
       }
     });
