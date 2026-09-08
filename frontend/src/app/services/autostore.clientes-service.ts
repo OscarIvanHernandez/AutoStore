@@ -60,6 +60,15 @@ export class ClienteService {
     );
   }
 
+  activarCliente(id: number): Observable<void> {
+    console.log('📡 Petición PUT a:', this.apiURL);
+    return this.http.put<void>(`${this.apiURL}/${id}/reactivar`, {}).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Clientes-Service:', response);
+      })
+    );
+  }
+
   registrarAbono(clienteId: number, monto: number): Observable<Abono> {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post<Abono>(`${this.apiURL}/${clienteId}/abonos`, { monto }).pipe(

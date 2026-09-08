@@ -192,7 +192,17 @@ export class Clientes implements OnInit {
   }
 
   activarCliente(id: number): void {
-
+    if (confirm('¿Desea activar el cliente?')) {
+      this.clienteService.activarCliente(id).subscribe({
+        next: () => {
+          this.cargarClientes();
+        },
+        error: (err) => {
+          console.log('Error al activar cliente: ', err);
+          this.cargarClientes();
+        }
+      })
+    }
   }
 
   abrirAbono(cliente: Cliente): void {
