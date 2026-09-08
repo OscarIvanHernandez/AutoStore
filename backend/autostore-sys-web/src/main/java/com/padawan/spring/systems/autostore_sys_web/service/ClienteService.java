@@ -29,9 +29,16 @@ public class ClienteService {
 
     public List<Cliente> listarClientes(String filtro) {
         if (filtro != null && !filtro.trim().isEmpty()) {
-            return clienteRepository.findByNombreContainingIgnoreCaseOrTelefonoContainingAndActivoTrue(filtro, filtro);
+            return clienteRepository.findByNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCase(filtro.trim(), filtro.trim());
         }
         return clienteRepository.findAll();
+    }
+
+    public List<Cliente> listarClientesActivos(String filtro) {
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            return clienteRepository.buscarActivos(filtro.trim());
+        }
+        return clienteRepository.findByActivoTrue();
     }
 
     public Cliente obtenerPorId(Long id) {

@@ -117,7 +117,7 @@ export class Sales implements OnInit {
   }
 
   cargarClientes(): void {
-    this.clientesService.listarClientes().subscribe({
+    this.clientesService.listarClientesActivos().subscribe({
       next: (dataClientes) => {
         console.log('clientes: ',dataClientes);
         this.clientes = dataClientes;

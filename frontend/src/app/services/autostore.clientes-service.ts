@@ -24,6 +24,14 @@ export class ClienteService {
     );
   }
 
+  listarClientesActivos(buscar?: string): Observable<Cliente[]> {
+    let params = new HttpParams();
+    if (buscar) {
+      params = params.set('buscar', buscar);
+    }
+    return this.http.get<Cliente[]>(`${this.apiURL}/activos`, { params });
+  }
+
   obtenerCliente(id: number): Observable<Cliente> {
     console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<Cliente>(`${this.apiURL}/${id}`).pipe(

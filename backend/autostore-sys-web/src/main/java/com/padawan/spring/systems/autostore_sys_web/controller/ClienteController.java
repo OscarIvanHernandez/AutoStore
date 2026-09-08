@@ -25,6 +25,11 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listarClientes(buscar));
     }
 
+    @GetMapping("/activos")
+    public ResponseEntity<List<Cliente>> listarActivos(@RequestParam(required = false) String buscar) {
+        return ResponseEntity.ok(clienteService.listarClientesActivos(buscar));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.obtenerPorId(id));
