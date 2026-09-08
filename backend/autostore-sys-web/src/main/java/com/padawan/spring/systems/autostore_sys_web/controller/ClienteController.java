@@ -46,6 +46,12 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<Void> reactivarCliente(@PathVariable Long id) {
+        clienteService.cambiarEstadoActivo(id, true);
+        return ResponseEntity.noContent().build();
+    }
+
     // ISSUE-17: Endpoints de Abonos
     @PostMapping("/{id}/abonos")
     public ResponseEntity<Abono> registrarAbono(@PathVariable Long id, @RequestBody Map<String, BigDecimal> request) {

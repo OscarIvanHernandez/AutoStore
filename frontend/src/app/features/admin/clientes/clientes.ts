@@ -191,6 +191,10 @@ export class Clientes implements OnInit {
     }
   }
 
+  activarCliente(id: number): void {
+
+  }
+
   abrirAbono(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
     this.montoAbono = 0;
