@@ -17,9 +17,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity 
 @Table (name = "compras_distribuidor")
+@Data 
 public class CompraDistribuidor {
 
     @Id 

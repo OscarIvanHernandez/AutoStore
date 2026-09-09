@@ -13,9 +13,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity 
 @Table (name = "detalle_compras_distribuidor")
+@Data 
 public class DetalleCompraDist {
 
     @Id 
