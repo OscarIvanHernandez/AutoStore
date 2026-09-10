@@ -123,3 +123,40 @@ export interface DeudoresStats {
   sumaDeudas: number;
   deudaPromedio: number;
 }
+
+export interface Distribuidor {
+  id: number;
+  nombre: string;
+  telefono: string;
+  contacto?: string;
+  activo: boolean;
+}
+
+export interface ItemCompraRequest {
+  productoId: number;
+  cantidad: number;
+  precioUnitarioCompra: number;
+}
+
+export interface CompraRequest {
+  distribuidorId: number;
+  folio?: string;
+  productos: ItemCompraRequest[];
+}
+
+export interface DetalleCompra {
+  id: number;
+  producto: { id: number; nombre: string; marca: string };
+  cantidad: number;
+  precioUnitarioCompra: number;
+  subtotal: number;
+}
+
+export interface Compra {
+  id: number;
+  distribuidor: Distribuidor;
+  fecha: string;
+  total: number;
+  folio?: string;
+  detalles: DetalleCompra[];
+}
