@@ -20,7 +20,7 @@ import com.padawan.spring.systems.autostore_sys_web.service.DistribuidorService;
 
 @RestController 
 @RequestMapping ("/api/distribuidores")
-@CrossOrigin (origins = "*")
+@CrossOrigin (origins = "http://localhost:4200")
 public class DistribuidorController {  
     @Autowired
     private DistribuidorService distribuidorService;

@@ -19,7 +19,7 @@ import com.padawan.spring.systems.autostore_sys_web.service.CompraDistribuidorSe
 
 @RestController 
 @RequestMapping ("/api/compras")
-@CrossOrigin (origins = "*")
+@CrossOrigin (origins = "http://localhost:4200")
 public class CompraController {
     @Autowired
     private CompraDistribuidorService compraService;

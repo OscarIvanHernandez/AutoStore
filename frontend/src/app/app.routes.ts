@@ -6,6 +6,8 @@ import { Sales } from './features/admin/sales/sales';
 import { SalesHistory } from './features/admin/sales-history/sales-history';
 import { HistoricoCaja } from './features/admin/historico-caja/historico-caja';
 import { Clientes } from './features/admin/clientes/clientes';
+import { CompraDistribuidores } from './features/admin/compra-distribuidores/compra-distribuidores';
+import { Distribuidores } from './features/admin/distribuidores/distribuidores';
 
 export const routes: Routes = [
   // Espacio para rutas publicas
@@ -21,7 +23,9 @@ export const routes: Routes = [
       {path: 'punto-de-venta', component: Sales},
       {path: 'ventas/historial', component: SalesHistory},
       {path: 'historico-de-caja', component: HistoricoCaja},
-      {path: 'clientes', component: Clientes}
+      {path: 'clientes', component: Clientes},
+      {path: 'distribuidores', component: Distribuidores},
+      {path: 'entrada-de-mercancia', component: CompraDistribuidores}
     ]
   }
 ];

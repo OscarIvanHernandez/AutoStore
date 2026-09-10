@@ -1,1 +1,70 @@
-<p>distribuidores works!</p>
+<div class="distribuidores-container">
+  <h2>🚚 Gestión de Distribuidores</h2>
+
+  <!-- Acciones y Filtro -->
+  <div class="actions-bar">
+    <button (click)="abrirModalNuevo()" class="btn-primary">➕ Nuevo Distribuidor</button>
+    <label>
+      <input type="checkbox" [(ngModel)]="mostrarInactivos" (change)="cargarDistribuidores()" />
+      Mostrar inactivos
+    </label>
+  </div>
+
+  <!-- Tabla de Registros -->
+  <table class="tabla-distribuidores" *ngIf="!cargando && distribuidores.length > 0">
+    <thead>
+      <tr>
+        <th>Nombre / Proveedor</th>
+        <th>Teléfono</th>
+        <th>Contacto (Opcional)</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of distribuidores" [class.inactivo]="!d.activo">
+        <td><strong>{{ d.nombre }}</strong></td>
+        <td>{{ d.telefono }}</td>
+        <td>{{ d.contacto || '-' }}</td>
+        <td>
+          <span [class]="d.activo ? 'badge activo' : 'badge inactivo'">
+            {{ d.activo ? 'ACTIVO' : 'INACTIVO' }}
+          </span>
+        </td>
+        <td>
+          <ng-container *if="d.activo">
+            <button (click)="abrirModalEditar(d)">✏️ Editar</button>
+            <button (click)="desactivar(d.id)" class="btn-danger">🗑️ Desactivar</button>
+          </ng-container>
+          <ng-container *ngIf="!d.activo">
+            <button (click)="activar(d.id)" class="btn-success">🔄 Reactivar</button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="cargando">Cargando catálogo...</p>
+
+  <!-- Modal Crear/Editar -->
+  <div class="modal" *ngIf="mostrarModal">
+    <div class="modal-content">
+      <h3>{{ distribuidorForm.id ? 'Editar' : 'Nuevo' }} Distribuidor</h3>
+      <form (ngSubmit)="guardar()">
+        <label>Nombre del Proveedor *</label>
+        <input type="text" [(ngModel)]="distribuidorForm.nombre" name="nombre" placeholder="Ej. Refaccionaria del Norte" required />
+
+        <label>Teléfono *</label>
+        <input type="text" [(ngModel)]="distribuidorForm.telefono" name="telefono" placeholder="Ej. 8331234567" required />
+
+        <label>Persona de Contacto (Opcional)</label>
+        <input type="text" [(ngModel)]="distribuidorForm.contacto" name="contacto" placeholder="Ej. Atención con Ing. Carlos" />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" (click)="cerrarModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
