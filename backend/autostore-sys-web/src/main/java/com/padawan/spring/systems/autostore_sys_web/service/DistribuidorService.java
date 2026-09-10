@@ -46,4 +46,11 @@ public class DistribuidorService {
         d.setActivo(false);
         distribuidorRepository.save(d);
     }
+
+    @Transactional 
+    public void activar(Long id) {
+        Distribuidor d = obtenerPorId(id);
+        d.setActivo(true);
+        distribuidorRepository.save(d);
+    }
 }
