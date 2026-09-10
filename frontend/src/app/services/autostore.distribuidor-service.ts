@@ -1,33 +1,58 @@
 // distribuidor.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Distribuidor } from './autostore.models';
 
 
 @Injectable({ providedIn: 'root' })
 export class DistribuidorService {
-  private apiUrl = 'http://localhost:8080/api/distribuidores';
+  private apiURL = 'http://localhost:8080/api/distribuidores';
 
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Distribuidor[]> {
-    return this.http.get<Distribuidor[]>(this.apiUrl);
+    console.log('📡 Petición GET a:', this.apiURL);
+    return this.http.get<Distribuidor[]>(this.apiURL).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:');
+      })
+    );
   }
 
   crear(distribuidor: Partial<Distribuidor>): Observable<Distribuidor> {
-    return this.http.post<Distribuidor>(this.apiUrl, distribuidor);
+    console.log('📡 Petición POST a:', this.apiURL);
+    return this.http.post<Distribuidor>(this.apiURL, distribuidor).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:', response.nombre);
+      })
+    );
   }
 
   actualizar(id: number, distribuidor: Partial<Distribuidor>): Observable<Distribuidor> {
-    return this.http.put<Distribuidor>(`${this.apiUrl}/${id}`, distribuidor);
+    console.log('📡 Petición PUT a:', this.apiURL);
+    return this.http.put<Distribuidor>(`${this.apiURL}/${id}`, distribuidor).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:', response);
+      })
+    );
   }
 
   desactivar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/desactivar/${id}`);
+    console.log('📡 Petición DELETE a:', this.apiURL);
+    return this.http.delete<void>(`${this.apiURL}/desactivar/${id}`).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:', response);
+      })
+    );
   }
 
   activar(id: number): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/activar/${id}`, {});
+    console.log('📡 Petición PUT a:', this.apiURL);
+    return this.http.put<void>(`${this.apiURL}/activar/${id}`, {}).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:', response);
+      })
+    );
   }
 }
