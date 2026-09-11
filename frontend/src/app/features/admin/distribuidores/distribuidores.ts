@@ -35,21 +35,21 @@ export class Distribuidores implements OnInit{
 
   private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
   private showErrorMessage(message: string, duration: number): void {
     this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
@@ -64,7 +64,7 @@ export class Distribuidores implements OnInit{
         console.log('Distribuidores mostrados:', this.distribuidores);
         this.isLoading = false;
         setTimeout(() =>{
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         }, 1500);
       },
       error: (err) => {
@@ -123,7 +123,7 @@ export class Distribuidores implements OnInit{
       this.distribuidorService.desactivar(id).subscribe({
         next: () => {
           this.cargarDistribuidores();
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           this.showSuccesMessage(
             `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
             3500
