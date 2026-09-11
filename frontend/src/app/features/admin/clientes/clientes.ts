@@ -49,21 +49,21 @@ export class Clientes implements OnInit {
 
   private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
   private showErrorMessage(message: string, duration: number): void {
     this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
@@ -97,12 +97,12 @@ export class Clientes implements OnInit {
         console.log("Estadisticas obtenidas: ", data)
         this.stats = data,
         this.statsLodading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error al cargar stats', err),
         this.statsLodading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
