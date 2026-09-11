@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
@@ -14,28 +14,66 @@ import { DistribuidorService } from '../../../services/autostore.distribuidor-se
 export class Distribuidores implements OnInit{
   distribuidores: Distribuidor[] = [];
   mostrarInactivos: boolean = false;
-  cargando: boolean = false;
+  isLoading: boolean = false;
+
+  successMessage: String | null = null;
+  errorMessage: String | null = null;
 
   // Modal y Formulario
+  mostrarModalDistribuidor: boolean = false;
+
   mostrarModal: boolean = false;
   distribuidorForm: Partial<Distribuidor> = this.resetForm();
 
-  constructor(private distribuidorService: DistribuidorService) {}
+  constructor(
+    private distribuidorService: DistribuidorService,
+    private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarDistribuidores();
   }
 
+  private showSuccesMessage(message: string, duration: number): void {
+    this.successMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.successMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
+  private showErrorMessage(message: string, duration: number): void {
+    this.errorMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.errorMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
   cargarDistribuidores(): void {
-    this.cargando = true;
+    this.isLoading = true;
     this.distribuidorService.listar().subscribe({
       next: (data) => {
         this.distribuidores = this.mostrarInactivos
           ? data
           : data.filter(d => d.activo);
-        this.cargando = false;
+        console.log('Distribuidores recibidos:', data);
+        console.log('Distribuidores mostrados:', this.distribuidores);
+        this.isLoading = false;
+        setTimeout(() =>{
+          this.cdr.detectChanges();
+        }, 1500);
       },
-      error: (err) => console.error('Error al cargar distribuidores:', err)
+      error: (err) => {
+        console.error('Error al cargar distribuidores:', err);
+        this.showErrorMessage(
+          'Hubo un error al obtener los distribuidores',
+          3500
+        );
+      }
     });
   }
 
@@ -46,26 +84,79 @@ export class Distribuidores implements OnInit{
     }
 
     if (this.distribuidorForm.id) {
-      this.distribuidorService.actualizar(this.distribuidorForm.id, this.distribuidorForm).subscribe(() => {
-        this.cargarDistribuidores();
-        this.cerrarModal();
+      this.distribuidorService.actualizar(this.distribuidorForm.id, this.distribuidorForm).subscribe({
+        next: () => {
+          this.cargarDistribuidores();
+          this.cerrarModal();
+        },
+        error: (err) => {
+          console.log('Error al actualizar el distribuidor:', err);
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          this.showErrorMessage(
+            `Hubo un error al actualizar el distribuidor`,
+            3500
+          );
+        }
       });
     } else {
-      this.distribuidorService.crear(this.distribuidorForm).subscribe(() => {
-        this.cargarDistribuidores();
-        this.cerrarModal();
+      this.distribuidorService.crear(this.distribuidorForm).subscribe({
+        next:() =>{
+          this.cargarDistribuidores();
+          this.cerrarModal();
+        },
+        error: (err) => {
+          console.log('Error al crear distribuidor: ',err);
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          this.showErrorMessage(
+            `Hubo un error al crear el distribuidor`,
+            3500
+          );
+        }
       });
     }
   }
 
   desactivar(id: number): void {
     if (confirm('¿Desea desactivar este distribuidor?')) {
-      this.distribuidorService.desactivar(id).subscribe(() => this.cargarDistribuidores());
+      this.distribuidorService.desactivar(id).subscribe({
+        next: () => {
+          this.cargarDistribuidores();
+          this.cdr.detectChanges();
+          this.showSuccesMessage(
+            `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
+            3500
+          );
+        },
+        error: (err) => {
+          console.log('Error al desactivar distribuidor: ', err);
+          this.showErrorMessage(
+            `Error al desactivar proveedor (${this.distribuidores[id].nombre})`,
+            3500
+          );
+        }
+      });
     }
   }
 
   activar(id: number): void {
-    this.distribuidorService.activar(id).subscribe(() => this.cargarDistribuidores());
+    this.distribuidorService.activar(id).subscribe({
+      next: () => {
+        this.cargarDistribuidores();
+        this.showSuccesMessage(
+          `Proveedor (${this.distribuidores[id].nombre}) activado`,
+          3500
+        );
+      },
+      error: (err) => {
+        console.log('Error al activar distribuidor: ', err);
+        this.showErrorMessage(
+          `Error al activar proveedor (${this.distribuidores[id].nombre})`,
+          3500
+        );
+      }
+    });
   }
 
   abrirModalNuevo(): void {

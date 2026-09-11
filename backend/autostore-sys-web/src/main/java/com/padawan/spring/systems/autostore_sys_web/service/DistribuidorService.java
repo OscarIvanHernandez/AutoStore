@@ -17,7 +17,7 @@ public class DistribuidorService {
     private DistribuidorRepository distribuidorRepository;
 
     public List<Distribuidor> listarTodos() {
-        return distribuidorRepository.findByActivoTrue();
+        return distribuidorRepository.findAll();
     }
 
     public Distribuidor obtenerPorId(Long id) {

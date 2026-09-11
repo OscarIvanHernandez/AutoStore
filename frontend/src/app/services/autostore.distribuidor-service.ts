@@ -15,7 +15,7 @@ export class DistribuidorService {
     console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<Distribuidor[]>(this.apiURL).pipe(
       tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:');
+        console.log('📊 Respuesta recibida en AutoStore/   Distribuidor-Service:', response);
       })
     );
   }
