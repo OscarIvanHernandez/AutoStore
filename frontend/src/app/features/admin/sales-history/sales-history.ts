@@ -52,21 +52,21 @@ export class SalesHistory implements OnInit{
 
   private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
   private showErrorMessage(message: string, duration: number): void {
     this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
@@ -84,7 +84,7 @@ export class SalesHistory implements OnInit{
         console.log('Productos cargados:', ventas);
         this.ventas = ventas;
         this.isLoading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.isLoading = false;
