@@ -109,21 +109,21 @@ export class Products implements OnInit{
 
   private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
   private showErrorMessage(message: string, duration: number): void {
     this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, duration);
   }
 
@@ -184,7 +184,7 @@ export class Products implements OnInit{
       next:(data) => {
         console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
         this.productos = data;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error:(err) => {
         console.error(err);
@@ -203,7 +203,7 @@ export class Products implements OnInit{
         console.log('Productos cargados:', productos);
         this.productos = productos;
         this.isLoading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.isLoading = false;
@@ -223,7 +223,7 @@ export class Products implements OnInit{
         console.log('Productos buscados:', productos);
         this.productos = productos;
         this.isLoading = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.isLoading = false;
