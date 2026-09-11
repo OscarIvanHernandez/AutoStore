@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CompraRequest, Distribuidor, ItemCarrito, ProductoInterface } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
@@ -34,12 +34,33 @@ export class CompraDistribuidores implements OnInit{
   constructor(
     private distribuidorService: DistribuidorService,
     private productoService: ProductoService,
-    private compraService: CompraDistribuidorService
+    private compraService: CompraDistribuidorService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.distribuidorService.listar().subscribe(data => this.distribuidores = data);
-    this.productoService.getProductos().subscribe(data => this.productos = data);
+    this.distribuidorService.listar().subscribe({
+      next: (data) => {
+        this.distribuidores = data;
+        setTimeout(() => {
+          this.cdr.markForCheck();
+        },500);
+      },
+      error: (err) => {
+        console.log('Error al obtener distribuidores: ', err);
+      }
+    });
+    this.productoService.getProductos().subscribe({
+      next: (data) => {
+        this.productos = data;
+        setTimeout(() => {
+          this.cdr.markForCheck();
+        },500);
+      },
+      error: (err) => {
+        console.log('Error al obtener productos: ', err);
+      }
+    });
   }
 
   onSeleccionarProducto(): void {
