@@ -25,7 +25,7 @@ export class HistoricoMercancia implements OnInit{
   ) {}
 
   ngOnInit(): void {
-
+    this.cargarCompras();
   }
     private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;

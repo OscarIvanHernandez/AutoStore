@@ -8,6 +8,7 @@ import { HistoricoCaja } from './features/admin/historico-caja/historico-caja';
 import { Clientes } from './features/admin/clientes/clientes';
 import { CompraDistribuidores } from './features/admin/compra-distribuidores/compra-distribuidores';
 import { Distribuidores } from './features/admin/distribuidores/distribuidores';
+import { HistoricoMercancia } from './features/admin/historico-mercancia/historico-mercancia';
 
 export const routes: Routes = [
   // Espacio para rutas publicas
@@ -25,7 +26,8 @@ export const routes: Routes = [
       {path: 'historico-de-caja', component: HistoricoCaja},
       {path: 'clientes', component: Clientes},
       {path: 'distribuidores', component: Distribuidores},
-      {path: 'entrada-de-mercancia', component: CompraDistribuidores}
+      {path: 'entrada-de-mercancia', component: CompraDistribuidores},
+      {path: 'historico-de-mercancia', component: HistoricoMercancia},
     ]
   }
 ];
