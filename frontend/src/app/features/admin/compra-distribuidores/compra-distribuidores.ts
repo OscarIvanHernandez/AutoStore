@@ -31,6 +31,11 @@ export class CompraDistribuidores implements OnInit{
   items: ItemCarrito[] = [];
   totalCompra: number = 0;
 
+  isLoading: boolean = false;
+
+  successMessage: String | null = null;
+  errorMessage: String | null = null;
+
   constructor(
     private distribuidorService: DistribuidorService,
     private productoService: ProductoService,
@@ -39,6 +44,7 @@ export class CompraDistribuidores implements OnInit{
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.distribuidorService.listar().subscribe({
       next: (data) => {
         this.distribuidores = data;
@@ -61,6 +67,27 @@ export class CompraDistribuidores implements OnInit{
         console.log('Error al obtener productos: ', err);
       }
     });
+    this.isLoading = false;
+  }
+
+  private showSuccesMessage(message: string, duration: number): void {
+    this.successMessage = message;
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.successMessage = null;
+      this.cdr.markForCheck();
+    }, duration);
+  }
+
+  private showErrorMessage(message: string, duration: number): void {
+    this.errorMessage = message;
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.errorMessage = null;
+      this.cdr.markForCheck();
+    }, duration);
   }
 
   onSeleccionarProducto(): void {
@@ -116,12 +143,22 @@ export class CompraDistribuidores implements OnInit{
 
     this.compraService.registrarCompra(payload).subscribe({
       next: () => {
-        alert('📦 Entrada de mercancía registrada. Stock e historial actualizados.');
+        console.log('Compra de mercancancia registrada OK');
         this.items = [];
         this.folio = '';
         this.totalCompra = 0;
+        this.showSuccesMessage(
+          `📦 Entrada de mercancía registrada. Stock e historial actualizados.`,
+          3500
+        );
       },
-      error: (err) => alert('Error al registrar compra: ' + err.error?.message)
+      error: (err) => {
+        console.log('Error al registrar la compra: ', err);
+        this.showErrorMessage(
+        `'Error al registrar compra: (${err.error?.message})`,
+        3500
+        );
+      }
     });
   }
 
