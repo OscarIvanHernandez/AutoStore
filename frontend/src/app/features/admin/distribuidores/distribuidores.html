@@ -50,25 +50,11 @@
 
   <p *ngIf="isLoading">Cargando catálogo...</p>
 
-  <!-- Modal Crear/Editar -->
-  <div class="modal" *ngIf="mostrarModal">
-    <div class="modal-content">
-      <h3>{{ distribuidorForm.id ? 'Editar' : 'Nuevo' }} Distribuidor</h3>
-      <form (ngSubmit)="guardar()">
-        <label>Nombre del Proveedor *</label>
-        <input type="text" [(ngModel)]="distribuidorForm.nombre" name="nombre" placeholder="Ej. Refaccionaria del Norte" required />
+  <app-agregar
+    *ngIf="mostrarModal"
+    [visible]="mostrarModal"
+    (close)="cerrarModal()"
+    (save)="guardar($event)"
+  />
 
-        <label>Teléfono *</label>
-        <input type="text" [(ngModel)]="distribuidorForm.telefono" name="telefono" placeholder="Ej. 8331234567" required />
-
-        <label>Persona de Contacto (Opcional)</label>
-        <input type="text" [(ngModel)]="distribuidorForm.contacto" name="contacto" placeholder="Ej. Atención con Ing. Carlos" />
-
-        <div class="modal-actions">
-          <button type="submit" class="btn-primary">Guardar</button>
-          <button type="button" (click)="cerrarModal()">Cancelar</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>

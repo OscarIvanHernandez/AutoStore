@@ -3,11 +3,12 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
+import { Agregar } from './modal/agregar/agregar';
 
 @Component({
   selector: 'app-distribuidores',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Agregar],
   templateUrl: './distribuidores.html',
   styleUrl: './distribuidores.css',
 })
@@ -77,7 +78,52 @@ export class Distribuidores implements OnInit{
     });
   }
 
-  guardar(): void {
+  guardar(distribuidor: Partial<Distribuidor>): void {
+    if (!distribuidor.nombre || !distribuidor.telefono) {
+      alert('Nombre y teléfono son obligatorios.');
+      return;
+    }
+
+    if (distribuidor.id) {
+      this.distribuidorService.actualizar(distribuidor.id, distribuidor).subscribe({
+        next: () => {
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          distribuidor = this.resetForm();
+        },
+        error: (err) => {
+          console.log('Error al actualizar el distribuidor:', err);
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          this.showErrorMessage(
+            `Hubo un error al actualizar el distribuidor`,
+            3500
+          );
+          distribuidor = this.resetForm();
+        }
+      });
+    } else {
+      this.distribuidorService.crear(distribuidor).subscribe({
+        next:() =>{
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          distribuidor = this.resetForm();
+        },
+        error: (err) => {
+          console.log('Error al crear distribuidor: ',err);
+          this.cargarDistribuidores();
+          this.cerrarModal();
+          this.showErrorMessage(
+            `Hubo un error al crear el distribuidor`,
+            3500
+          );
+          distribuidor = this.resetForm();
+        }
+      });
+    }
+  }
+
+  /*guardar(): void {
     if (!this.distribuidorForm.nombre || !this.distribuidorForm.telefono) {
       alert('Nombre y teléfono son obligatorios.');
       return;
@@ -116,7 +162,7 @@ export class Distribuidores implements OnInit{
         }
       });
     }
-  }
+  }*/
 
   desactivar(id: number): void {
     if (confirm('¿Desea desactivar este distribuidor?')) {
@@ -160,7 +206,6 @@ export class Distribuidores implements OnInit{
   }
 
   abrirModalNuevo(): void {
-    this.distribuidorForm = this.resetForm();
     this.mostrarModal = true;
   }
 

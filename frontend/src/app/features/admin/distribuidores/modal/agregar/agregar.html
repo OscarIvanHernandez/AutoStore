@@ -1,0 +1,21 @@
+  <!-- Modal Crear/Editar -->
+  <div class="modal-overlay" *ngIf="visible">
+    <div class="modal-card">
+      <h3>{{ distribuidorForm.id ? 'Editar' : 'Nuevo' }} Distribuidor</h3>
+      <form (ngSubmit)="guardar()">
+        <label>Nombre del Proveedor *</label>
+        <input type="text" [(ngModel)]="distribuidorForm.nombre" name="nombre" placeholder="Ej. Refaccionaria del Norte" required />
+
+        <label>Teléfono *</label>
+        <input type="text" [(ngModel)]="distribuidorForm.telefono" name="telefono" placeholder="Ej. 8331234567" required />
+
+        <label>Persona de Contacto (Opcional)</label>
+        <input type="text" [(ngModel)]="distribuidorForm.contacto" name="contacto" placeholder="Ej. Atención con Ing. Carlos" />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" (click)="cerrar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
