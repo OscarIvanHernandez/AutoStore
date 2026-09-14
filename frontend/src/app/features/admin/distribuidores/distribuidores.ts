@@ -23,7 +23,8 @@ export class Distribuidores implements OnInit{
   // Modal y Formulario
   mostrarModalDistribuidor: boolean = false;
 
-  mostrarModal: boolean = false;
+  mostrarModalAgregar: boolean = false;
+  mostrarModalEditar: boolean = false;
   distribuidorForm: Partial<Distribuidor> = this.resetForm();
 
   constructor(
@@ -88,13 +89,13 @@ export class Distribuidores implements OnInit{
       this.distribuidorService.actualizar(distribuidor.id, distribuidor).subscribe({
         next: () => {
           this.cargarDistribuidores();
-          this.cerrarModal();
+          this.cerrarModalEditar();
           distribuidor = this.resetForm();
         },
         error: (err) => {
           console.log('Error al actualizar el distribuidor:', err);
           this.cargarDistribuidores();
-          this.cerrarModal();
+          this.cerrarModalEditar();
           this.showErrorMessage(
             `Hubo un error al actualizar el distribuidor`,
             3500
@@ -106,13 +107,13 @@ export class Distribuidores implements OnInit{
       this.distribuidorService.crear(distribuidor).subscribe({
         next:() =>{
           this.cargarDistribuidores();
-          this.cerrarModal();
+          this.cerrarModalAgregar();
           distribuidor = this.resetForm();
         },
         error: (err) => {
           console.log('Error al crear distribuidor: ',err);
           this.cargarDistribuidores();
-          this.cerrarModal();
+          this.cerrarModalAgregar();
           this.showErrorMessage(
             `Hubo un error al crear el distribuidor`,
             3500
@@ -206,16 +207,20 @@ export class Distribuidores implements OnInit{
   }
 
   abrirModalNuevo(): void {
-    this.mostrarModal = true;
+    this.mostrarModalAgregar = true;
   }
 
   abrirModalEditar(distribuidor: Distribuidor): void {
     this.distribuidorForm = { ...distribuidor };
-    this.mostrarModal = true;
+    this.mostrarModalEditar = true;
   }
 
-  cerrarModal(): void {
-    this.mostrarModal = false;
+  cerrarModalAgregar(): void {
+    this.mostrarModalAgregar = false;
+  }
+
+  cerrarModalEditar(): void {
+    this.mostrarModalEditar = false;
   }
 
   private resetForm(): Partial<Distribuidor> {
