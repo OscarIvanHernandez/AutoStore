@@ -51,10 +51,17 @@
   <p *ngIf="isLoading">Cargando catálogo...</p>
 
   <app-agregar
-    *ngIf="mostrarModal"
-    [visible]="mostrarModal"
-    (close)="cerrarModal()"
+    *ngIf="mostrarModalAgregar"
+    [visible]="mostrarModalAgregar"
+    (close)="cerrarModalAgregar()"
     (save)="guardar($event)"
+  />
+
+  <app-editar
+  *ngIf="mostrarModalEditar"
+  [visible] = "mostrarModalEditar"
+  (close) = "cerrarModalEditar()"
+  (update) = "guardar($event)"
   />
 
 </div>

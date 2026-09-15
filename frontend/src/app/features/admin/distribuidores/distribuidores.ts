@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Agregar } from './modal/agregar/agregar';
+import { Editar } from './modal/editar/editar';
 
 @Component({
   selector: 'app-distribuidores',
   standalone: true,
-  imports: [CommonModule, FormsModule, Agregar],
+  imports: [CommonModule, FormsModule, Agregar, Editar],
   templateUrl: './distribuidores.html',
   styleUrl: './distribuidores.css',
 })
