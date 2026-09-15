@@ -3,11 +3,12 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Compra } from '../../../services/autostore.models';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
+import { Detalles } from './modal/detalles/detalles';
 
 @Component({
   selector: 'app-historico-mercancia',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Detalles],
   templateUrl: './historico-mercancia.html',
   styleUrl: './historico-mercancia.css',
 })
@@ -15,6 +16,8 @@ export class HistoricoMercancia implements OnInit{
   //Compras y sus detalles
   historial: Compra[] = [];
   compraId: number | null = null;
+  compraSeleccionada: Compra | null = null;
+  mostrarDetalles = false;
 
   isLoading: boolean = false;
 
@@ -97,5 +100,15 @@ export class HistoricoMercancia implements OnInit{
   limpiarBusqueda(): void {
     this.compraId = null;
     this.cargarCompras();
+  }
+
+  abrirDetalles(compra: Compra): void {
+    this.compraSeleccionada = compra;
+    this.mostrarDetalles = true;
+  }
+
+  cerrarDetalles(): void {
+    this.mostrarDetalles = false;
+    this.compraSeleccionada = null;
   }
 }

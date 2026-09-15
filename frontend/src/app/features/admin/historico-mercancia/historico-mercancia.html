@@ -36,6 +36,7 @@
         <th>Fecha</th>
         <th>Total de compra</th>
         <th>Folio</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -45,12 +46,22 @@
         <td>{{elem.fecha | date:'dd/MM/yyyy HH:mm'}}</td>
         <td>{{elem.total | number:'1.2-2'}}</td>
         <td>{{elem.folio}}</td>
+        <td>
+          <button type="button" (click)="abrirDetalles(elem)">Detalles</button>
+        </td>
       </tr>
       <tr *ngIf="!isLoading && historial.length === 0">
-        <td colspan="5">No hay compras para mostrar.</td>
+        <td colspan="6">No hay compras para mostrar.</td>
       </tr>
     </tbody>
 
   </table>
   <p *ngIf="isLoading">Buscando compras...</p>
+
+  <app-detalles
+    *ngIf="mostrarDetalles"
+    [visible]="mostrarDetalles"
+    [compra]="compraSeleccionada"
+    (close)="cerrarDetalles()"
+  />
 </div>
