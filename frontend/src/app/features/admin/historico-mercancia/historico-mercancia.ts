@@ -1,18 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Compra } from '../../../services/autostore.models';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
 
 @Component({
   selector: 'app-historico-mercancia',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './historico-mercancia.html',
   styleUrl: './historico-mercancia.css',
 })
 export class HistoricoMercancia implements OnInit{
   //Compras y sus detalles
   historial: Compra[] = [];
+  compraId: number | null = null;
 
   isLoading: boolean = false;
 
@@ -65,5 +67,35 @@ export class HistoricoMercancia implements OnInit{
         3500);
       },
     });
+  }
+
+  buscarCompraPorId(): void {
+    if (!this.compraId || this.compraId < 1) {
+      this.showErrorMessage('Ingresa un ID de compra válido.', 3500);
+      return;
+    }
+
+    this.isLoading = true;
+    this.compraService.buscarPorId(this.compraId).subscribe({
+      next: (compra) => {
+        this.historial = [compra];
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al buscar la compra:', err);
+        this.historial = [];
+        this.isLoading = false;
+        this.showErrorMessage(
+          `No se encontró la compra (${err.status || 'error'}).`,
+          3500
+        );
+      },
+    });
+  }
+
+  limpiarBusqueda(): void {
+    this.compraId = null;
+    this.cargarCompras();
   }
 }

@@ -29,8 +29,8 @@ export class CompraDistribuidorService {
     );
   }
 
-  obtenerPorId(id: number): Observable<Compra> {
-    console.log('📡 Petición GET a:', this.apiURL);
+  buscarPorId(id: number): Observable<Compra> {
+    console.log('📡 Petición GET a:', `${this.apiURL}/${id}`);
     return this.http.get<Compra>(`${this.apiURL}/${id}`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Compras-Distribuidor-Service:', response.distribuidor);
