@@ -13,12 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class Editar implements OnChanges {
   @Input() visible = false;
-  @Output() distribuidor: Distribuidor | null = null;
+  @Input() distribuidor: Partial<Distribuidor> | null = null;
 
   @Output() close = new EventEmitter<void>();
-  @Output() update = new EventEmitter<Distribuidor>();
+  @Output() update = new EventEmitter<Partial<Distribuidor>>();
 
-  distribuidorEdit: Distribuidor | null = null;
+  distribuidorEdit: Partial<Distribuidor> | null = null;
 
   ngOnChanges(): void {
     if (this.distribuidor) {
