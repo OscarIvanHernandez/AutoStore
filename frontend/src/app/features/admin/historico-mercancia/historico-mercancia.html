@@ -23,6 +23,29 @@
     </button>
   </div>
 
+  <div class="filters-bar">
+    <label for="fecha-inicio">Desde</label>
+    <input id="fecha-inicio" type="date" [(ngModel)]="fechaInicio" />
+
+    <label for="fecha-fin">Hasta</label>
+    <input id="fecha-fin" type="date" [(ngModel)]="fechaFin" />
+
+    <label for="distribuidor">Distribuidor</label>
+    <select id="distribuidor" [(ngModel)]="distribuidorId">
+      <option [ngValue]="null">Todos</option>
+      <option *ngFor="let distribuidor of distribuidores" [ngValue]="distribuidor.id">
+        {{ distribuidor.nombre }}
+      </option>
+    </select>
+
+    <button type="button" (click)="aplicarFiltros()" [disabled]="isLoading">
+      Filtrar
+    </button>
+    <button type="button" (click)="limpiarBusqueda()" [disabled]="isLoading">
+      Limpiar filtros
+    </button>
+  </div>
+
   <div class="messages">
     <span *ngIf="successMessage">{{ successMessage }}</span>
     <span *ngIf="errorMessage">{{ errorMessage }}</span>
