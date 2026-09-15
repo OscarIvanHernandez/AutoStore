@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Distribuidor } from '../../../../../services/autostore.models';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-editar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './editar.html',
   styleUrl: './editar.css',
 })
