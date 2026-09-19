@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
@@ -42,4 +43,18 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
         @Param("tipoVenta") TipoVenta tipoVenta,
         @Param("fechaApertura") LocalDateTime fechaApertura
     );
+
+    @Query("SELECT COUNT(v) FROM Venta v WHERE v.fecha BETWEEN :desde AND :hasta")
+    Integer contarVentasEnPeriodo(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
+
+    @Query("""
+        SELECT new com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO$UltimaVenta(
+            v.id, v.fechaVenta, v.total, CAST(v.tipoVenta AS string), c.nombre
+        )
+        FROM Venta v
+        LEFT JOIN v.cliente c
+        ORDER BY v.fechaVenta DESC
+        LIMIT 5
+        """)
+    List<DashboardDTO.UltimaVenta> obtenerUltimas5Ventas();
 }
