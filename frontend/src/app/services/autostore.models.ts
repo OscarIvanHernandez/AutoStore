@@ -160,3 +160,55 @@ export interface Compra {
   folio?: string;
   detalles: DetalleCompra[];
 }
+
+ // Reportes y ganancias
+
+export interface ReporteGanancias {
+  ventasTotales: number;
+  gananciaNeta: number;
+  costoTotal: number;
+  cantidadVentas: number;
+  productosVendidos: number;
+}
+
+export interface TopProducto {
+  productoId: number;
+  nombre: string;
+  marca: string;
+  cantidadVendida: number;
+  totalVentas: number;
+  gananciaGenerada: number;
+}
+
+export interface GananciasHoySummary {
+  ventas: number;
+  ganancia: number;
+  cantidad: number;
+}
+
+export interface ProductoStockBajo {
+  productoId: number;
+  nombre: string;
+  stock: number;
+  stockMinimo: number;
+}
+
+export interface DeudoresSummary {
+  cantidad: number;
+  sumaDeudas: number;
+}
+
+export interface UltimaVentaSummary {
+  id: number;
+  fecha: string;
+  total: number;
+  tipoVenta: string;
+  cliente: string;
+}
+
+export interface DashboardData {
+  gananciasHoy: GananciasHoySummary;
+  stockBajo: ProductoStockBajo[];
+  deudores: DeudoresSummary;
+  ultimasVentas: UltimaVentaSummary[];
+}
