@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { Compra, CompraRequest } from './autostore.models';
 
 
@@ -27,6 +28,15 @@ export class CompraDistribuidorService {
         console.log('📊 Respuesta recibida en AutoStore/   Compras-Distribuidor-Service: compras:', response.length);
       })
     );
+  }
+
+  filtrarCompras(inicio?: string, fin?: string, distribuidorId?: number): Observable<Compra[]> {
+    let params = new HttpParams();
+    if (inicio) params = params.set('inicio', inicio);
+    if (fin) params = params.set('fin', fin);
+    if (distribuidorId) params = params.set('distribuidorId', distribuidorId);
+
+    return this.http.get<Compra[]>(`${this.apiURL}/filtrar`, { params });
   }
 
   buscarPorId(id: number): Observable<Compra> {

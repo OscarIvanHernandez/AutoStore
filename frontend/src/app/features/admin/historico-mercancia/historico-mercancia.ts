@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Compra } from '../../../services/autostore.models';
+import { Compra, Distribuidor } from '../../../services/autostore.models';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
+import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Detalles } from './modal/detalles/detalles';
 
 @Component({
@@ -16,6 +17,10 @@ export class HistoricoMercancia implements OnInit{
   //Compras y sus detalles
   historial: Compra[] = [];
   compraId: number | null = null;
+  fechaInicio = '';
+  fechaFin = '';
+  distribuidorId: number | null = null;
+  distribuidores: Distribuidor[] = [];
   compraSeleccionada: Compra | null = null;
   mostrarDetalles = false;
 
@@ -26,11 +31,13 @@ export class HistoricoMercancia implements OnInit{
 
   constructor(
     private compraService: CompraDistribuidorService,
+    private distribuidorService: DistribuidorService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.cargarCompras();
+    this.cargarDistribuidores();
   }
     private showSuccesMessage(message: string, duration: number): void {
     this.successMessage = message;
@@ -65,6 +72,7 @@ export class HistoricoMercancia implements OnInit{
       },
       error: (err) => {
         console.log('Error al cargar las compras: ', err);
+        this.isLoading = false;
         this.showErrorMessage(
           `Hubo un error al cargar las compras: (${err.error?.message})`,
         3500);
@@ -97,8 +105,51 @@ export class HistoricoMercancia implements OnInit{
     });
   }
 
+  cargarDistribuidores(): void {
+    this.distribuidorService.listar().subscribe({
+      next: (data) => {
+        this.distribuidores = data;
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error('Error al cargar distribuidores:', err),
+    });
+  }
+
+  aplicarFiltros(): void {
+    if (!this.fechaInicio && !this.fechaFin && !this.distribuidorId) {
+      this.cargarCompras();
+      return;
+    }
+
+    if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
+      this.showErrorMessage('La fecha inicial no puede ser posterior a la fecha final.', 3500);
+      return;
+    }
+
+    this.isLoading = true;
+    this.compraService.filtrarCompras(
+      this.fechaInicio || undefined,
+      this.fechaFin || undefined,
+      this.distribuidorId || undefined
+    ).subscribe({
+      next: (data) => {
+        this.historial = data;
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al filtrar compras:', err);
+        this.isLoading = false;
+        this.showErrorMessage('No fue posible filtrar el historial de compras.', 3500);
+      },
+    });
+  }
+
   limpiarBusqueda(): void {
     this.compraId = null;
+    this.fechaInicio = '';
+    this.fechaFin = '';
+    this.distribuidorId = null;
     this.cargarCompras();
   }
 
