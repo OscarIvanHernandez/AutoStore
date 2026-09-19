@@ -90,6 +90,7 @@ public class VentaService {
             detalle.setProducto(producto);
             detalle.setCantidad(item.getCantidad());
             detalle.setPrecioUnitario(precioAplicado);
+            detalle.setPrecioCompraHistorico(producto.getPrecioCompra());
 
             BigDecimal subtotalDetalle = precioAplicado.multiply(BigDecimal.valueOf(item.getCantidad()));
             detalle.setSubtotal(subtotalDetalle);

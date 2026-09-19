@@ -45,7 +45,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
         @Param("fechaApertura") LocalDateTime fechaApertura
     );
 
-    @Query("SELECT COUNT(v) FROM Venta v WHERE v.fecha BETWEEN :desde AND :hasta")
+    @Query("SELECT COUNT(v) FROM Venta v WHERE v.fechaVenta BETWEEN :desde AND :hasta")
     Integer contarVentasEnPeriodo(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
     @Query("""

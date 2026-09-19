@@ -36,7 +36,8 @@ public class ReporteService {
         
         BigDecimal gananciaNeta = ventasTotales.subtract(costoTotal);
         Integer cantidadVentas = ventaRepository.contarVentasEnPeriodo(inicio, fin);
-        Integer productosVendidos = detalleVentaRepository.sumarProductosVendidos(inicio, fin);
+        Long productosVendidosTotal = detalleVentaRepository.sumarProductosVendidos(inicio, fin);
+        Integer productosVendidos = productosVendidosTotal != null ? productosVendidosTotal.intValue() : 0;
 
         return new ReporteGananciasDTO(ventasTotales, gananciaNeta, costoTotal, cantidadVentas, productosVendidos);
     }

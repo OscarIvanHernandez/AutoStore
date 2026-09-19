@@ -16,20 +16,20 @@ import com.padawan.spring.systems.autostore_sys_web.model.TopProductoDTO;
 @Repository 
 public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
 
-    @Query("SELECT SUM(dv.cantidad * dv.precioUnitario) FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :desde AND :hasta")
+    @Query("SELECT SUM(dv.cantidad * dv.precioUnitario) FROM DetalleVenta dv WHERE dv.venta.fechaVenta BETWEEN :desde AND :hasta")
     BigDecimal sumarVentasTotales(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
-    @Query("SELECT SUM(dv.cantidad * dv.precioCompraHistorico) FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :desde AND :hasta")
+    @Query("SELECT SUM(dv.cantidad * COALESCE(dv.precioCompraHistorico, dv.producto.precioCompra)) FROM DetalleVenta dv WHERE dv.venta.fechaVenta BETWEEN :desde AND :hasta")
     BigDecimal sumarCostosTotales(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
-    @Query("SELECT SUM(dv.cantidad) FROM DetalleVenta dv WHERE dv.venta.fecha BETWEEN :desde AND :hasta")
-    Integer sumarProductosVendidos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
+    @Query("SELECT SUM(dv.cantidad) FROM DetalleVenta dv WHERE dv.venta.fechaVenta BETWEEN :desde AND :hasta")
+    Long sumarProductosVendidos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
-    @Query("SELECT new com.padawan.spring.systems.autostore_sys_web.dto.reportes.TopProductoDTO(" +
+    @Query("SELECT new com.padawan.spring.systems.autostore_sys_web.model.TopProductoDTO(" +
         "p.id, p.nombre, p.marca, SUM(dv.cantidad), SUM(dv.cantidad * dv.precioUnitario), " +
-        "SUM(dv.cantidad * (dv.precioUnitario - dv.precioCompraHistorico))) " +
+        "SUM(dv.cantidad * (dv.precioUnitario - COALESCE(dv.precioCompraHistorico, p.precioCompra)))) " +
         "FROM DetalleVenta dv JOIN dv.producto p " +
-        "WHERE dv.venta.fecha BETWEEN :desde AND :hasta " +
+        "WHERE dv.venta.fechaVenta BETWEEN :desde AND :hasta " +
         "GROUP BY p.id, p.nombre, p.marca " +
         "ORDER BY SUM(dv.cantidad) DESC, SUM(dv.cantidad * dv.precioUnitario) DESC")
     List<TopProductoDTO> obtenerTopProductos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta, Pageable pageable);
