@@ -14,11 +14,20 @@ export class ProductoService {
 
   constructor(private http: HttpClient){}
 
-
   // GET /api/productos
-  getProductosActivos(): Observable<ProductoInterface[]> {
+  getProductos(): Observable<ProductoInterface[]> {
   console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<ProductoInterface[]>(this.apiURL).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
+      })
+    );
+  }
+
+  // GET /api/productos/activos
+  getProductosActivos(): Observable<ProductoInterface[]> {
+  console.log('📡 Petición GET a:', this.apiURL);
+    return this.http.get<ProductoInterface[]>(`${this.apiURL}/activos`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
@@ -91,7 +100,7 @@ export class ProductoService {
 
   // DELETE /api/productos/{id}
   eliminar(id: number): Observable<void> {
-    console.log('📡 Petición POST a:', `${this.apiURL}/${id}`);
+    console.log('📡 Petición DELETE a:', `${this.apiURL}/${id}`);
     return this.http.delete<void>( `${this.apiURL}/${id}`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);

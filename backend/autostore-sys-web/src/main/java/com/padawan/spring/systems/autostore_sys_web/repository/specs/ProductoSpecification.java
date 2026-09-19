@@ -3,7 +3,6 @@ package com.padawan.spring.systems.autostore_sys_web.repository.specs;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.util.Predicates;
 
 import java.util.ArrayList;
 import java.util.List;

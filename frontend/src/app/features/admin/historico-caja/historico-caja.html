@@ -1,0 +1,114 @@
+<div class="historical-main">
+  <section class="info-historical">
+    <div class="info-left">
+      <h1>Historico de Caja</h1>
+    </div>
+  </section>
+  <div class="filtros-bar">
+    <div class="input-group">
+    <label>Desde:</label>
+    <input type="date" [(ngModel)]="fechaInicio">
+  </div>
+
+  <div class="input-group">
+    <label>Hasta:</label>
+    <input type="date" [(ngModel)]="fechaFin">
+  </div>
+
+  <button (click)="filtrarPorFechas()" [disabled]="!fechaInicio && !fechaFin">🔍 Filtrar</button>
+  <button (click)="limpiarFiltros()" class="btn-secondary">🔄 Limpiar</button>
+</div>
+
+  <div class="sales-container">
+    <div class="left-container">
+      <div class="products-card-content">
+        <div class="search-container">
+
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Fecha de apertura</th>
+              <th>Fecha de cierre</th>
+              <th>Efectivo inicial</th>
+              <th>Efectivo esperado</th>
+              <th>Efectivo real</th>
+              <th>Diferencia</th>
+              <th>Activo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="historicoFiltrado.length > 0">
+            <tr class="product-field" *ngFor="let corte of historicoFiltrado">
+              <td>#{{ corte.id }}</td>
+              <td>{{ corte.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ corte.fechaCierre ? (corte.fechaCierre | date:'dd/MM/yyyy HH:mm') : 'En proceso' }}</td>
+              <td>${{ corte.efectivoInicial | number:'1.2-2' }}</td>
+              <td>${{ corte.efectivoEsperado ? (corte.efectivoEsperado | number:'1.2-2') : '-' }}</td>
+              <td>${{ corte.efectivoReal ? (corte.efectivoReal | number:'1.2-2') : '-' }}</td>
+              <td [style.color]="(corte.diferencia || 0) >= 0 ? 'green' : 'red'">
+                {{ corte.diferencia != null ? ('$' + (corte.diferencia | number:'1.2-2')) : '-' }}
+              </td>
+              <td>
+                <span [class]="corte.activo ? 'badge abierta' : 'badge cerrada'">
+                  {{ corte.activo ? 'ABIERTA' : 'CERRADA' }}
+                </span>
+              </td>
+              <td>
+                <button (click)="abrirCorteDetalle(corte)" class="btn-sm">🖨️ Ticket</button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!filtroAplicado && historico.length > 0">
+            <tr class="product-field" *ngFor="let corte of historico">
+              <td>#{{ corte.id }}</td>
+              <td>{{ corte.fechaApertura | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ corte.fechaCierre ? (corte.fechaCierre | date:'dd/MM/yyyy HH:mm') : 'En proceso' }}</td>
+              <td>${{ corte.efectivoInicial | number:'1.2-2' }}</td>
+              <td>${{ corte.efectivoEsperado ? (corte.efectivoEsperado | number:'1.2-2') : '-' }}</td>
+              <td>${{ corte.efectivoReal ? (corte.efectivoReal | number:'1.2-2') : '-' }}</td>
+              <td [style.color]="(corte.diferencia || 0) >= 0 ? 'green' : 'red'">
+                {{ corte.diferencia != null ? ('$' + (corte.diferencia | number:'1.2-2')) : '-' }}
+              </td>
+              <td>
+                <span [class]="corte.activo ? 'badge abierta' : 'badge cerrada'">
+                  {{ corte.activo ? 'ABIERTA' : 'CERRADA' }}
+                </span>
+              </td>
+              <td>
+                <button (click)="abrirCorteDetalle(corte)" class="btn-sm">🖨️ Ticket</button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="filtroAplicado && historicoFiltrado.length === 0">
+            <tr>
+              <td colspan="9">No hay cortes de caja para el rango seleccionado.</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <button routerLink="/admin/ventas/historial">Historial de ventas</button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <p *ngIf="isLoading">Cargando cortes de caja...</p>
+        <p *ngIf="!isLoading && !filtroAplicado && historico.length === 0">No hay registros de cortes de caja disponibles.</p>
+      </div>
+    </div>
+  </div>
+
+  <app-corte-detalle-ticket
+  *ngIf="mostrarCorteDetalle"
+  [visible]="mostrarCorteDetalle"
+  [corte]="corteSeleccionado"
+  (close)="cerrarModalCorteDetalle()"
+  />
+</div>
+
+
+
+
+

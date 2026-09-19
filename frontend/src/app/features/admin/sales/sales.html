@@ -1,0 +1,217 @@
+<div class="sales-main">
+  <section class="info-sales">
+    <div class="info-left">
+      <h1>Punto de venta</h1>
+    </div>
+    <div class="info-right">
+      <span *ngIf="cajaAbierta" class="badge bg-success">
+        🟢 Caja Abierta (Base: ${{ datosCaja?.efectivoInicial ?? 0 }})
+      </span>
+      <span *ngIf="cajaAbierta" class="badge bg-info">
+        💵 Efectivo esperado: ${{ datosCaja?.efectivoEsperado ?? 0 }}
+      </span>
+      <button *ngIf="cajaAbierta" (click)="mostrarModalCierre = true" class="btn btn-warning">
+        🔒 Corte de Caja
+      </button>
+      <button *ngIf="!cajaAbierta" type="button" (click)="abrirModalApertura()" class="btn btn-primary">
+        Abrir caja
+      </button>
+    </div>
+  </section>
+  <!-- COLUMNA IZQUIERDA: Búsqueda y Carrito -->
+  <div class="sales-container">
+
+    <div class="left-container">
+      <div class="products-card-content">
+        <div class="search-container">
+          <input
+            type="text"
+            placeholder="🔍 Buscar por nombre, marca o categoría..."
+            [(ngModel)]="busquedaTexto"
+            (input)="BuscarProducto()"
+            class="w-full p-2 border rounded">
+        </div>
+        <table>
+          <thead>
+          </thead>
+          <tbody *ngIf="productosEncontrados.length > 0">
+            <tr class="product-field" *ngFor="let producto of productosEncontrados">
+              <td class="icon-product"></td>
+              <td class="nombre-product">{{producto.nombre}}</td>
+              <td class="marca-categoria">
+                <div style="display: flex; gap: 5px;">
+                  <span>{{producto.marca}} -</span>
+                  <span>{{producto.categoria}}</span>
+                </div>
+              </td>
+              <td class="precio-product">{{producto.precioVentaMostrador}}</td>
+              <td class="stock-product">{{producto.stockActual}}</td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!busquedaTexto">
+            <tr class="product-field" *ngFor="let producto of productos" (click)="agregarAlCarrito(producto)">
+              <td class="icon-product"></td>
+              <td class="nombre-product">{{producto.nombre}}</td>
+              <td class="marca-categoria">
+                <div style="display: flex; gap: 5px;">
+                  <span>{{producto.marca}} -</span>
+                  <span>{{producto.categoria}}</span>
+                </div>
+              </td>
+              <td class="precio-product">${{producto.precioVentaMostrador}}</td>
+              <td class="stock-product">Stock: {{producto.stockActual}}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <button routerLink="/admin/ventas/historial">Historial de ventas</button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: Resumen y Cobro -->
+    <div class="right-container">
+      <table>
+        <thead>
+          <tr class="thead-carrito">
+            <th style="text-align: center;" colspan="5">
+              Carrito
+            </th>
+          </tr>
+          <tr *ngIf="carrito.length > 0">
+            <th class="col-1">Producto</th>
+            <th class="col-2">Precio</th>
+            <th class="col-3">Cantidad</th>
+            <th class="col-4">Subtotal</th>
+            <th class="col-5">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of carrito; let i = index">
+            <td style="text-align: center;">{{ item.nombre }}</td>
+            <td style="text-align: center;">
+              <select [(ngModel)]="item.precioTipo" (change)="actualizarSubtotal(item)">
+                <option value="MOSTRADOR">Mostrador (${{ item.precioUnitario }})</option>
+                <option value="TALLER">Taller</option>
+              </select>
+            </td>
+            <td style="text-align: center;">
+              <input
+                type="number"
+                [(ngModel)]="item.cantidad"
+                (change)="actualizarSubtotal(item)"
+                min="1"
+                [max]="item.stockMaximo"
+                class="w-16 border text-center">
+            </td>
+            <td style="text-align: center;">${{ item.subTotal }}</td>
+            <td style="text-align: center;">
+              <button (click)="eliminarDelCarrito(i)" class="text-red-500">❌</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="text-xl font-bold mb-4">Resumen de Venta</h3>
+
+      <div class="mb-4">
+        <label>Tipo de Venta:</label>
+        <select [(ngModel)]="tipoVenta" (ngModelChange)="cambiarTipoVenta($event)" class="w-full p-2 border rounded">
+          <option value="CONTADO">Contado</option>
+          <option value="CREDITO">Crédito</option>
+        </select>
+      </div>
+        <!-- Solo se muestra si tipoVenta = CREDITO -->
+      <div class="form-group" *ngIf="tipoVenta === 'CREDITO'">
+        <label>Cliente:</label>
+        <select [(ngModel)]="clienteIdSeleccionado" name="clienteId" class="w-full p-2 border rounded">
+          <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">
+            {{ cliente.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label>Descuento ($):</label>
+        <input type="number" [(ngModel)]="descuento" min="0" class="w-full p-2 border rounded">
+      </div>
+
+      <div class="border-t pt-4 text-right">
+        <p>Subtotal: <strong>${{ subtotalGeneral }}</strong></p>
+        <p class="text-2xl font-bold text-green-600">Total: ${{ totalFinal }}</p>
+      </div>
+
+      <div *ngIf="creditoExcedeLimite" class="credit-limit-error" role="alert">
+        La venta excede el límite de crédito del cliente. No se puede procesar.
+      </div>
+      <div *ngIf="creditoCercaDelLimite" class="credit-limit-warning" role="status">
+        Advertencia: esta venta dejará la deuda cerca del límite de crédito.
+      </div>
+
+      <button
+        [disabled]="carrito.length === 0 || creditoExcedeLimite"
+        (click)="procesarVenta()"
+        class="w-full mt-6 bg-green-500 text-white p-3 rounded font-bold hover:bg-green-600 disabled:bg-gray-300">
+        💵 PROCESAR COBRO
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="errorMessage" class="sales-error" role="alert">
+  {{ errorMessage }}
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalCobro">
+  <div class="modal-card">
+    <h2>Pago</h2>
+
+    <div class="mb-4">
+      <label for="efectivoRecibido">Efectivo recibido</label>
+      <input
+        id="efectivoRecibido"
+        type="number"
+        min="0"
+        step="0.01"
+        [(ngModel)]="efectivoRecibido"
+        class="w-full p-2 border rounded">
+    </div>
+
+    <div class="mb-4" *ngIf="tipoVenta === 'CONTADO'">
+      <p>Cambio estimado: <strong>${{ cambio }}</strong></p>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" (click)="mostrarModalCobro = false" class="btn-secondary">Cancelar</button>
+      <button type="button" (click)="confirmarVenta()" class="btn-primary">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<app-caja
+  [visible]="mostrarModalApertura"
+  tipo="apertura"
+  [efectivoInicial]="efectivoInicialInput"
+  (close)="mostrarModalApertura = false"
+  (confirmApertura)="onAbrirCaja($event)">
+</app-caja>
+
+<app-caja
+  [visible]="mostrarModalCierre"
+  tipo="cierre"
+  [efectivoReal]="efectivoRealInput"
+  (close)="mostrarModalCierre = false"
+  (confirmCierre)="onCerrarCaja($event)">
+</app-caja>
+
+<app-sale-ticket
+  [visible]="mostrarModalTicket"
+  [venta]="ventaRealizada"
+  [efectivoRecibido]="efectivoRecibido"
+  (close)="cerrarModalTicket()"
+  (nuevaVenta)="limpiarYReiniciarPOS()">
+</app-sale-ticket>

@@ -1,0 +1,56 @@
+<!-- Modal Crear/Editar -->
+<div class="modal-overlay" *ngIf="visible && distribuidorEdit">
+  <section>
+    <h2>Editar distribuidor</h2>
+  </section>
+  <div class="modal-card">
+    <h3>{{ distribuidorEdit.id ? 'Editar' : 'Nuevo' }} Distribuidor</h3>
+    <form #distribuidorForm = "ngForm" (ngSubmit)="guardar()">
+      <div class="form-grid">
+        <label>Nombre del Proveedor *</label>
+        <input
+        type="text"
+        [(ngModel)]="distribuidorEdit.nombre"
+        name="nombre"
+        placeholder="Ej. Refaccionaria del Norte"
+        required
+        minlength="3"
+        #nombreModel = "ngModel"/>
+        <span class="span-text" *ngIf="nombreModel.invalid && (nombreModel.touched || distribuidorForm.submitted)">
+          <span class="error-text" *ngIf="nombreModel.errors?.['requierd']"><mat-icon fontIcon="info"></mat-icon>
+            El nombre del distribuidor es obligatorio.
+          </span>
+          <span class="error-text" *ngIf="nombreModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+            Debe tener al menos 3 caracteres.
+          </span>
+        </span>
+
+        <label>Teléfono *</label>
+        <input
+        type="text"
+        [(ngModel)]="distribuidorEdit.telefono"
+        name="telefono"
+        placeholder="Ej. 8331234567"
+        minlength="10"
+        required
+        #telefonoModel = "ngModel"/>
+        <span class="span-text" *ngIf="telefonoModel.invalid && (telefonoModel.touched || distribuidorForm.submitted)">
+          <span class="error-text" *ngIf="telefonoModel.errors?.['requierd']"><mat-icon fontIcon="info"></mat-icon>
+            El telefono es obligatorio.
+          </span>
+          <span class="error-text" *ngIf="telefonoModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+            El número ingresado no es válido.
+          </span>
+        </span>
+
+        <label>Persona de Contacto (Opcional)</label>
+        <input type="text" [(ngModel)]="distribuidorEdit.contacto" name="contacto" placeholder="Ej. Atención con Ing. Carlos" />
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="button" (click)="cerrar()">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

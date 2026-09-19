@@ -30,6 +30,6 @@
 
 .layout-content {
   grid-area: main;
-  background-color: #f8fafc; /* Fondo gris claro para el contenido */
+  background-color: #f4f8fb; /* Fondo gris claro para el contenido */
   overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
 }

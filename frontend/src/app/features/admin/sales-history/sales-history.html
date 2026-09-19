@@ -1,0 +1,93 @@
+<div class="history-main">
+  <div class="info-page">
+    <h1>Historial de ventas</h1>
+  </div>
+
+  <div class="history-container">
+      <div class="history-card-content">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr>
+              <th style="text-align: initial;">Folio</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Total</th>
+              <th style="text-align: end;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let venta of ventas" (click)="verDetallesVenta(venta)">
+              <td style="text-align: initial;">#{{ venta.id }}</td>
+              <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ venta.tipoVenta }}</td>
+              <td>${{ venta.total }}</td>
+              <td style="text-align: end;">
+                <span [class.text-green-600]="venta.estado === 'COMPLETADA'"
+                      [class.text-red-600]="venta.estado === 'CANCELADA'">
+                  {{ venta.estado }}
+                </span>
+              </td>
+              <!--
+              <td>
+                Botón para ver el desglose de detalles
+                <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
+
+              </td>-->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="details-card-content">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: initial;">Detalles de la venta</th>
+            </tr>
+            <tr *ngIf="ventaSeleccionada">
+              <th style="text-align: initial;">
+                Folio: #{{ventaSeleccionada.id}}
+              </th>
+            </tr>
+            <tr>
+              <th>Cantidad</th>
+              <th>Producto</th>
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="ventaSeleccionada">
+            <tr class="detail-field" *ngFor="let det of ventaSeleccionada.detalles">
+              <td class="det-cantidad">{{det.cantidad}}</td>
+              <td class="det-producto">{{det.producto.nombre}} - {{det.producto.marca}}</td>
+              <td class="det-precioUnitario">̣${{det.precioUnitario}}</td>
+              <td class="det-subtotal">${{det.subtotal}}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="info-client">
+
+            </tr>
+            <tr class="actions">
+              <td>
+                <span>Acciones</span>
+                <div>
+                  <button
+                  *ngIf="ventaSeleccionada.estado !== 'CANCELADA' && esVentaDeHoy(ventaSeleccionada.fechaVenta)"
+                  (click)="cancelarVenta(ventaSeleccionada)"
+                  class="btn btn-danger btn-sm">
+                  Cancelar Venta
+                  </button>
+
+                  <span *ngIf="ventaSeleccionada.estado === 'CANCELADA'" class="badge bg-secondary">
+                    CANCELADA
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+  </div>
+</div>
+

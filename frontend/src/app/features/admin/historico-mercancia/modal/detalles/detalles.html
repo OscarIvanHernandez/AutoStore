@@ -1,0 +1,63 @@
+<div class="modal-overlay" *ngIf="visible && compra" (click)="cerrar()">
+	<section class="modal-card" (click)="$event.stopPropagation()">
+		<header class="modal-header">
+			<div>
+				<p class="eyebrow">Compra #{{ compra.id }}</p>
+				<h2>Detalles de la compra</h2>
+			</div>
+			<button type="button" class="close-button" (click)="cerrar()" aria-label="Cerrar">
+				&times;
+			</button>
+		</header>
+
+		<div class="purchase-summary">
+			<div>
+				<span>Distribuidor</span>
+				<strong>{{ compra.distribuidor.nombre }}</strong>
+			</div>
+			<div>
+				<span>Fecha</span>
+				<strong>{{ compra.fecha | date:'dd/MM/yyyy HH:mm' }}</strong>
+			</div>
+			<div>
+				<span>Folio</span>
+				<strong>{{ compra.folio || '-' }}</strong>
+			</div>
+			<div>
+				<span>Total</span>
+				<strong>{{ compra.total | number:'1.2-2' }}</strong>
+			</div>
+		</div>
+
+		<div class="details-table-wrapper">
+			<table>
+				<thead>
+					<tr>
+						<th>Producto</th>
+						<th>Cantidad</th>
+						<th>Precio unitario</th>
+						<th>Subtotal</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let detalle of compra.detalles">
+						<td>
+							<strong>{{ detalle.producto.nombre }}</strong>
+							<small>{{ detalle.producto.marca }}</small>
+						</td>
+						<td>{{ detalle.cantidad }}</td>
+						<td>{{ detalle.precioUnitarioCompra | number:'1.2-2' }}</td>
+						<td>{{ detalle.subtotal | number:'1.2-2' }}</td>
+					</tr>
+					<tr *ngIf="compra.detalles.length === 0">
+						<td colspan="4">Esta compra no tiene detalles registrados.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<footer class="modal-actions">
+			<button type="button" (click)="cerrar()">Cerrar</button>
+		</footer>
+	</section>
+</div>
