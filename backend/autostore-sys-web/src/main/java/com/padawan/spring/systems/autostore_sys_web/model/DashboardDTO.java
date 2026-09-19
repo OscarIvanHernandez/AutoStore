@@ -61,11 +61,11 @@ public class DashboardDTO {
         public String tipoVenta;
         public String cliente;
 
-        public UltimaVenta(Long id, LocalDateTime fecha, BigDecimal total, String tipoVenta, String cliente) {
+        public UltimaVenta(Long id, LocalDateTime fecha, BigDecimal total, TipoVenta tipoVenta, String cliente) {
             this.id = id;
             this.fecha = fecha;
             this.total = total;
-            this.tipoVenta = tipoVenta;
+            this.tipoVenta = tipoVenta != null ? tipoVenta.name() : null;
             this.cliente = cliente != null ? cliente : "Público general";
         }
     }

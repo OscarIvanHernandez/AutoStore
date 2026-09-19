@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -49,12 +50,11 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
 
     @Query("""
         SELECT new com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO$UltimaVenta(
-            v.id, v.fechaVenta, v.total, CAST(v.tipoVenta AS string), c.nombre
+            v.id, v.fechaVenta, v.total, v.tipoVenta, c.nombre
         )
         FROM Venta v
         LEFT JOIN v.cliente c
         ORDER BY v.fechaVenta DESC
-        LIMIT 5
         """)
-    List<DashboardDTO.UltimaVenta> obtenerUltimas5Ventas();
+    List<DashboardDTO.UltimaVenta> obtenerUltimas5Ventas(Pageable pageable);
 }

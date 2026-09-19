@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO;
@@ -47,7 +48,7 @@ public class DashboardService {
         DashboardDTO.DeudoresResumen deudores = new DashboardDTO.DeudoresResumen(totalDeudores, sumaDeudas);
 
         // 4. Últimas 5 ventas
-        List<DashboardDTO.UltimaVenta> ultimasVentas = ventaRepository.obtenerUltimas5Ventas();
+        List<DashboardDTO.UltimaVenta> ultimasVentas = ventaRepository.obtenerUltimas5Ventas(PageRequest.of(0, 5));
 
         return new DashboardDTO(gananciasHoy, stockBajo, deudores, ultimasVentas);
     }
