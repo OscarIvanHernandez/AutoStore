@@ -9,7 +9,11 @@
     </button>
   </section>
 
-  <section class="filters-panel" aria-label="Filtros del reporte">
+  <div class="loading-message" *ngIf="isLoading">
+    Cargando...
+  </div>
+
+  <section *ngIf="!isLoading" class="filters-panel" aria-label="Filtros del reporte">
     <div class="field-group">
       <label for="fecha-inicio">Desde</label>
       <input id="fecha-inicio" type="date" [(ngModel)]="fechaInicio">
@@ -33,7 +37,7 @@
 
   <p class="message error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-  <section class="metrics-grid" *ngIf="reporte as datos">
+  <section class="metrics-grid" *ngIf="!isLoading && reporte as datos">
     <article class="metric-card sales-metric">
       <span>Ventas totales</span>
       <strong>{{ datos.ventasTotales | currency:'MXN':'symbol':'1.2-2' }}</strong>
@@ -56,7 +60,7 @@
     </article>
   </section>
 
-  <section class="products-panel">
+  <section *ngIf="!isLoading" class="products-panel">
     <div class="panel-heading">
       <div>
         <h2>Productos más vendidos</h2>

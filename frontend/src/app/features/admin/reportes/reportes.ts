@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReporteGanancias, TopProducto } from '../../../services/autostore.models';
 import { ReportesService } from '../../../services/autostore.reportes-service';
@@ -18,10 +18,14 @@ export class Reportes implements OnInit {
 
   reporte: ReporteGanancias | null = null;
   topProductos: TopProducto[] = [];
+
   isLoading = false;
+  successMessage: string | null = null;
   errorMessage: string | null = null;
 
-  constructor(private reportesService: ReportesService) {}
+  constructor(
+    private reportesService: ReportesService,
+    private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     const hoy = new Date();
@@ -31,6 +35,26 @@ export class Reportes implements OnInit {
     this.fechaInicio = this.formatearFecha(inicio);
     this.fechaFin = this.formatearFecha(hoy);
     this.cargarReporte();
+  }
+
+  private showSuccesMessage(message: string, duration: number): void {
+    this.successMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.successMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
+  }
+
+  private showErrorMessage(message: string, duration: number): void {
+    this.errorMessage = message;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.errorMessage = null;
+      this.cdr.detectChanges();
+    }, duration);
   }
 
   cargarReporte(): void {
@@ -49,13 +73,21 @@ export class Reportes implements OnInit {
     this.isLoading = true;
     this.reportesService.obtenerGanancias(this.fechaInicio, this.fechaFin).subscribe({
       next: (reporte) => {
+        console.log('Reportes Ok')
         this.reporte = reporte;
         this.cargarTopProductos();
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          this.isLoading = false;
+        }, 2500);
       },
       error: (error) => {
         console.error('Error al cargar el reporte:', error);
+        this.showErrorMessage(
+          `No fue posible cargar el reporte. Intenta nuevamente.`,
+          3500
+        );
         this.isLoading = false;
-        this.errorMessage = 'No fue posible cargar el reporte. Intenta nuevamente.';
       }
     });
   }
@@ -68,13 +100,17 @@ export class Reportes implements OnInit {
     ).subscribe({
       next: (productos) => {
         this.topProductos = productos;
+        this.cdr.detectChanges();
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Error al cargar los productos destacados:', error);
+      error: (err) => {
+        console.error('Error al cargar los productos destacados:', err);
         this.topProductos = [];
         this.isLoading = false;
-        this.errorMessage = 'Se cargaron las métricas, pero no los productos destacados.';
+        this.showErrorMessage(
+          `Se cargaron las métricas, pero no los productos destacados. (${err.error?.message})`,
+          3500
+        );
       }
     });
   }
