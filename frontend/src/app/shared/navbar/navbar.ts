@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -19,8 +19,9 @@ interface ContextoBusqueda{
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class Navbar {
+export class Navbar implements OnInit {
   terminoBusqueda: string | null = null;
+  fechaActual = '';
 
   // Lista con modulos donde se puede hacer busquedas
   opcionesBusqueda: ContextoBusqueda[] = [
@@ -47,6 +48,19 @@ export class Navbar {
   contextoSeleccionado: ContextoBusqueda = this.opcionesBusqueda[0];
 
   constructor(private router: Router){}
+
+  ngOnInit(): void {
+    this.actualizarFecha();
+  }
+
+  private actualizarFecha(): void {
+    this.fechaActual = new Intl.DateTimeFormat('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(new Date());
+  }
 
   ejecutarBusqueda(): void {
     if (this.terminoBusqueda?.trim()) {
