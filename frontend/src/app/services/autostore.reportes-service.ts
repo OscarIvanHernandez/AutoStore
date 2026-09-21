@@ -28,10 +28,11 @@ export class ReportesService {
     return this.http.get<TopProducto[]>(`${this.apiUrl}/top-productos`, { params });
   }
 
-  descargarCsvGanancias(desde: string, hasta: string): Observable<Blob> {
+  descargarCsvGanancias(desde: string, hasta: string, limite: number = 10): Observable<Blob> {
     const params = new HttpParams()
       .set('desde', desde)
-      .set('hasta', hasta);
+      .set('hasta', hasta)
+      .set('limite', limite.toString());
 
     return this.http.get(`${this.apiUrl}/ganancias/csv`, {
       params,

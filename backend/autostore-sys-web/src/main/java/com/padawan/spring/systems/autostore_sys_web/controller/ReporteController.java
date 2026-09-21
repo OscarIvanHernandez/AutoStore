@@ -45,9 +45,10 @@ public class ReporteController {
     @GetMapping("/ganancias/csv")
     public ResponseEntity<byte[]> descargarCsvGanancias(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(defaultValue = "10") int limite) {
         
-        byte[] csvBytes = reporteService.generarCsvGanancias(desde, hasta);
+        byte[] csvBytes = reporteService.generarCsvGanancias(desde, hasta, limite);
         
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-ganancias.csv")

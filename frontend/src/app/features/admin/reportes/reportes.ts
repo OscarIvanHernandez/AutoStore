@@ -118,7 +118,11 @@ export class Reportes implements OnInit {
   descargarCsv(): void {
     if (!this.fechaInicio || !this.fechaFin) return;
 
-    this.reportesService.descargarCsvGanancias(this.fechaInicio, this.fechaFin).subscribe({
+    this.reportesService.descargarCsvGanancias(
+      this.fechaInicio,
+      this.fechaFin,
+      this.limiteProductos
+    ).subscribe({
       next: (archivo) => {
         const url = URL.createObjectURL(archivo);
         const enlace = document.createElement('a');
