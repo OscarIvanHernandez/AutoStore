@@ -1,0 +1,94 @@
+<div class="reportes-content">
+  <section class="reportes-header">
+    <div>
+      <h1>Reportes</h1>
+      <p>Consulta el rendimiento de ventas por período.</p>
+    </div>
+    <button class="btn-export" type="button" (click)="descargarCsv()" [disabled]="isLoading || !reporte">
+      Descargar CSV
+    </button>
+  </section>
+
+  <section class="filters-panel" aria-label="Filtros del reporte">
+    <div class="field-group">
+      <label for="fecha-inicio">Desde</label>
+      <input id="fecha-inicio" type="date" [(ngModel)]="fechaInicio">
+    </div>
+    <div class="field-group">
+      <label for="fecha-fin">Hasta</label>
+      <input id="fecha-fin" type="date" [(ngModel)]="fechaFin">
+    </div>
+    <div class="field-group limit-field">
+      <label for="limite-productos">Productos</label>
+      <select id="limite-productos" [(ngModel)]="limiteProductos">
+        <option [ngValue]="5">5</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+      </select>
+    </div>
+    <button class="btn-primary" type="button" (click)="cargarReporte()" [disabled]="isLoading">
+      {{ isLoading ? 'Cargando...' : 'Generar reporte' }}
+    </button>
+  </section>
+
+  <p class="message error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="metrics-grid" *ngIf="reporte as datos">
+    <article class="metric-card sales-metric">
+      <span>Ventas totales</span>
+      <strong>{{ datos.ventasTotales | currency:'MXN':'symbol':'1.2-2' }}</strong>
+      <small>{{ datos.cantidadVentas }} ventas registradas</small>
+    </article>
+    <article class="metric-card profit-metric">
+      <span>Ganancia neta</span>
+      <strong>{{ datos.gananciaNeta | currency:'MXN':'symbol':'1.2-2' }}</strong>
+      <small>Después del costo de mercancía</small>
+    </article>
+    <article class="metric-card cost-metric">
+      <span>Costo total</span>
+      <strong>{{ datos.costoTotal | currency:'MXN':'symbol':'1.2-2' }}</strong>
+      <small>Valor de productos vendidos</small>
+    </article>
+    <article class="metric-card products-metric">
+      <span>Productos vendidos</span>
+      <strong>{{ datos.productosVendidos | number }}</strong>
+      <small>Unidades en el período</small>
+    </article>
+  </section>
+
+  <section class="products-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Productos más vendidos</h2>
+        <p>Ordenados por cantidad vendida en el período seleccionado.</p>
+      </div>
+      <span class="result-count">{{ topProductos.length }} resultados</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Marca</th>
+            <th>Unidades</th>
+            <th>Ventas</th>
+            <th>Ganancia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of topProductos; let indice = index">
+            <td><span class="rank">{{ indice + 1 }}</span>{{ producto.nombre }}</td>
+            <td>{{ producto.marca || 'Sin marca' }}</td>
+            <td>{{ producto.cantidadVendida | number }}</td>
+            <td>{{ producto.totalVentas | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td>{{ producto.gananciaGenerada | currency:'MXN':'symbol':'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="!isLoading && topProductos.length === 0">
+            <td class="empty-state" colspan="5">No hay productos vendidos en este período.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

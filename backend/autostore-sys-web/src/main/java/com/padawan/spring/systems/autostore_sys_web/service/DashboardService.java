@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.ReporteGananciasDTO;
+import com.padawan.spring.systems.autostore_sys_web.model.TopProductoDTO;
 import com.padawan.spring.systems.autostore_sys_web.repository.ClienteRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
@@ -39,17 +40,23 @@ public class DashboardService {
                 gananciasHoyReporte.getCantidadVentas()
         );
 
-        // 2. Productos con stock bajo
+        // 2. Resumen y productos más vendidos de los últimos 7 días
+        LocalDate inicioSemana = hoy.minusDays(6);
+        ReporteGananciasDTO ventasSemana = reporteService.obtenerGanancias(inicioSemana, hoy);
+        List<TopProductoDTO> topProductos =
+            reporteService.obtenerTopProductos(inicioSemana, hoy, 5);
+
+        // 3. Productos con stock bajo
         List<DashboardDTO.ProductoStockBajo> stockBajo = productoRepository.findProductosConStockBajo();
 
-        // 3. Deudores
+        // 4. Deudores
         Long totalDeudores = clienteRepository.contarClientesDeudores();
         BigDecimal sumaDeudas = clienteRepository.sumarTotalDeudas();
         DashboardDTO.DeudoresResumen deudores = new DashboardDTO.DeudoresResumen(totalDeudores, sumaDeudas);
 
-        // 4. Últimas 5 ventas
+        // 5. Últimas 5 ventas
         List<DashboardDTO.UltimaVenta> ultimasVentas = ventaRepository.obtenerUltimas5Ventas(PageRequest.of(0, 5));
 
-        return new DashboardDTO(gananciasHoy, stockBajo, deudores, ultimasVentas);
+        return new DashboardDTO(gananciasHoy, stockBajo, deudores, ultimasVentas, ventasSemana, topProductos);
     }
 }

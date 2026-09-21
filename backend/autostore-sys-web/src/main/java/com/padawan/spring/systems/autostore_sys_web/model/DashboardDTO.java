@@ -9,12 +9,22 @@ public class DashboardDTO {
     private List<ProductoStockBajo> stockBajo;
     private DeudoresResumen deudores;
     private List<UltimaVenta> ultimasVentas;
+    private ReporteGananciasDTO ventasSemana;
+    private List<TopProductoDTO> topProductos;
 
-    public DashboardDTO(GananciasHoy gananciasHoy, List<ProductoStockBajo> stockBajo, DeudoresResumen deudores, List<UltimaVenta> ultimasVentas) {
+    public DashboardDTO(
+            GananciasHoy gananciasHoy,
+            List<ProductoStockBajo> stockBajo,
+            DeudoresResumen deudores,
+            List<UltimaVenta> ultimasVentas,
+            ReporteGananciasDTO ventasSemana,
+            List<TopProductoDTO> topProductos) {
         this.gananciasHoy = gananciasHoy;
         this.stockBajo = stockBajo;
         this.deudores = deudores;
         this.ultimasVentas = ultimasVentas;
+        this.ventasSemana = ventasSemana;
+        this.topProductos = topProductos;
     }
 
     // Inner Classes para estructurar la respuesta
@@ -75,4 +85,6 @@ public class DashboardDTO {
     public List<ProductoStockBajo> getStockBajo() { return stockBajo; }
     public DeudoresResumen getDeudores() { return deudores; }
     public List<UltimaVenta> getUltimasVentas() { return ultimasVentas; }
+    public ReporteGananciasDTO getVentasSemana() { return ventasSemana; }
+    public List<TopProductoDTO> getTopProductos() { return topProductos; }
 }

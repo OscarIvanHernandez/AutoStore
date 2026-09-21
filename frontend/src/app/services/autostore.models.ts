@@ -211,4 +211,6 @@ export interface DashboardData {
   stockBajo: ProductoStockBajo[];
   deudores: DeudoresSummary;
   ultimasVentas: UltimaVentaSummary[];
+  ventasSemana: ReporteGanancias;
+  topProductos: TopProducto[];
 }
