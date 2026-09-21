@@ -26,7 +26,7 @@ export class Dashboard implements OnInit{
   ){}
 
   ngOnInit(): void {
-
+    this.obtenerDatos();
   }
 
   private showSuccesMessage(message: string, duration: number): void {
@@ -53,7 +53,7 @@ export class Dashboard implements OnInit{
     this.isLoading = true;
     this.dashboardService.obtenerDashboard().subscribe({
       next: (data) =>{
-        console.log('Datos de dashboard ok')
+        console.log('Datos de dashboard ok', data)
         this.dashboardDatos = data;
         setTimeout(() => {
           this.cdr.detectChanges();
