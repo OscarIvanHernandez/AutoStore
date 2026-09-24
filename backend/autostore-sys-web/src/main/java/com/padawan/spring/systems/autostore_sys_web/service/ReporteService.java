@@ -84,11 +84,12 @@ public class ReporteService {
     }
 
     private void agregarProductos(StringBuilder sb, List<TopProductoDTO> productos) {
-        sb.append("ID,Producto,Marca,Cantidad Vendida,Total Ventas,Ganancia Generada\n");
+        sb.append("ID,Producto,Marca,Categoría,Cantidad Vendida,Total Ventas,Ganancia Generada\n");
         for (TopProductoDTO producto : productos) {
             sb.append(producto.getProductoId()).append(',')
                     .append(csv(producto.getNombre())).append(',')
                     .append(csv(producto.getMarca())).append(',')
+                    .append(csv(producto.getCategoria())).append(',')
                     .append(producto.getCantidadVendida()).append(',')
                     .append(moneda(producto.getTotalVentas())).append(',')
                     .append(moneda(producto.getGananciaGenerada())).append('\n');
