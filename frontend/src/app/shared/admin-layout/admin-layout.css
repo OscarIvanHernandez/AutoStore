@@ -2,8 +2,8 @@
   display: grid;
   /* Definimos 2 columnas: la primera de 260px (sidebar) y la segunda toma el resto (1fr) */
   grid-template-columns: 260px 1fr;
-  /* Definimos 2 filas: la primera de 70px (navbar) y la segunda toma el resto (1fr) */
-  grid-template-rows: 70px 1fr;
+  /* El navbar contiene la marca, la fecha y la búsqueda */
+  grid-template-rows: 96px 1fr;
 
   /* Dibujamos el mapa de la pantalla: */
   grid-template-areas:
@@ -32,4 +32,10 @@
   grid-area: main;
   background-color: #f4f8fb; /* Fondo gris claro para el contenido */
   overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
+}
+
+@media (max-width: 760px) {
+  .admin-grid {
+    grid-template-rows: auto 1fr;
+  }
 }

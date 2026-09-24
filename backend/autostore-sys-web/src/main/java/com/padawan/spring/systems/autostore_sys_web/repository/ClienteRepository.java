@@ -16,11 +16,11 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     List<Cliente> findByNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCase(String nombre, String telefono);
 
-            // Búsqueda por nombre o teléfono entre clientes activos (ISSUE-15)
-            @Query("SELECT c FROM Cliente c WHERE c.activo = true AND "
-            + "(LOWER(c.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')) "
-            + "OR c.telefono LIKE CONCAT('%', :filtro, '%'))")
-            List<Cliente> buscarActivos(@org.springframework.data.repository.query.Param("filtro") String filtro);
+    // Búsqueda por nombre o teléfono entre clientes activos (ISSUE-15)
+    @Query("SELECT c FROM Cliente c WHERE c.activo = true AND "
+        + "(LOWER(c.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')) "
+        + "OR c.telefono LIKE CONCAT('%', :filtro, '%'))")
+    List<Cliente> buscarActivos(@org.springframework.data.repository.query.Param("filtro") String filtro);
 
     // Listar deudores ordenados de mayor a menor deuda (ISSUE-18)
     List<Cliente> findByDeudaActualGreaterThanAndActivoTrueOrderByDeudaActualDesc(BigDecimal montoMinimo);

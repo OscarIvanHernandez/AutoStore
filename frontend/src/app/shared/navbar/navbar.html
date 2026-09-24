@@ -1,31 +1,38 @@
 <header class="header">
+  <section class="brand-block">
+    <h2>Lubricantes y Filtros Ivan</h2>
+    <p class="current-date">{{ fechaActual }}</p>
+  </section>
 
   <div class="search-container">
-      <!-- 1. El selector de contexto -->
-      <div class="context-container">
-        <select [(ngModel)]="contextoSeleccionado" class="search-select">
-          <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
-            {{ opcion.nombre }}
-          </option>
-        </select>
-      </div>
+    <label class="search-label" for="global-search">Búsqueda rápida</label>
+    <div class="search-controls">
+      <select [(ngModel)]="contextoSeleccionado" class="search-select" aria-label="Buscar en">
+        <option *ngFor="let opcion of opcionesBusqueda" [ngValue]="opcion">
+          {{ opcion.nombre }}
+        </option>
+      </select>
 
-      <!-- 2. La barra de búsqueda con el placeholder dinámico -->
-      <div class="search-input">
+      <div class="search-input-wrapper">
         <input
+          id="global-search"
           type="text"
           [placeholder]="contextoSeleccionado.placeholder"
           [(ngModel)]="terminoBusqueda"
           (keyup.enter)="ejecutarBusqueda()"
-          class="search-input">
+          aria-label="Término de búsqueda">
+        <button
+          type="button"
+          class="btn-clear"
+          *ngIf="terminoBusqueda"
+          (click)="limpiarBusqueda()"
+          aria-label="Limpiar búsqueda"
+          title="Limpiar búsqueda">×</button>
       </div>
 
-      <button class="btn-clear" *ngIf="terminoBusqueda" (click)="limpiarBusqueda()">
-        ✖
+      <button type="button" (click)="ejecutarBusqueda()" class="search-button" aria-label="Buscar" title="Buscar">
+        <span aria-hidden="true">⌕</span>
       </button>
-      <button (click)="ejecutarBusqueda()" class="search-button">
-        🔍
-      </button>
-
+    </div>
   </div>
 </header>

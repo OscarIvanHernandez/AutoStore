@@ -45,6 +45,8 @@ public class DetalleVenta {
 
     private BigDecimal precioUnitario;
 
+    @Column(precision = 19, scale = 2)
+    private BigDecimal precioCompraHistorico;
 
     private BigDecimal subtotal;
 

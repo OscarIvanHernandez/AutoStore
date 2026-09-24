@@ -1,1 +1,39 @@
-<p>dashboard works!</p>
+<div class="dashboard-content">
+  <section>
+    <h2>Tablero</h2>
+    <p>Resumen general de la operación de hoy</p>
+  </section>
+
+  <div class="dashboard-main">
+    <div class="ventas-card">
+      <span class="card-label">Ventas del día</span>
+      <strong class="card-value">${{ dashboardDatos?.gananciasHoy?.ventas ?? 0 }}</strong>
+      <span class="card-detail">Resumen de ventas de hoy</span>
+    </div>
+    <div class="ganancias-card">
+      <span class="card-label">Ganancias del día</span>
+      <strong class="card-value">${{ dashboardDatos?.gananciasHoy?.ganancia ?? 0 }}</strong>
+      <span class="card-detail">Resultado acumulado</span>
+    </div>
+    <div class="stockBajo-card">
+      <span class="card-label">Stock bajo</span>
+      <strong class="card-value">{{ dashboardDatos?.stockBajo?.length ?? 0 }}</strong>
+      <span class="card-detail">Productos por reponer</span>
+    </div>
+    <div class="conDeuda-card">
+      <span class="card-label">Clientes con deuda</span>
+      <strong class="card-value">{{ dashboardDatos?.deudores?.cantidad ?? 0 }}</strong>
+      <span class="card-detail">Cuentas pendientes</span>
+    </div>
+    <div class="ventasSemana-card">
+      <span class="card-label">Ventas por semana</span>
+      <strong class="card-value">${{ dashboardDatos?.ventasSemana?.ventasTotales ?? 0 }}</strong>
+      <span class="card-detail">Total de los últimos 7 días</span>
+    </div>
+    <div class="topProductos-card">
+      <span class="card-label">Top productos</span>
+      <strong class="card-value">{{ dashboardDatos?.topProductos?.[0]?.nombre ?? '--' }}</strong>
+      <span class="card-detail">Producto más vendido de la semana</span>
+    </div>
+  </div>
+</div>
