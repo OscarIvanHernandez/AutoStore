@@ -206,6 +206,19 @@ export interface UltimaVentaSummary {
   cliente: string;
 }
 
+// Devoluciones
+
+export interface ItemDevolucion {
+  id: number;
+  cantidad: number
+}
+
+export interface Devoluciones {
+  id: number;
+  motivo: String;
+  itemDevolucion: ItemDevolucion [];
+}
+
 export interface DashboardData {
   gananciasHoy: GananciasHoySummary;
   stockBajo: ProductoStockBajo[];
