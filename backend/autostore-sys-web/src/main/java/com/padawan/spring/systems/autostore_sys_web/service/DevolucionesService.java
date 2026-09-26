@@ -107,8 +107,26 @@ public class DevolucionesService {
             clienteRepository.save(cliente);
         }
 
-        // Cambiar estado a Devolución Parcial en la venta
-        venta.setEstado(EstadoVenta.DEVOLUCION_PARCIAL);
+        // Calcular el total de unidades originales de la venta
+        int totalUnidadesOriginales = venta.getDetalles().stream()
+            .mapToInt(detalle -> detalle.getCantidad())
+                .sum();
+
+        // Calcular el total acumulado de unidades devueltas para esta venta (incluyendo la actual)
+        int totalUnidadesDevueltasAcumuladas = 0;
+        for (DetalleVenta dv : venta.getDetalles()) {
+            Integer devueltoAcc = devolucionRepository.obtenerCantidadYaDevuelta(venta.getId(), dv.getProducto().getId());
+            totalUnidadesDevueltasAcumuladas += devueltoAcc;
+        }
+
+        // Actualizar el estado dinámicamente
+        if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {
+            // Si se devolvió todo, la venta se marca como DEVOLUCION_TOTAL (o CANCELADA)
+            venta.setEstado(EstadoVenta.DEVOLUCION_TOTAL);
+        } else {
+            // Si aún quedan productos activos de esa venta
+            venta.setEstado(EstadoVenta.DEVOLUCION_PARCIAL);
+        }
         ventaRepository.save(venta);
 
         return devolucionRepository.save(devolucion);

@@ -104,7 +104,7 @@ export class DevolucionesComponent implements OnInit {
       nombre: detalle.producto.nombre,
       marca: detalle.producto.marca ?? '',
       cantidad: 0,
-      maxCantidad: detalle.cantidad,
+      maxCantidad: detalle.cantidad, // cantidad vendida en esta venta, no el stock actual del inventario
       precioUnitario: detalle.precioUnitario,
     }));
   }
