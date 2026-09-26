@@ -1,1 +1,117 @@
-<p>devoluciones works!</p>
+<section class="devoluciones-page">
+  <div class="page-header">
+    <div>
+      <h1>Devoluciones</h1>
+      <p>Revisión de ventas y registro de devoluciones por producto.</p>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div class="devoluciones-layout">
+    <div class="panel ventas-panel">
+      <h2>Ventas recientes</h2>
+
+      <div *ngIf="isLoading" class="loading-state">Cargando ventas...</div>
+
+      <table *ngIf="!isLoading && ventas.length" class="data-table">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let venta of ventas"
+            [class.selected]="ventaSeleccionada?.id === venta.id"
+            (click)="seleccionarVenta(venta)"
+          >
+            <td>#{{ venta.id }}</td>
+            <td>{{ venta.fechaVenta | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>${{ venta.total }}</td>
+            <td>
+              <span [class.text-success]="venta.estado === 'COMPLETADA'" [class.text-warning]="venta.estado === 'DEVOLUCION_PARCIAL'">
+                {{ venta.estado }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!isLoading && !ventas.length" class="empty-state">
+        No hay ventas disponibles para devolver.
+      </div>
+    </div>
+
+    <div class="panel detalle-panel" *ngIf="ventaSeleccionada">
+      <h2>Detalle de venta #{{ ventaSeleccionada.id }}</h2>
+
+      <div class="venta-summary">
+        <span>Tipo: {{ ventaSeleccionada.tipoVenta }}</span>
+        <span>Fecha: {{ ventaSeleccionada.fechaVenta | date: 'dd/MM/yyyy HH:mm' }}</span>
+        <span>Total: ${{ ventaSeleccionada.total }}</span>
+      </div>
+
+      <div class="products-list">
+        <div class="product-row" *ngFor="let producto of productosADevolver; let i = index">
+          <div class="product-info">
+            <strong>{{ producto.nombre }}</strong>
+            <small>{{ producto.marca }}</small>
+            <small>Disponible: {{ producto.maxCantidad }}</small>
+          </div>
+
+          <label class="quantity-field">
+            Cantidad
+            <input
+              type="number"
+              min="0"
+              [max]="producto.maxCantidad"
+              [(ngModel)]="producto.cantidad"
+              (ngModelChange)="producto.cantidad = $event < 0 ? 0 : $event > producto.maxCantidad ? producto.maxCantidad : $event"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="return-form">
+        <label for="motivo">Motivo de la devolución</label>
+        <textarea id="motivo" rows="3" [(ngModel)]="motivo" placeholder="Ej. Producto defectuoso, cambio de talla, etc."></textarea>
+      </div>
+
+      <div class="return-summary" *ngIf="productosSeleccionados.length">
+        <span>Productos seleccionados: {{ productosSeleccionados.length }}</span>
+        <span>Total estimado: ${{ totalReembolso }}</span>
+      </div>
+
+      <button class="btn-primary" type="button" (click)="registrarDevolucion()">
+        Registrar devolución
+      </button>
+    </div>
+
+    <div class="panel history-panel">
+      <h2>Historial de devoluciones</h2>
+
+      <div *ngIf="!devoluciones.length" class="empty-state">
+        Aún no se han registrado devoluciones.
+      </div>
+
+      <div *ngIf="devoluciones.length" class="history-list">
+        <div class="history-item" *ngFor="let item of devoluciones">
+          <div class="history-top">
+            <strong>Devolución #{{ item.id }}</strong>
+            <span>{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <p>{{ item.motivo }}</p>
+          <div class="history-meta">
+            <span>Venta: #{{ item.venta?.id ?? 'N/A' }}</span>
+            <span>Reembolso: ${{ item.totalReembolso }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { Devoluciones } from './autostore.models';
+import { DevolucionRequest, Devoluciones } from './autostore.models';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class DevolucionesService {
   private apiURL = 'http://localhost:8080/api/devoluciones';
 
@@ -12,26 +12,26 @@ export class DevolucionesService {
   listar(): Observable<Devoluciones[]> {
     console.log('📡 Petición GET a:', this.apiURL);
     return this.http.get<Devoluciones[]>(this.apiURL).pipe(
-      tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/   Devoluciones-Service:', response);
+      tap((response) => {
+        console.log('📊 Respuesta recibida en AutoStore/Devoluciones-Service:', response);
       })
     );
   }
 
-  crear(devolucion: Devoluciones): Observable<Devoluciones> {
+  crear(devolucion: DevolucionRequest): Observable<Devoluciones> {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post<Devoluciones>(this.apiURL, devolucion).pipe(
-      tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/   Devoluciones-Service:', response);
+      tap((response) => {
+        console.log('📊 Respuesta recibida en AutoStore/Devoluciones-Service:', response);
       })
     );
   }
 
-  obtenrId(id: number): Observable<Devoluciones> {
-    console.log('📡 Petición GET a:', this.apiURL);
+  obtenerPorId(id: number): Observable<Devoluciones> {
+    console.log('📡 Petición GET a:', `${this.apiURL}/${id}`);
     return this.http.get<Devoluciones>(`${this.apiURL}/${id}`).pipe(
-      tap(response => {
-        console.log('📊 Respuesta recibida en AutoStore/   Devoluciones-Service:', response.id);
+      tap((response) => {
+        console.log('📊 Respuesta recibida en AutoStore/Devoluciones-Service:', response.id);
       })
     );
   }
