@@ -72,7 +72,7 @@ export interface VentaInterface {
   cambio?: number | null;
   tipoVenta: 'CONTADO' | 'CREDITO';
   clienteId?: number | null;
-  estado: 'COMPLETADA' | 'CANCELADA' | 'DEVOLUCION_PARCIAL';
+  estado: 'COMPLETADA' | 'CANCELADA' | 'DEVOLUCION_PARCIAL' | 'DEVOLUCION_TOTAL';
   metodoPago: string;
   detalles: DetalleVentaResponse[];
 }

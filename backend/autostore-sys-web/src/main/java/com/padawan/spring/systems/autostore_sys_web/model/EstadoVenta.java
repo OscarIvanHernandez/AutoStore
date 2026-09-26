@@ -3,5 +3,6 @@ package com.padawan.spring.systems.autostore_sys_web.model;
 public enum EstadoVenta {
     COMPLETADA,
     CANCELADA,
-    DEVOLUCION_PARCIAL
+    DEVOLUCION_PARCIAL,
+    DEVOLUCION_TOTAL
 }
