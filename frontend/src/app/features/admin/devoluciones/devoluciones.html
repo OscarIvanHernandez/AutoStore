@@ -47,71 +47,101 @@
       </div>
     </div>
 
-    <div class="panel detalle-panel" *ngIf="ventaSeleccionada">
-      <h2>Detalle de venta #{{ ventaSeleccionada.id }}</h2>
+    <div class="panel detalle-panel">
+      <h2>Detalle de la venta</h2>
 
-      <div class="venta-summary">
-        <span>Tipo: {{ ventaSeleccionada.tipoVenta }}</span>
-        <span>Fecha: {{ ventaSeleccionada.fechaVenta | date: 'dd/MM/yyyy HH:mm' }}</span>
-        <span>Total: ${{ ventaSeleccionada.total }}</span>
+      <div *ngIf="!ventaSeleccionada" class="empty-state">
+        Selecciona una venta para ver su detalle.
       </div>
 
-      <div class="products-list">
-        <div class="product-row" *ngFor="let producto of productosADevolver; let i = index">
-          <div class="product-info">
-            <strong>{{ producto.nombre }}</strong>
-            <small>{{ producto.marca }}</small>
-            <small>Disponible: {{ producto.maxCantidad }}</small>
-          </div>
-
-          <label class="quantity-field">
-            Cantidad
-            <input
-              type="number"
-              min="0"
-              [max]="producto.maxCantidad"
-              [(ngModel)]="producto.cantidad"
-              (ngModelChange)="producto.cantidad = $event < 0 ? 0 : $event > producto.maxCantidad ? producto.maxCantidad : $event"
-            />
-          </label>
+      <div *ngIf="ventaSeleccionada" class="detalle-content">
+        <div class="venta-summary">
+          <span><strong>Folio:</strong> #{{ ventaSeleccionada.id }}</span>
+          <span><strong>Fecha:</strong> {{ ventaSeleccionada.fechaVenta | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span><strong>Total:</strong> ${{ ventaSeleccionada.total }}</span>
         </div>
-      </div>
 
-      <div class="return-form">
-        <label for="motivo">Motivo de la devolución</label>
-        <textarea id="motivo" rows="3" [(ngModel)]="motivo" placeholder="Ej. Producto defectuoso, cambio de talla, etc."></textarea>
-      </div>
+        <table class="data-table detail-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detalle of ventaSeleccionada.detalles">
+              <td>{{ detalle.producto.nombre }}</td>
+              <td>{{ detalle.cantidad }}</td>
+              <td>${{ detalle.precioUnitario }}</td>
+              <td>${{ detalle.subtotal }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <div class="return-summary" *ngIf="productosSeleccionados.length">
-        <span>Productos seleccionados: {{ productosSeleccionados.length }}</span>
-        <span>Total estimado: ${{ totalReembolso }}</span>
-      </div>
+        <div class="return-form">
+          <label for="motivo">Motivo de la devolución</label>
+          <textarea id="motivo" rows="3" [(ngModel)]="motivo" placeholder="Ej. Producto defectuoso, cambio de producto, etc."></textarea>
+        </div>
 
-      <button class="btn-primary" type="button" (click)="registrarDevolucion()">
-        Registrar devolución
-      </button>
+        <div class="products-list">
+          <div class="product-row" *ngFor="let producto of productosADevolver">
+            <div class="product-info">
+              <strong>{{ producto.nombre }}</strong>
+              <small>{{ producto.marca }}</small>
+              <small>Disponible: {{ producto.maxCantidad }}</small>
+            </div>
+
+            <label class="quantity-field">
+              Cantidad
+              <input
+                type="number"
+                min="0"
+                [max]="producto.maxCantidad"
+                [(ngModel)]="producto.cantidad"
+                (ngModelChange)="producto.cantidad = $event < 0 ? 0 : $event > producto.maxCantidad ? producto.maxCantidad : $event"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="return-summary" *ngIf="productosSeleccionados.length">
+          <span>Productos seleccionados: {{ productosSeleccionados.length }}</span>
+          <span>Total estimado: ${{ totalReembolso }}</span>
+        </div>
+
+        <button class="btn-primary" type="button" (click)="registrarDevolucion()">
+          Registrar devolución
+        </button>
+      </div>
     </div>
 
     <div class="panel history-panel">
       <h2>Historial de devoluciones</h2>
 
       <div *ngIf="!devoluciones.length" class="empty-state">
-        Aún no se han registrado devoluciones.
+        Sin devoluciones registradas.
       </div>
 
-      <div *ngIf="devoluciones.length" class="history-list">
-        <div class="history-item" *ngFor="let item of devoluciones">
-          <div class="history-top">
-            <strong>Devolución #{{ item.id }}</strong>
-            <span>{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-          <p>{{ item.motivo }}</p>
-          <div class="history-meta">
-            <span>Venta: #{{ item.venta?.id ?? 'N/A' }}</span>
-            <span>Reembolso: ${{ item.totalReembolso }}</span>
-          </div>
-        </div>
-      </div>
+      <table *ngIf="devoluciones.length" class="data-table history-table">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Motivo</th>
+            <th>Reembolso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of devoluciones">
+            <td>#{{ item.id }}</td>
+            <td>{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.motivo }}</td>
+            <td>${{ item.totalReembolso }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
