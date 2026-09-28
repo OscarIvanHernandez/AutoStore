@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { Caja } from './modal/caja/caja';
 import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 import { ClienteService } from '../../../services/autostore.clientes-service';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-sales',
@@ -28,6 +29,7 @@ export class Sales implements OnInit {
 
   // Variable de carga
   isLoading: boolean = false;
+  hasError: boolean = false;
 
   // Busqueda de productos
   busquedaTexto: string = '';
@@ -117,28 +119,57 @@ export class Sales implements OnInit {
   }
 
   cargarClientes(): void {
-    this.clientesService.listarClientesActivos().subscribe({
-      next: (dataClientes) => {
-        console.log('clientes: ',dataClientes);
-        this.clientes = dataClientes;
-      },
-      error: (err) => {
-        console.log('Error al cargar clientes: ', err);
-      }
-    })
+    this.clientesService.listarClientesActivos().pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los clientes: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los clientes. (${error.status})`,
+            3500
+          );
+        }
+        return of([])
+      })
+    ).subscribe((data) =>{
+        console.log('clientes: ',data);
+        this.clientes = data;
+    });
   }
 
   verificarEstadoCaja(): void {
-  this.cajaService.obtenerEstado().subscribe({
-      next: (estado) => {
-        this.datosCaja = estado;
-        this.cajaAbierta = estado.abierta;
-        if (!this.cajaAbierta) {
-          this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
+  this.cajaService.obtenerEstado().pipe(
+    catchError((error) => {
+              this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al verificar caja: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
         } else {
-          this.cargarProductos();
+          this.showErrorMessage(
+            `Ocurrió un error al verificar el estado de caja. (${error.status})`,
+            4500
+          );
         }
-      }
+        return EMPTY
+    })
+  ).subscribe((estado) => {
+      this.datosCaja = estado;
+      this.cajaAbierta = estado.abierta;
+      if (!this.cajaAbierta) {
+        this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
+      } else {
+        this.cargarProductos();
+        }
     });
   }
 
@@ -155,14 +186,27 @@ export class Sales implements OnInit {
   }
 
   onAbrirCaja(efectivoInicial: number): void {
-    this.cajaService.abrirCaja(efectivoInicial).subscribe({
-      next: () => {
+    this.cajaService.abrirCaja(efectivoInicial).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al abrir caja: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al abrir la caja. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+      })
+    ).subscribe(()=>{
         this.mostrarModalApertura = false;
         this.verificarEstadoCaja();
-      },
-      error: () => {
-        this.mostrarModalApertura = true;
-      }
     });
   }
 
@@ -175,24 +219,31 @@ export class Sales implements OnInit {
     });
   }
 
-
   cargarProductos(): void {
     this.isLoading = true;
-    this.productoService.getProductosActivos().subscribe({
-      next: (productos) => {
-        console.log('Productos cargados:', productos);
-        this.productos = productos;
+    this.productoService.getProductosActivos().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los productos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los productos. (${error.status})`,
+            3500
+          );
+        }
+        return of([])
+      })
+    ).subscribe((data) => {
+        console.log('Productos cargados:', data);
+        this.productos = data;
         this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al cargar productos:', error);
-        this.showErrorMessage(
-          `Hubo un error al cargar los productos. (${error.status})`,
-          12000
-        );
-      }
     });
   }
 
@@ -200,7 +251,25 @@ export class Sales implements OnInit {
   BuscarProducto(): void {
     if (this.busquedaTexto.trim().length > 1) {
       this.productoService.buscar({q: this.busquedaTexto, estado: "activo"})
-        .subscribe(data => this.productosEncontrados = data);
+        .pipe(
+          catchError((error) =>{
+          this.hasError = true;
+          this.isLoading = false;
+          console.log('Error al obtener los productos: ', error);
+          if (error.status === 0){
+            this.showErrorMessage(
+              `No se pudo conectar con el servidor.`,
+              3500
+            );
+          } else {
+            this.showErrorMessage(
+              `Ocurrió un error al obtener los productos. (${error.status})`,
+              3500
+            );
+          }
+          return of([])
+        })
+        ).subscribe(data => this.productosEncontrados = data);
     } else {
       this.productosEncontrados = [];
     }
@@ -345,23 +414,31 @@ export class Sales implements OnInit {
     };
 
     this.isLoading = true;
-    this.ventaService.crearVenta(payload).subscribe({
-      next: (ventaCreada) => {
+    this.ventaService.crearVenta(payload).pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        this.ventaRealizada = ventaCreada;
+        console.log('Error al procesar venta: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al procesar la venta. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+      })
+    ).subscribe((data) => {
+        this.isLoading = false;
+        this.ventaRealizada = data;
         this.mostrarModalCobro = false;
         this.mostrarModalTicket = true;
         this.verificarEstadoCaja();
         this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.showErrorMessage(
-          'Error al procesar la venta: ' + (err.error?.mensaje || err.error?.message || 'Error desconocido'),
-          8000
-        );
-        this.cdr.markForCheck();
-      }
     });
   }
 
@@ -382,39 +459,4 @@ export class Sales implements OnInit {
     this.verificarEstadoCaja();
     this.recalcularTotales();
   }
-
-  // Enviar la venta
-  /**procesarVenta(): void {
-    if (this.carrito.length === 0) return;
-
-    if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
-      alert("Debe seleccionar un cliente para ventas a crédito.");
-      return;
-    }
-    const procesarVenta: VentaRequest = {
-      productos: this.carrito.map(item => ({
-        id: item.productoId,
-        cantidad: item.cantidad,
-        precioTipo: item.precioTipo
-      })),
-      descuento: this.descuento,
-      tipoVenta: this.tipoVenta,
-      ...(this.tipoVenta === 'CREDITO' && this.clienteIdSeleccionado !== null
-        ? { clienteId: this.clienteIdSeleccionado }
-        : {})
-    };
-    console.log('PAYLOAD A ENVIAR:', procesarVenta);
-    this.ventaService.crearVenta(procesarVenta).subscribe({
-      next: (ventaCreada) => {
-        alert('Venta Procesada con éxito');
-        this.carrito = [];
-        this.descuento = 0;
-        this.tipoVenta = 'CONTADO';
-        this.clienteIdSeleccionado = null;
-        this.recalcularTotales();
-      },
-      error: (err) => alert('Error al procesar la venta: ' + err.error?.message)
-    });
-  }**/
-
 }
