@@ -9,6 +9,7 @@ import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
 import { EditarProducto } from './modales/editar-producto/editar-producto';
 import { InventarioProducto } from './modales/inventario-producto/inventario-producto';
 import { EstadoProducto } from './modales/estado-producto/estado-producto';
+import { catchError, EMPTY, of } from 'rxjs';
 
 
 @Component({
@@ -38,6 +39,7 @@ export class Products implements OnInit{
 
   // Variable para la carga de los datos
   isLoading: boolean = true;
+  hasError: boolean = false;
 
   // Variables para mensajes
   successMessage: string | null = null;
@@ -176,72 +178,114 @@ export class Products implements OnInit{
       this.cargarProductos();
       return;
     }
-
     this.productoService.buscar({
       q: this.textoBusqueda,
       estado: this.estadoSeleccionado,
-    }).subscribe({
-      next:(data) => {
-        console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
-        this.productos = data;
-        this.cdr.markForCheck();
-      },
-      error:(err) => {
-        console.error(err);
-        this.showErrorMessage(
-          'Hubo un error al filtrar los productos',
-          8000
-        )
-      }
+    }).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los productos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al buscar productos. (${error.status})`,
+            3500
+          );
+        }
+        return of([]);
+      })
+    ).subscribe((data) => {
+      console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
+      this.productos = data;
+      this.cdr.markForCheck();
     });
   }
 
   cargarProductos(): void {
     this.isLoading = true;
-    this.productoService.getProductos().subscribe({
-      next: (productos) => {
-        console.log('Productos cargados:', productos);
-        this.productos = productos;
+    this.productoService.getProductos().pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
+        console.log('Error al cargar los productos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los productos. (${error.status})`,
+            3500
+          );
+        }
+        return of([]);
+      })
+    ).subscribe ((data) => {
+      this.productos = data;
+      setTimeout(() =>{
         this.isLoading = false;
-        console.error('Error al cargar productos:', error);
-        this.showErrorMessage(
-          `Hubo un error al cargar los horarios. (${error.status})`,
-          12000
-        );
-      }
+        this.cdr.detectChanges()
+      },1200);
     });
   }
 
   private buscarProductos(filtros: { q?: string; marca?: string; categoria?: string; activo?: boolean }): void {
     this.isLoading = true;
-    this.productoService.buscar(filtros).subscribe({
-      next: (productos) => {
-        console.log('Productos buscados:', productos);
-        this.productos = productos;
+    this.productoService.buscar(filtros).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al buscar los productos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al buscar los productos. (${error.status})`,
+            3500
+          );
+        }
+        return of([]);
+      })
+    ).subscribe((data) => {
+        console.log('Productos buscados:', data);
+        this.productos = data;
         this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al buscar productos:', error);
-        this.showErrorMessage(
-          `Hubo un error al buscar productos. (${error.status})`,
-          12000
-        );
-      }
     });
   }
 
-    guardarProducto(producto: ProductoInterface) {
+  guardarProducto(producto: ProductoInterface) {
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.crear(producto).subscribe({
-      next: (data) => {
+    this.productoService.crear(producto).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al guardar el producto: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY;
+      })
+    ).subscribe((data) => {
         // Se añade el nuevo producto
         this.productos.push(data);
         this.cerrarModal();
@@ -249,14 +293,6 @@ export class Products implements OnInit{
           'Nuevo producto agregado correctamente.',
           8000
         );
-      },
-      error: (error) => {
-        this.cerrarModal();
-        console.error('Error al crear el producto: ', error);
-        this.showErrorMessage(
-          `Error al crear el producto: (${error.status}`,
-          8000);
-      }
     });
   }
 
@@ -266,26 +302,34 @@ export class Products implements OnInit{
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.actualizar(producto.id, producto).subscribe({
-      next: (data) => {
-        const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== -1){
-          this.productos[index] = data;
+    this.productoService.actualizar(producto.id, producto).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los productos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
+            3500
+          );
         }
-        this.cerrarModalEditar();
-        this.showSuccesMessage(
-          'El producto fue editado correctamente.',
-          8000
-        );
-      },
-      error: (error) => {
-        this.cerrarModalEditar();
-        console.error('Error al editar el producto: ', error);
-        this.showErrorMessage(
-          `Error al editar el producto: (${error.status})`,
-          8000
-        );
+        return EMPTY
+      })
+    ).subscribe((data) => {
+      const index = this.productos.findIndex(p => p.id === data.id);
+      if(index !== -1){
+        this.productos[index] = data;
       }
+      this.cerrarModalEditar();
+      this.showSuccesMessage(
+        'El producto fue editado correctamente.',
+        3500
+      );
     });
   }
 
@@ -295,30 +339,38 @@ export class Products implements OnInit{
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.ajustarStock(producto.id, ajuste).subscribe({
-      next: (data) => {
-        const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== -1){
-          this.productos[index] = data;
-        }
-        this.cerrarModalStock();
-        if (ajuste.tipo === 'ENTRADA') {
-          this.showSuccesMessage(
-            `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
-            8000
+    this.productoService.ajustarStock(producto.id, ajuste).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al guardar el producto: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
           );
         } else {
-          this.showSuccesMessage(
-            `Ajuste exitoso: Retirado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
-            8000
+          this.showErrorMessage(
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
+            3500
           );
         }
-      },
-      error: (error) => {
-        console.error('Error al ajustar stock:', error);
-        // Capturar el mensaje de error que fue configurado en el back(ej. "No hay suficiente stock")
-        this.showErrorMessage(`
-          Error: ${error.error || 'No se pudo realizar el ajuste'}`,
+        return EMPTY
+      })
+    ).subscribe((data) => {
+      const index = this.productos.findIndex(p => p.id === data.id);
+      if(index !== -1){
+        this.productos[index] = data;
+      }
+      this.cerrarModalStock();
+      if (ajuste.tipo === 'ENTRADA') {
+        this.showSuccesMessage(
+          `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
+          8000
+        );
+      } else {
+        this.showSuccesMessage(
+          `Ajuste exitoso: Retirado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
           8000
         );
       }
@@ -331,8 +383,25 @@ export class Products implements OnInit{
     this.successMessage = null;
     this.errorMessage = null;
 
-    this.productoService.actualizarEstado(productoEstado).subscribe({
-      next: (data) => {
+    this.productoService.actualizarEstado(productoEstado).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al guardar cambios: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+      })
+    ).subscribe((data) => {
         const index = this.productos.findIndex(p => p.id === data.id);
         if(index !== -1){
           this.productos[index] = data;
@@ -342,14 +411,6 @@ export class Products implements OnInit{
           `Producto "${data.nombre}" ${accion} con éxito.`,
           5000
         );
-      },
-      error: (error) => {
-        console.error('Error al cambiar el estado del producto:', error);
-        this.showErrorMessage(
-          'ERROR: No fue posible cambiar el estado del producto.',
-          5000
-        );
-      }
     });
   }
 
