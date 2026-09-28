@@ -72,7 +72,7 @@ export interface VentaInterface {
   cambio?: number | null;
   tipoVenta: 'CONTADO' | 'CREDITO';
   clienteId?: number | null;
-  estado: 'COMPLETADA' | 'CANCELADA';
+  estado: 'COMPLETADA' | 'CANCELADA' | 'DEVOLUCION_PARCIAL' | 'DEVOLUCION_TOTAL';
   metodoPago: string;
   detalles: DetalleVentaResponse[];
 }
@@ -204,6 +204,42 @@ export interface UltimaVentaSummary {
   total: number;
   tipoVenta: string;
   cliente: string;
+}
+
+// Devoluciones
+
+export interface ProductoDevolucionRequest {
+  productoId: number;
+  cantidad: number;
+}
+
+export interface DevolucionRequest {
+  ventaId: number;
+  motivo: string;
+  productos: ProductoDevolucionRequest[];
+}
+
+export interface DetalleDevolucionResponse {
+  id: number;
+  cantidad: number;
+  montoReembolso: number;
+  producto: {
+    id: number;
+    nombre: string;
+    marca?: string;
+  };
+}
+
+export interface Devoluciones {
+  id: number;
+  motivo: string;
+  fecha: string;
+  totalReembolso: number;
+  venta: {
+    id: number;
+    estado: string;
+  };
+  detalles: DetalleDevolucionResponse[];
 }
 
 export interface DashboardData {

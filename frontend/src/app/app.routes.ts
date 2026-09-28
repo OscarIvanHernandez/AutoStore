@@ -10,6 +10,7 @@ import { CompraDistribuidores } from './features/admin/compra-distribuidores/com
 import { Distribuidores } from './features/admin/distribuidores/distribuidores';
 import { HistoricoMercancia } from './features/admin/historico-mercancia/historico-mercancia';
 import { Reportes } from './features/admin/reportes/reportes';
+import { Devoluciones } from './features/admin/devoluciones/devoluciones';
 
 export const routes: Routes = [
   // Espacio para rutas publicas
@@ -30,6 +31,7 @@ export const routes: Routes = [
       {path: 'entrada-de-mercancia', component: CompraDistribuidores},
       {path: 'historico-de-mercancia', component: HistoricoMercancia},
       {path: 'reportes', component: Reportes},
+      {path: 'devoluciones', component: Devoluciones}
     ]
   }
 ];
