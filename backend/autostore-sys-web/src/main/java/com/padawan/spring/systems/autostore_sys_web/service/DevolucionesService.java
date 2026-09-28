@@ -52,11 +52,21 @@ public class DevolucionesService {
             throw new IllegalStateException("No se pueden realizar devoluciones de una venta cancelada.");
         }
 
+        if (venta.getEstado() == EstadoVenta.DEVOLUCION_TOTAL) {
+            throw new IllegalStateException("La venta ya fue devuelta por completo.");
+        }
+
         Devoluciones devolucion = new Devoluciones();
         devolucion.setVenta(venta);
         devolucion.setMotivo(request.getMotivo().trim());
 
         BigDecimal acumuladoReembolso = BigDecimal.ZERO;
+        int totalUnidadesOriginales = venta.getDetalles().stream()
+            .mapToInt(DetalleVenta::getCantidad)
+            .sum();
+        int totalUnidadesDevueltasAcumuladas = venta.getDetalles().stream()
+            .mapToInt(detalle -> devolucionRepository.obtenerCantidadYaDevuelta(venta.getId(), detalle.getProducto().getId()))
+            .sum();
 
         for (DevolucionesDTO.ItemDevolucion item : request.getProductos()) {
             if (item.getCantidad() <= 0) continue;
@@ -86,6 +96,7 @@ public class DevolucionesService {
 
             devolucion.getDetalles().add(detalleDev);
             acumuladoReembolso = acumuladoReembolso.add(montoItem);
+            totalUnidadesDevueltasAcumuladas += item.getCantidad();
 
             // 4. Incrementar stock del producto devuelto
             Producto producto = detalleOriginal.getProducto();
@@ -107,24 +118,9 @@ public class DevolucionesService {
             clienteRepository.save(cliente);
         }
 
-        // Calcular el total de unidades originales de la venta
-        int totalUnidadesOriginales = venta.getDetalles().stream()
-            .mapToInt(detalle -> detalle.getCantidad())
-                .sum();
-
-        // Calcular el total acumulado de unidades devueltas para esta venta (incluyendo la actual)
-        int totalUnidadesDevueltasAcumuladas = 0;
-        for (DetalleVenta dv : venta.getDetalles()) {
-            Integer devueltoAcc = devolucionRepository.obtenerCantidadYaDevuelta(venta.getId(), dv.getProducto().getId());
-            totalUnidadesDevueltasAcumuladas += devueltoAcc;
-        }
-
-        // Actualizar el estado dinámicamente
-        if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {
-            // Si se devolvió todo, la venta se marca como DEVOLUCION_TOTAL (o CANCELADA)
+if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {
             venta.setEstado(EstadoVenta.DEVOLUCION_TOTAL);
         } else {
-            // Si aún quedan productos activos de esa venta
             venta.setEstado(EstadoVenta.DEVOLUCION_PARCIAL);
         }
         ventaRepository.save(venta);

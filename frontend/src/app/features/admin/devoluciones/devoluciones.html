@@ -34,8 +34,12 @@
             <td>{{ venta.fechaVenta | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td>${{ venta.total }}</td>
             <td>
-              <span [class.text-success]="venta.estado === 'COMPLETADA'" [class.text-warning]="venta.estado === 'DEVOLUCION_PARCIAL'">
-                {{ venta.estado }}
+              <span
+                [class.text-success]="venta.estado === 'COMPLETADA'"
+                [class.text-warning]="venta.estado === 'DEVOLUCION_PARCIAL' || venta.estado === 'DEVOLUCION_TOTAL'"
+                [class.text-danger]="venta.estado === 'CANCELADA'"
+              >
+                {{ venta.estado === 'DEVOLUCION_TOTAL' ? 'DEVUELTA TOTAL' : venta.estado === 'DEVOLUCION_PARCIAL' ? 'DEVOLUCION PARCIAL' : venta.estado }}
               </span>
             </td>
           </tr>
@@ -111,8 +115,13 @@
           <span>Total estimado: ${{ totalReembolso }}</span>
         </div>
 
-        <button class="btn-primary" type="button" (click)="registrarDevolucion()">
-          Registrar devolución
+        <button
+          class="btn-primary"
+          type="button"
+          [disabled]="ventaSeleccionada && (ventaSeleccionada.estado === 'DEVOLUCION_TOTAL' || ventaSeleccionada.estado === 'CANCELADA')"
+          (click)="registrarDevolucion()"
+        >
+          {{ ventaSeleccionada && ventaSeleccionada.estado === 'DEVOLUCION_TOTAL' ? 'Venta ya devuelta' : 'Registrar devolución' }}
         </button>
       </div>
     </div>

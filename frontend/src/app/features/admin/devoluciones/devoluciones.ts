@@ -84,6 +84,10 @@ export class DevolucionesComponent implements OnInit {
     });
   }
 
+  puedeRegistrarDevolucion(): boolean {
+    return this.ventaSeleccionada !== null && this.ventaSeleccionada.estado !== 'DEVOLUCION_TOTAL' && this.ventaSeleccionada.estado !== 'CANCELADA';
+  }
+
   cargarDevoluciones(): void {
     this.devolucionesService.listar().subscribe({
       next: (data) => {
@@ -112,6 +116,11 @@ export class DevolucionesComponent implements OnInit {
   registrarDevolucion(): void {
     if (!this.ventaSeleccionada) {
       this.showErrorMessage('Selecciona una venta antes de registrar la devolución.');
+      return;
+    }
+
+    if (this.ventaSeleccionada.estado === 'DEVOLUCION_TOTAL' || this.ventaSeleccionada.estado === 'CANCELADA') {
+      this.showErrorMessage('Esta venta ya fue devuelta por completo o fue cancelada.');
       return;
     }
 
