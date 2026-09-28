@@ -4,6 +4,7 @@ import { CajaService } from '../../../services/autostore.caja-service';
 import { CorteCaja } from '../../../services/autostore.models';
 import { FormsModule } from '@angular/forms';
 import { CorteDetalleTicket } from './modal/corte-detalle-ticket/corte-detalle-ticket';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-historico-caja',
@@ -23,6 +24,7 @@ export class HistoricoCaja implements OnInit {
   filtroAplicado: boolean = false;
 
   isLoading: boolean = false;
+  hasError: boolean = false;
 
   mostrarCorteDetalle: boolean = false;
   cerrarCorteDetalle: boolean = false;
@@ -69,24 +71,33 @@ export class HistoricoCaja implements OnInit {
   }
 
   cargarHistorial(): void{
-    this.cajaService.obtenerHistorialCaja().subscribe({
-    next: (data) => {
-        this.historico = data;
-        this.historicoFiltrado = [];
-        this.filtroAplicado = false;
-        this.isLoading = false
-        setTimeout(()=>{},2000);
-      this.cdr.markForCheck();
-    },
-    error: (error) => {
-      this.isLoading = false;
-      console.error('Error al cargar el historico:', error);
-      this.showErrorMessage(
-        `Hubo un error al cargar el historico. (${error.status})`,
-        12000
-      );
-    }
-  });
+    this.cajaService.obtenerHistorialCaja().pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar el historial: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar el historial. (${error.status})`,
+            3500
+          );
+        }
+        return of([])
+      })
+    ).subscribe((data) =>{
+      this.historico = data;
+      this.historicoFiltrado = [];
+      this.filtroAplicado = false;
+      this.isLoading = false
+      setTimeout(()=>{
+        this.cdr.markForCheck();
+      },2000);
+    });
   }
 
   filtrarPorFechas(): void {
@@ -96,18 +107,29 @@ export class HistoricoCaja implements OnInit {
       return;
     }
     this.isLoading = true;
-    this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).subscribe({
-      next: (data) => {
+    this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar el historial: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar el historial. (${error.status})`,
+            3500
+          );
+        }
+        return of([])
+      })
+    ).subscribe((data) => {
         this.historicoFiltrado = data;
         this.filtroAplicado = true;
         this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error al filtrar cortes:', err);
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }
     });
   }
 
