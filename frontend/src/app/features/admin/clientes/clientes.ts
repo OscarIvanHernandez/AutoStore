@@ -6,6 +6,7 @@ import { Crear } from './modal/crear/crear';
 import { Editar } from './modal/editar/editar';
 import { ClienteService } from '../../../services/autostore.clientes-service';
 import { Abono, Cliente, DeudoresStats } from '../../../services/autostore.models';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-clientes',
@@ -19,6 +20,7 @@ export class Clientes implements OnInit {
   stats: DeudoresStats | null = null;
 
   isLoading: boolean = false;
+  hasError: boolean = false;
   statsLodading: boolean = false;
 
   successMessage: String | null = null;
@@ -69,84 +71,119 @@ export class Clientes implements OnInit {
 
   cargarClientes(): void {
     this.isLoading = true;
-    this.clienteService.listarClientes(this.filtroBusqueda).subscribe({
-      next: (data) => {
-        console.log("Clientes obtenidos: ", data.length);
-        this.clientes = data;
+    this.clienteService.listarClientes(this.filtroBusqueda).pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        this.showSuccesMessage(
-          "Clientes cargados exitosamente!",
-          2500
-        );
-      },
-      error: (err) => {
-        console.error('Error al cargar clientes', err);
-        this.isLoading = false;
-        this.showErrorMessage(
-          "Hubo un error al cargar los clientes",
-          3500
-        );
-      }
+        console.log('Error al cargar los clientes: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los clientes. (${error.status})`,
+            3500
+          );
+        }
+        return of([])
+      })
+    ).subscribe((data) =>{
+      console.log("Clientes obtenidos: ", data.length);
+      this.clientes = data;
+      this.isLoading = false;
+      this.showSuccesMessage(
+        "Clientes cargados exitosamente!",
+        3500
+      );
     });
   }
 
   cargarEstadisticas(): void {
     this.statsLodading = true;
-    this.clienteService.obtenerStatsDeudores().subscribe({
-      next: (data) => {
+    this.clienteService.obtenerStatsDeudores().pipe(
+      catchError((error) => {
+                this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar estadisticas: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar las estadísticas. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+      })
+    ).subscribe((data) => {
         console.log("Estadisticas obtenidas: ", data)
         this.stats = data,
         this.statsLodading = false;
         this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error al cargar stats', err),
-        this.statsLodading = false;
-        this.cdr.markForCheck();
-      }
     });
   }
 
   guardarCliente(): void {
     if (this.clienteForm.id) {
-      this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).subscribe({
-        next: () => {
-          console.log("Cliente: ", this.clienteForm.id, " actualizado")
-          this.cargarClientes();
-          this.cerrarModalCliente();
-          this.showSuccesMessage(
-            "Datos del cliente actualizados correctamente",
+      this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al guardar cambios: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
             3500
           );
-        },
-        error: (err) => {
-          console.error('Error al actualizar cliente', err);
-          this.cerrarModalCliente();
+        } else {
           this.showErrorMessage(
-            `Error al actualizar cliente: (${err.status})`,
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
             3500
           );
         }
+        return EMPTY
+        })
+      ).subscribe(() => {
+        console.log("Cliente: ", this.clienteForm.id, " actualizado")
+        this.cargarClientes();
+        this.cerrarModalCliente();
+        this.showSuccesMessage(
+          "Datos del cliente actualizados correctamente",
+          3500
+        );
       });
     } else {
-      this.clienteService.crearCliente(this.clienteForm).subscribe({
-        next: () => {
-          console.log("Cliente creado correctamente")
-          this.cargarClientes();
-          this.cerrarModalCliente();
-          this.showSuccesMessage(
-            "Cliente creado correctamente.",
+      this.clienteService.crearCliente(this.clienteForm).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al crear cliente: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
             3500
           );
-        },
-        error: (err) => {
-          console.log('Error al crear cliente', err);
-          this.cerrarModalCliente();
+        } else {
           this.showErrorMessage(
-            `Error al crear cliente: (${err.status})`,
-            3500
+            `Ocurrió un error al guardar el nuevo cliente. (${error.status})`,
+            4500
           );
         }
+        return EMPTY
+        })
+      ).subscribe(() => {
+        console.log("Cliente creado correctamente")
+        this.cargarClientes();
+        this.cerrarModalCliente();
+        this.showSuccesMessage(
+          "Cliente creado correctamente.",
+          3500
+        );
       });
     }
   }
@@ -155,61 +192,87 @@ export class Clientes implements OnInit {
     this.clienteForm = cliente;
     this.guardarCliente();
   }
-  /*guardarCliente(): void {
-    if (this.clienteForm.id) {
-      this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).subscribe(() => {
-        this.cargarClientes();
-        this.cerrarModalCliente();
-      });
-    } else {
-      this.clienteService.crearCliente(this.clienteForm).subscribe(() => {
-        this.cargarClientes();
-        this.cerrarModalCliente();
-      });
-    }
-  }*/
 
   eliminarCliente(id: number): void {
     if (confirm('¿Desea desactivar este cliente?')) {
-      this.clienteService.eliminarCliente(id).subscribe({
-        next: () => {
+      this.clienteService.eliminarCliente(id).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al eliminar cliente: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al eliminar el cliente. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+        })
+      ).subscribe(() => {
           console.log('Cliente: ', id, " desactivado correctamente");
           this.cargarClientes();
           this.showSuccesMessage(
             'Cliente desactivado',
             3500
-          )
-        },
-        error: (err) => {
-          console.log('Error al desactivar cliente:',err);
-          this.showErrorMessage(
-            `Error al desactivar cliente: (${err.status})`,
-            3500
           );
-        }
       });
     }
   }
 
   activarCliente(id: number): void {
     if (confirm('¿Desea activar el cliente?')) {
-      this.clienteService.activarCliente(id).subscribe({
-        next: () => {
-          this.cargarClientes();
-        },
-        error: (err) => {
-          console.log('Error al activar cliente: ', err);
-          this.cargarClientes();
+      this.clienteService.activarCliente(id).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al activar el cliente: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al activar el cliente. (${error.status})`,
+            3500
+          );
         }
-      })
+        return EMPTY
+        })
+      ).subscribe(() => {
+        this.cargarClientes();
+      });
     }
   }
 
   abrirAbono(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
     this.montoAbono = 0;
-    this.clienteService.obtenerHistorialAbonos(cliente.id).subscribe((abonos) => {
-      this.historialAbonos = abonos;
+    this.clienteService.obtenerHistorialAbonos(cliente.id).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al obtener el historial de abonos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al obtener el historial de abonos. (${error.status})`,
+            4500
+          );
+        }
+        return EMPTY;
+      })
+    ).subscribe((data) => {
+      this.historialAbonos = data;
       this.mostrarModalAbono = true;
     });
   }
@@ -217,23 +280,32 @@ export class Clientes implements OnInit {
   procesarAbono(): void {
     if (!this.clienteSeleccionado || this.montoAbono <= 0) return;
 
-    this.clienteService.registrarAbono(this.clienteSeleccionado.id, this.montoAbono).subscribe({
-      next: () => {
-        this.cargarClientes();
-        this.cargarEstadisticas();
-        this.cerrarModalAbono();
-        this.showSuccesMessage(
-          `Abono acreditado para cliente(${this.clienteSeleccionado?.id}): (${this.clienteSeleccionado?.nombre})`,
-          3500
-        );
-      },
-      error: (err) => {
-        console.log('Error al procesar abono', err)
-        this.showErrorMessage(
-          `Erro al acreditar abono para (${this.clienteSeleccionado?.nombre}): (${err.error?.message})`,
-          3500
-        );
-      }
+    this.clienteService.registrarAbono(this.clienteSeleccionado.id, this.montoAbono).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al procesar el abono: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al procesar el abono. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY
+      })
+    ).subscribe(() =>{
+      this.cargarClientes();
+      this.cargarEstadisticas();
+      this.cerrarModalAbono();
+      this.showSuccesMessage(
+        `Abono acreditado para cliente(${this.clienteSeleccionado?.id}): (${this.clienteSeleccionado?.nombre})`,
+        3500
+      );
     });
   }
 
