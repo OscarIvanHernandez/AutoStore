@@ -5,6 +5,7 @@ import { CompraRequest, Distribuidor, ItemCarrito, ProductoInterface } from '../
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { ProductoService } from '../../../services/autostore.product-service';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-compra-distribuidores',
@@ -32,6 +33,7 @@ export class CompraDistribuidores implements OnInit{
   totalCompra: number = 0;
 
   isLoading: boolean = false;
+  hasError: boolean = false;
 
   successMessage: String | null = null;
   errorMessage: String | null = null;
@@ -44,30 +46,8 @@ export class CompraDistribuidores implements OnInit{
   ) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.distribuidorService.listar().subscribe({
-      next: (data) => {
-        this.distribuidores = data;
-        setTimeout(() => {
-          this.cdr.markForCheck();
-        },500);
-      },
-      error: (err) => {
-        console.log('Error al obtener distribuidores: ', err);
-      }
-    });
-    this.productoService.getProductos().subscribe({
-      next: (data) => {
-        this.productos = data;
-        setTimeout(() => {
-          this.cdr.markForCheck();
-        },500);
-      },
-      error: (err) => {
-        console.log('Error al obtener productos: ', err);
-      }
-    });
-    this.isLoading = false;
+    this.cargarDistribuidores();
+    this.cargarProductos();
   }
 
   private showSuccesMessage(message: string, duration: number): void {
@@ -88,6 +68,66 @@ export class CompraDistribuidores implements OnInit{
       this.errorMessage = null;
       this.cdr.markForCheck();
     }, duration);
+  }
+
+  cargarDistribuidores(): void {
+    this.isLoading = true;
+    this.hasError = false;
+    this.distribuidorService.listar().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los distribuidores: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
+            3500
+          );
+        }
+        return of([]);
+      })
+    ).subscribe((data) => {
+      this.distribuidores = data;
+      setTimeout(() => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },500);
+    });
+  }
+
+  cargarProductos(): void {
+    this.isLoading = true;
+    this.hasError = false;
+    this.productoService.getProductos().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los distribuidores: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
+            3500
+          );
+        }
+        return of([]);
+      })
+    ).subscribe((data) => {
+      this.productos = data;
+      setTimeout(() => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      },500);
+    });
   }
 
   onSeleccionarProducto(): void {
@@ -126,6 +166,8 @@ export class CompraDistribuidores implements OnInit{
   }
 
   guardarCompra(): void {
+    this.isLoading = true;
+    this.hasError = false;
     if (!this.distribuidorSeleccionadoId || this.items.length === 0) {
       alert('Seleccione un distribuidor y al menos un producto.');
       return;
@@ -141,24 +183,33 @@ export class CompraDistribuidores implements OnInit{
       }))
     };
 
-    this.compraService.registrarCompra(payload).subscribe({
-      next: () => {
-        console.log('Compra de mercancancia registrada OK');
-        this.items = [];
-        this.folio = '';
-        this.totalCompra = 0;
-        this.showSuccesMessage(
-          `📦 Entrada de mercancía registrada. Stock e historial actualizados.`,
-          3500
-        );
-      },
-      error: (err) => {
-        console.log('Error al registrar la compra: ', err);
-        this.showErrorMessage(
-        `'Error al registrar compra: (${err.error?.message})`,
-        3500
-        );
-      }
+    this.compraService.registrarCompra(payload).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar los distribuidores: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
+            3500
+          );
+        }
+        return EMPTY;
+      })
+    ).subscribe(() => {
+      console.log('Compra de mercancancia registrada OK');
+      this.items = [];
+      this.folio = '';
+      this.totalCompra = 0;
+      this.showSuccesMessage(
+        `📦 Entrada de mercancía registrada. Stock e historial actualizados.`,
+        4500
+      );
     });
   }
 
