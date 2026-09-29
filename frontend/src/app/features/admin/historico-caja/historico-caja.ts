@@ -71,6 +71,8 @@ export class HistoricoCaja implements OnInit {
   }
 
   cargarHistorial(): void{
+    this.isLoading = true;
+    this.hasError = false;
     this.cajaService.obtenerHistorialCaja().pipe(
       catchError((error) =>{
         this.hasError = true;
@@ -93,20 +95,21 @@ export class HistoricoCaja implements OnInit {
       this.historico = data;
       this.historicoFiltrado = [];
       this.filtroAplicado = false;
-      this.isLoading = false
       setTimeout(()=>{
+        this.isLoading = false
         this.cdr.markForCheck();
-      },2000);
+      }, 1500);
     });
   }
 
   filtrarPorFechas(): void {
     if (!this.fechaInicio && !this.fechaFin) return;
     if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
-      this.showErrorMessage('La fecha de inicio no puede ser posterior a la fecha de fin.', 5000);
+      this.showErrorMessage('La fecha de inicio no puede ser posterior a la fecha de fin.', 4000);
       return;
     }
     this.isLoading = true;
+    this.hasError = false;
     this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).pipe(
       catchError((error) =>{
         this.hasError = true;
@@ -128,8 +131,10 @@ export class HistoricoCaja implements OnInit {
     ).subscribe((data) => {
         this.historicoFiltrado = data;
         this.filtroAplicado = true;
-        this.isLoading = false;
-        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }, 500);
     });
   }
 
