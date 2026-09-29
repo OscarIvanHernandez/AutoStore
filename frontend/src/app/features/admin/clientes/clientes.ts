@@ -71,6 +71,7 @@ export class Clientes implements OnInit {
 
   cargarClientes(): void {
     this.isLoading = true;
+    this.hasError = false;
     this.clienteService.listarClientes(this.filtroBusqueda).pipe(
       catchError((error) => {
         this.hasError = true;
@@ -102,6 +103,7 @@ export class Clientes implements OnInit {
 
   cargarEstadisticas(): void {
     this.statsLodading = true;
+    this.hasError = false;
     this.clienteService.obtenerStatsDeudores().pipe(
       catchError((error) => {
                 this.hasError = true;
@@ -123,12 +125,16 @@ export class Clientes implements OnInit {
     ).subscribe((data) => {
         console.log("Estadisticas obtenidas: ", data)
         this.stats = data,
-        this.statsLodading = false;
-        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.statsLodading = false;
+          this.cdr.markForCheck();
+        }, 500)
     });
   }
 
   guardarCliente(): void {
+    this.isLoading = true;
+    this.hasError = false;
     if (this.clienteForm.id) {
       this.clienteService.actualizarCliente(this.clienteForm.id, this.clienteForm).pipe(
         catchError((error) => {
@@ -152,6 +158,7 @@ export class Clientes implements OnInit {
         console.log("Cliente: ", this.clienteForm.id, " actualizado")
         this.cargarClientes();
         this.cerrarModalCliente();
+        this.isLoading = false;
         this.showSuccesMessage(
           "Datos del cliente actualizados correctamente",
           3500
@@ -180,6 +187,7 @@ export class Clientes implements OnInit {
         console.log("Cliente creado correctamente")
         this.cargarClientes();
         this.cerrarModalCliente();
+        this.isLoading = false;
         this.showSuccesMessage(
           "Cliente creado correctamente.",
           3500
@@ -195,6 +203,8 @@ export class Clientes implements OnInit {
 
   eliminarCliente(id: number): void {
     if (confirm('¿Desea desactivar este cliente?')) {
+      this.isLoading = true;
+      this.hasError = false;
       this.clienteService.eliminarCliente(id).pipe(
         catchError((error) => {
         this.hasError = true;
@@ -216,8 +226,9 @@ export class Clientes implements OnInit {
       ).subscribe(() => {
           console.log('Cliente: ', id, " desactivado correctamente");
           this.cargarClientes();
+          this.isLoading = false;
           this.showSuccesMessage(
-            'Cliente desactivado',
+            'Cliente desactivado!',
             3500
           );
       });
@@ -226,6 +237,8 @@ export class Clientes implements OnInit {
 
   activarCliente(id: number): void {
     if (confirm('¿Desea activar el cliente?')) {
+      this.isLoading = true;
+      this.hasError = false;
       this.clienteService.activarCliente(id).pipe(
         catchError((error) => {
         this.hasError = true;
@@ -246,6 +259,11 @@ export class Clientes implements OnInit {
         })
       ).subscribe(() => {
         this.cargarClientes();
+        this.isLoading = false;
+        this.showSuccesMessage(
+          `Cliente activado!`,
+          3500
+        );
       });
     }
   }
@@ -253,6 +271,8 @@ export class Clientes implements OnInit {
   abrirAbono(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
     this.montoAbono = 0;
+    this.isLoading = true;
+    this.hasError = false;
     this.clienteService.obtenerHistorialAbonos(cliente.id).pipe(
       catchError((error) => {
         this.hasError = true;
@@ -273,13 +293,15 @@ export class Clientes implements OnInit {
       })
     ).subscribe((data) => {
       this.historialAbonos = data;
+      this.isLoading = false;
       this.mostrarModalAbono = true;
     });
   }
 
   procesarAbono(): void {
     if (!this.clienteSeleccionado || this.montoAbono <= 0) return;
-
+    this.isLoading = true;
+    this.hasError = false;
     this.clienteService.registrarAbono(this.clienteSeleccionado.id, this.montoAbono).pipe(
       catchError((error) =>{
         this.hasError = true;
@@ -302,6 +324,7 @@ export class Clientes implements OnInit {
       this.cargarClientes();
       this.cargarEstadisticas();
       this.cerrarModalAbono();
+      this.isLoading = false;
       this.showSuccesMessage(
         `Abono acreditado para cliente(${this.clienteSeleccionado?.id}): (${this.clienteSeleccionado?.nombre})`,
         3500
