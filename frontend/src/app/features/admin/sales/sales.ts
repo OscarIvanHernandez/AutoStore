@@ -119,6 +119,8 @@ export class Sales implements OnInit {
   }
 
   cargarClientes(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.clientesService.listarClientesActivos().pipe(
       catchError((error) =>{
         this.hasError = true;
@@ -138,15 +140,21 @@ export class Sales implements OnInit {
         return of([])
       })
     ).subscribe((data) =>{
-        console.log('clientes: ',data);
-        this.clientes = data;
+      console.log('clientes: ',data);
+      this.clientes = data;
+      setTimeout(() =>{
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }, 500);
     });
   }
 
   verificarEstadoCaja(): void {
+    this.isLoading = true;
+    this.hasError = false;
   this.cajaService.obtenerEstado().pipe(
     catchError((error) => {
-              this.hasError = true;
+        this.hasError = true;
         this.isLoading = false;
         console.log('Error al verificar caja: ', error);
         if (error.status === 0){
@@ -165,6 +173,7 @@ export class Sales implements OnInit {
   ).subscribe((estado) => {
       this.datosCaja = estado;
       this.cajaAbierta = estado.abierta;
+      this.isLoading = false;
       if (!this.cajaAbierta) {
         this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
       } else {
@@ -186,6 +195,8 @@ export class Sales implements OnInit {
   }
 
   onAbrirCaja(efectivoInicial: number): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.cajaService.abrirCaja(efectivoInicial).pipe(
       catchError((error) => {
         this.hasError = true;
@@ -206,6 +217,7 @@ export class Sales implements OnInit {
       })
     ).subscribe(()=>{
         this.mostrarModalApertura = false;
+        this.isLoading = false;
         this.verificarEstadoCaja();
     });
   }
@@ -221,6 +233,7 @@ export class Sales implements OnInit {
 
   cargarProductos(): void {
     this.isLoading = true;
+    this.hasError = false;
     this.productoService.getProductosActivos().pipe(
       catchError((error) => {
         this.hasError = true;
@@ -240,16 +253,20 @@ export class Sales implements OnInit {
         return of([])
       })
     ).subscribe((data) => {
-        console.log('Productos cargados:', data);
-        this.productos = data;
+      console.log('Productos cargados:', data);
+      this.productos = data;
+      setTimeout(() => {
         this.isLoading = false;
         this.cdr.markForCheck();
+      }, 500);
     });
   }
 
   // Buscar productos en tiempo real
   BuscarProducto(): void {
     if (this.busquedaTexto.trim().length > 1) {
+      this.isLoading = true;
+      this.hasError = false;
       this.productoService.buscar({q: this.busquedaTexto, estado: "activo"})
         .pipe(
           catchError((error) =>{
@@ -269,7 +286,13 @@ export class Sales implements OnInit {
           }
           return of([])
         })
-        ).subscribe(data => this.productosEncontrados = data);
+        ).subscribe((data) => {
+          this.productosEncontrados = data
+          setTimeout(() => {
+            this.isLoading = false;
+            this.cdr.markForCheck();
+          }, 500);
+        });
     } else {
       this.productosEncontrados = [];
     }
@@ -414,6 +437,7 @@ export class Sales implements OnInit {
     };
 
     this.isLoading = true;
+    this.hasError = false;
     this.ventaService.crearVenta(payload).pipe(
       catchError((error) => {
         this.hasError = true;
@@ -433,12 +457,14 @@ export class Sales implements OnInit {
         return EMPTY
       })
     ).subscribe((data) => {
+      this.ventaRealizada = data;
+      this.mostrarModalCobro = false;
+      this.mostrarModalTicket = true;
+      this.verificarEstadoCaja();
+      setTimeout(() => {
         this.isLoading = false;
-        this.ventaRealizada = data;
-        this.mostrarModalCobro = false;
-        this.mostrarModalTicket = true;
-        this.verificarEstadoCaja();
         this.cdr.markForCheck();
+      }, 500);
     });
   }
 
