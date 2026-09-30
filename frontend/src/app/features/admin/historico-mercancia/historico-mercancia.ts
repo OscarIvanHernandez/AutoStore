@@ -5,6 +5,7 @@ import { Compra, Distribuidor } from '../../../services/autostore.models';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Detalles } from './modal/detalles/detalles';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-historico-mercancia',
@@ -25,6 +26,7 @@ export class HistoricoMercancia implements OnInit{
   mostrarDetalles = false;
 
   isLoading: boolean = false;
+  hasError: boolean = false;
 
   successMessage: String | null = null;
   errorMessage: String | null = null;
@@ -61,22 +63,32 @@ export class HistoricoMercancia implements OnInit{
 
   cargarCompras(): void {
     this.isLoading = true;
-    this.compraService.listarCompras().subscribe({
-      next: (data) => {
-        this.historial = data;
-        console.log('Compras cargadas: ', data.length);
+    this.hasError = false;
+    this.compraService.listarCompras().pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        setTimeout(() => {
-          this.cdr.markForCheck();
-        }, 1500);
-      },
-      error: (err) => {
-        console.log('Error al cargar las compras: ', err);
+        console.log('Error al obtener las compras: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al obtener las compras. (${error.status})`,
+            3500
+          );
+        };
+        return of([]);
+      })
+    ).subscribe((data) => {
+      this.historial = data;
+      console.log('Compras cargadas: ', data.length);
+      setTimeout(() => {
         this.isLoading = false;
-        this.showErrorMessage(
-          `Hubo un error al cargar las compras: (${err.error?.message})`,
-        3500);
-      },
+        this.cdr.markForCheck();
+      }, 1000);
     });
   }
 
@@ -87,31 +99,61 @@ export class HistoricoMercancia implements OnInit{
     }
 
     this.isLoading = true;
-    this.compraService.buscarPorId(this.compraId).subscribe({
-      next: (compra) => {
-        this.historial = [compra];
+    this.hasError = false;
+    this.compraService.buscarPorId(this.compraId).pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error al buscar la compra:', err);
-        this.historial = [];
-        this.isLoading = false;
-        this.showErrorMessage(
-          `No se encontró la compra (${err.status || 'error'}).`,
-          3500
-        );
-      },
+        console.log('Error al obtener la compra: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al buscar la compra. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY;
+      })
+    ).subscribe((data) => {
+        this.historial = [data];
+        setTimeout(() =>{
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }, 500);
     });
   }
 
   cargarDistribuidores(): void {
-    this.distribuidorService.listar().subscribe({
-      next: (data) => {
-        this.distribuidores = data;
+    this.isLoading = true;
+    this.hasError = false;
+    this.distribuidorService.listar().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al obtener la compra: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al buscar la compra. (${error.status})`,
+            3500
+          );
+        };
+        return of([]);
+      })
+    ).subscribe((data) => {
+      this.distribuidores = data;
+      setTimeout(() => {
+        this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (err) => console.error('Error al cargar distribuidores:', err),
+      });
     });
   }
 
@@ -127,21 +169,34 @@ export class HistoricoMercancia implements OnInit{
     }
 
     this.isLoading = true;
+    this.hasError = false;
     this.compraService.filtrarCompras(
       this.fechaInicio || undefined,
       this.fechaFin || undefined,
-      this.distribuidorId || undefined
-    ).subscribe({
-      next: (data) => {
+      this.distribuidorId || undefined).pipe(
+        catchError((error) => {
+          this.hasError = true;
+          this.isLoading = false;
+          console.log('Error al obtener la compra: ', error);
+          if (error.status === 0){
+            this.showErrorMessage(
+              `No se pudo conectar con el servidor.`,
+              3500
+            );
+          } else {
+            this.showErrorMessage(
+              `Ocurrió un error al buscar la compra. (${error.status})`,
+              3500
+            );
+          };
+          return EMPTY;
+        })
+      ).subscribe((data) => {
         this.historial = data;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error al filtrar compras:', err);
-        this.isLoading = false;
-        this.showErrorMessage('No fue posible filtrar el historial de compras.', 3500);
-      },
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }, 500);
     });
   }
 
