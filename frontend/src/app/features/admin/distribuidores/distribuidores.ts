@@ -5,7 +5,7 @@ import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Agregar } from './modal/agregar/agregar';
 import { Editar } from './modal/editar/editar';
-import { catchError } from 'rxjs';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-distribuidores',
@@ -61,11 +61,12 @@ export class Distribuidores implements OnInit{
 
   cargarDistribuidores(): void {
     this.isLoading = true;
+    this.hasError = false;
     this.distribuidorService.listar().pipe(
       catchError((error) => {
         this.hasError = true;
         this.isLoading = false;
-        console.log('Error al obtener las compras: ', error);
+        console.log('Error al cargar los distribuidores : ', error);
         if (error.status === 0){
           this.showErrorMessage(
             `No se pudo conectar con el servidor.`,
@@ -73,31 +74,22 @@ export class Distribuidores implements OnInit{
           );
         } else {
           this.showErrorMessage(
-            `Ocurrió un error al obtener las compras. (${error.status})`,
-            3500
+            `Ocurrió un error al cargar los distribuidores . (${error.status})`,
+            4500
           );
         };
-        return
+        return of([]);
       })
-    ).subscribe({
-      next: (data) => {
-        this.distribuidores = this.mostrarInactivos
-          ? data
-          : data.filter(d => d.activo);
-        console.log('Distribuidores recibidos:', data);
-        console.log('Distribuidores mostrados:', this.distribuidores);
+    ).subscribe((data) => {
+      this.distribuidores = this.mostrarInactivos
+        ? data
+        : data.filter(d => d.activo);
+      console.log('Distribuidores recibidos:', data);
+      console.log('Distribuidores mostrados:', this.distribuidores);
+      setTimeout(() =>{
         this.isLoading = false;
-        setTimeout(() =>{
-          this.cdr.markForCheck();
-        }, 1500);
-      },
-      error: (err) => {
-        console.error('Error al cargar distribuidores:', err);
-        this.showErrorMessage(
-          'Hubo un error al obtener los distribuidores',
-          3500
-        );
-      }
+        this.cdr.markForCheck();
+      }, 1500);
     });
   }
 
@@ -105,127 +97,136 @@ export class Distribuidores implements OnInit{
     if (!distribuidor.nombre || !distribuidor.telefono) {
       alert('Nombre y teléfono son obligatorios.');
       return;
-    }
-
+    };
+    this.isLoading = true;
+    this.hasError = false;
     if (distribuidor.id) {
-      this.distribuidorService.actualizar(distribuidor.id, distribuidor).subscribe({
-        next: () => {
-          this.cargarDistribuidores();
-          this.cerrarModalEditar();
-          distribuidor = this.resetForm();
-        },
-        error: (err) => {
-          console.log('Error al actualizar el distribuidor:', err);
-          this.cargarDistribuidores();
-          this.cerrarModalEditar();
+      this.distribuidorService.actualizar(distribuidor.id, distribuidor).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        distribuidor = this.resetForm();
+        this.cerrarModalEditar();
+        console.log('Error al guardar los cambios: ', error);
+        if (error.status === 0){
           this.showErrorMessage(
-            `Hubo un error al actualizar el distribuidor`,
+            `No se pudo conectar con el servidor.`,
             3500
           );
-          distribuidor = this.resetForm();
-        }
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al guardar los cambios. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY;
+        })
+      ).subscribe(() => {
+        this.cargarDistribuidores();
+        this.cerrarModalEditar();
+        distribuidor = this.resetForm();
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        })
       });
     } else {
-      this.distribuidorService.crear(distribuidor).subscribe({
-        next:() =>{
-          this.cargarDistribuidores();
-          this.cerrarModalAgregar();
-          distribuidor = this.resetForm();
-        },
-        error: (err) => {
-          console.log('Error al crear distribuidor: ',err);
-          this.cargarDistribuidores();
-          this.cerrarModalAgregar();
+      this.distribuidorService.crear(distribuidor).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        distribuidor = this.resetForm();
+        this.cerrarModalAgregar();
+        console.log('Error al agrear el distribuidor: ', error);
+        if (error.status === 0){
           this.showErrorMessage(
-            `Hubo un error al crear el distribuidor`,
+            `No se pudo conectar con el servidor.`,
             3500
           );
-          distribuidor = this.resetForm();
-        }
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al agregar el distribuidor. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY;
+        })
+      ).subscribe(() =>{
+        this.cargarDistribuidores();
+        this.cerrarModalAgregar();
+        distribuidor = this.resetForm();
+        setTimeout(() =>{
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        });
       });
-    }
+    };
   }
-
-  /*guardar(): void {
-    if (!this.distribuidorForm.nombre || !this.distribuidorForm.telefono) {
-      alert('Nombre y teléfono son obligatorios.');
-      return;
-    }
-
-    if (this.distribuidorForm.id) {
-      this.distribuidorService.actualizar(this.distribuidorForm.id, this.distribuidorForm).subscribe({
-        next: () => {
-          this.cargarDistribuidores();
-          this.cerrarModal();
-        },
-        error: (err) => {
-          console.log('Error al actualizar el distribuidor:', err);
-          this.cargarDistribuidores();
-          this.cerrarModal();
-          this.showErrorMessage(
-            `Hubo un error al actualizar el distribuidor`,
-            3500
-          );
-        }
-      });
-    } else {
-      this.distribuidorService.crear(this.distribuidorForm).subscribe({
-        next:() =>{
-          this.cargarDistribuidores();
-          this.cerrarModal();
-        },
-        error: (err) => {
-          console.log('Error al crear distribuidor: ',err);
-          this.cargarDistribuidores();
-          this.cerrarModal();
-          this.showErrorMessage(
-            `Hubo un error al crear el distribuidor`,
-            3500
-          );
-        }
-      });
-    }
-  }*/
 
   desactivar(id: number): void {
     if (confirm('¿Desea desactivar este distribuidor?')) {
-      this.distribuidorService.desactivar(id).subscribe({
-        next: () => {
-          this.cargarDistribuidores();
-          this.cdr.markForCheck();
-          this.showSuccesMessage(
-            `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
-            3500
-          );
-        },
-        error: (err) => {
-          console.log('Error al desactivar distribuidor: ', err);
+      this.isLoading = true;
+      this.hasError = false;
+      this.distribuidorService.desactivar(id).pipe(
+        catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al desactivar el distribuidor: ', error);
+        if (error.status === 0){
           this.showErrorMessage(
-            `Error al desactivar proveedor (${this.distribuidores[id].nombre})`,
+            `No se pudo conectar con el servidor.`,
             3500
           );
-        }
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al desactivar el distribuidor. (${error.status})`,
+            4500
+          );
+        };
+        return EMPTY;
+        })
+      ).subscribe(() => {
+        this.cargarDistribuidores();
+        this.isLoading = false;
+        this.showSuccesMessage(
+          `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
+          3500
+        );
       });
-    }
+    };
   }
 
   activar(id: number): void {
-    this.distribuidorService.activar(id).subscribe({
-      next: () => {
+    if (confirm('¿Desea activar este distribuidor?')) {
+      this.isLoading = true;
+      this.hasError = false;
+      this.distribuidorService.activar(id).pipe(
+        catchError((error) => {
+          this.hasError = true;
+          this.isLoading = false;
+          console.log('Error al activar el distribuidor: ', error);
+          if (error.status === 0){
+            this.showErrorMessage(
+              `No se pudo conectar con el servidor.`,
+              3500
+            );
+          } else {
+            this.showErrorMessage(
+              `Ocurrió un error al activar el distribuidor. (${error.status})`,
+              4500
+            );
+          };
+          return EMPTY;
+        })
+      ).subscribe(() => {
         this.cargarDistribuidores();
+        this.isLoading = false;
         this.showSuccesMessage(
           `Proveedor (${this.distribuidores[id].nombre}) activado`,
           3500
         );
-      },
-      error: (err) => {
-        console.log('Error al activar distribuidor: ', err);
-        this.showErrorMessage(
-          `Error al activar proveedor (${this.distribuidores[id].nombre})`,
-          3500
-        );
-      }
-    });
+      });
+    };
   }
 
   abrirModalNuevo(): void {
