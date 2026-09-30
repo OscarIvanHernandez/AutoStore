@@ -5,6 +5,7 @@ import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Agregar } from './modal/agregar/agregar';
 import { Editar } from './modal/editar/editar';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-distribuidores',
@@ -16,7 +17,9 @@ import { Editar } from './modal/editar/editar';
 export class Distribuidores implements OnInit{
   distribuidores: Distribuidor[] = [];
   mostrarInactivos: boolean = false;
+
   isLoading: boolean = false;
+  hasError: boolean = false;
 
   successMessage: String | null = null;
   errorMessage: String | null = null;
@@ -58,7 +61,25 @@ export class Distribuidores implements OnInit{
 
   cargarDistribuidores(): void {
     this.isLoading = true;
-    this.distribuidorService.listar().subscribe({
+    this.distribuidorService.listar().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al obtener las compras: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al obtener las compras. (${error.status})`,
+            3500
+          );
+        };
+        return
+      })
+    ).subscribe({
       next: (data) => {
         this.distribuidores = this.mostrarInactivos
           ? data

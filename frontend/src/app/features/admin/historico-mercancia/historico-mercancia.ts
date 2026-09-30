@@ -134,7 +134,7 @@ export class HistoricoMercancia implements OnInit{
       catchError((error) => {
         this.hasError = true;
         this.isLoading = false;
-        console.log('Error al obtener la compra: ', error);
+        console.log('Error al obtener los distribuidores: ', error);
         if (error.status === 0){
           this.showErrorMessage(
             `No se pudo conectar con el servidor.`,
@@ -142,7 +142,7 @@ export class HistoricoMercancia implements OnInit{
           );
         } else {
           this.showErrorMessage(
-            `Ocurrió un error al buscar la compra. (${error.status})`,
+            `Ocurrió un error al obtener los distribuidores. (${error.status})`,
             3500
           );
         };
@@ -177,7 +177,7 @@ export class HistoricoMercancia implements OnInit{
         catchError((error) => {
           this.hasError = true;
           this.isLoading = false;
-          console.log('Error al obtener la compra: ', error);
+          console.log('Error al aplicar filtros: ', error);
           if (error.status === 0){
             this.showErrorMessage(
               `No se pudo conectar con el servidor.`,
@@ -185,7 +185,7 @@ export class HistoricoMercancia implements OnInit{
             );
           } else {
             this.showErrorMessage(
-              `Ocurrió un error al buscar la compra. (${error.status})`,
+              `Ocurrió un error al aplicar filtros. (${error.status})`,
               3500
             );
           };
