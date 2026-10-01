@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { DevolucionesService } from '../../../services/autostore.devoluciones-service';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { DevolucionRequest, Devoluciones, VentaInterface } from '../../../services/autostore.models';
+import { catchError, EMPTY, of } from 'rxjs';
 
 interface ProductoDevolucionSeleccionado {
   productoId: number;
@@ -29,6 +30,7 @@ export class DevolucionesComponent implements OnInit {
   productosADevolver: ProductoDevolucionSeleccionado[] = [];
   motivo = '';
   isLoading = false;
+  hasError: boolean = false;
   successMessage: string | null = null;
   errorMessage: string | null = null;
 
@@ -67,20 +69,33 @@ export class DevolucionesComponent implements OnInit {
 
   cargarVentas(): void {
     this.isLoading = true;
-    this.saleService.obtenerVentas().subscribe({
-      next: (ventas) => {
-        this.ventas = ventas.filter((venta) => venta.estado !== 'CANCELADA');
-        if (!this.ventaSeleccionada && this.ventas.length) {
-          this.seleccionarVenta(this.ventas[0]);
-        }
+    this.saleService.obtenerVentas().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al registrar la devolucion: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al registrar la devolución. (${error.status})`,
+            4500
+          );
+        };
+        return of([]);
+      })
+    ).subscribe((ventas) => {
+      this.ventas = ventas.filter((venta) => venta.estado !== 'CANCELADA');
+      if (!this.ventaSeleccionada && this.ventas.length) {
+        this.seleccionarVenta(this.ventas[0]);
+      }
+      setTimeout(() => {
         this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al cargar ventas', error);
-        this.showErrorMessage('No se pudieron cargar las ventas.');
-      }
+      }, 500);
     });
   }
 
@@ -89,14 +104,32 @@ export class DevolucionesComponent implements OnInit {
   }
 
   cargarDevoluciones(): void {
-    this.devolucionesService.listar().subscribe({
-      next: (data) => {
-        this.devoluciones = data;
+    this.isLoading = true;
+    this.hasError = false;
+    this.devolucionesService.listar().pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar devoluciones: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar las devoluciones. (${error.status})`,
+            3500
+          );
+        };
+        return of([]);
+      })
+    ).subscribe((data) => {
+      this.devoluciones = data;
+      setTimeout(() =>{
+        this.isLoading = false;
         this.cdr.markForCheck();
-      },
-      error: (error) => {
-        console.error('Error al cargar devoluciones', error);
-      }
+      }, 500);
     });
   }
 
@@ -134,12 +167,12 @@ export class DevolucionesComponent implements OnInit {
     if (!this.motivo.trim()) {
       this.showErrorMessage('Escribe el motivo de la devolución.');
       return;
-    }
+    };
 
     if (!productos.length) {
       this.showErrorMessage('Debe indicar al menos un producto con cantidad válida.');
       return;
-    }
+    };
 
     const payload: DevolucionRequest = {
       ventaId: this.ventaSeleccionada.id,
@@ -147,19 +180,34 @@ export class DevolucionesComponent implements OnInit {
       productos,
     };
 
-    this.devolucionesService.crear(payload).subscribe({
-      next: () => {
-        this.showSuccessMessage('Devolución registrada correctamente.');
-        this.motivo = '';
-        this.productosADevolver = [];
-        this.cargarVentas();
-        this.cargarDevoluciones();
-      },
-      error: (error) => {
-        console.error('Error al registrar devolución', error);
-        const message = error?.error?.message || 'No se pudo registrar la devolución.';
-        this.showErrorMessage(message);
-      },
+    this.isLoading = true;
+    this.hasError = false;
+
+    this.devolucionesService.crear(payload).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al registrar la devolucion: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al registrar la devolución. (${error.status})`,
+            4500
+          );
+        };
+        return EMPTY;
+      })
+    ).subscribe(() => {
+      this.motivo = '';
+      this.productosADevolver = [];
+      this.isLoading = false;
+      this.cargarVentas();
+      this.cargarDevoluciones();
+      this.showSuccessMessage('Devolución registrada correctamente.');
     });
   }
 
