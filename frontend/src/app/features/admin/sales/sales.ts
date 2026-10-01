@@ -79,23 +79,23 @@ export class Sales implements OnInit {
     this.cargarProductos();
   }
 
-  private showSuccesMessage(message: string, duration: number): void {
+  private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
@@ -144,7 +144,7 @@ export class Sales implements OnInit {
       this.clientes = data;
       setTimeout(() =>{
         this.isLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }, 500);
     });
   }
@@ -257,7 +257,7 @@ export class Sales implements OnInit {
       this.productos = data;
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }, 500);
     });
   }
@@ -290,7 +290,7 @@ export class Sales implements OnInit {
           this.productosEncontrados = data
           setTimeout(() => {
             this.isLoading = false;
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }, 500);
         });
     } else {
@@ -463,7 +463,7 @@ export class Sales implements OnInit {
       this.verificarEstadoCaja();
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }, 500);
     });
   }
