@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReporteGanancias, TopProducto } from '../../../services/autostore.models';
 import { ReportesService } from '../../../services/autostore.reportes-service';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-reportes',
@@ -19,7 +20,8 @@ export class Reportes implements OnInit {
   reporte: ReporteGanancias | null = null;
   topProductos: TopProducto[] = [];
 
-  isLoading = false;
+  isLoading: boolean = false;
+  hasError: boolean = false;
   successMessage: string | null = null;
   errorMessage: string | null = null;
 
@@ -37,7 +39,7 @@ export class Reportes implements OnInit {
     this.cargarReporte();
   }
 
-  private showSuccesMessage(message: string, duration: number): void {
+  private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
     this.cdr.detectChanges();
 
@@ -47,7 +49,7 @@ export class Reportes implements OnInit {
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
     this.cdr.detectChanges();
 
@@ -71,24 +73,33 @@ export class Reportes implements OnInit {
     }
 
     this.isLoading = true;
-    this.reportesService.obtenerGanancias(this.fechaInicio, this.fechaFin).subscribe({
-      next: (reporte) => {
+    this.hasError = false;
+    this.reportesService.obtenerGanancias(this.fechaInicio, this.fechaFin).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar reportes: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar los reportes. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY;
+      })
+    ).subscribe((data) => {
         console.log('Reportes Ok')
-        this.reporte = reporte;
+        this.reporte = data;
         this.cargarTopProductos();
         setTimeout(() => {
-          this.cdr.detectChanges();
           this.isLoading = false;
-        }, 2500);
-      },
-      error: (error) => {
-        console.error('Error al cargar el reporte:', error);
-        this.showErrorMessage(
-          `No fue posible cargar el reporte. Intenta nuevamente.`,
-          3500
-        );
-        this.isLoading = false;
-      }
+          this.cdr.detectChanges();
+        }, 500);
     });
   }
 
@@ -97,44 +108,68 @@ export class Reportes implements OnInit {
       this.fechaInicio,
       this.fechaFin,
       this.limiteProductos
-    ).subscribe({
-      next: (productos) => {
-        this.topProductos = productos;
+    ).pipe(
+      catchError((error) =>{
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cargar TopProductos: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar TopProductos. (${error.status})`,
+            3500
+          );
+        };
+        return of([])
+      })
+    ).subscribe((data) => {
+        this.topProductos = data;
+      setTimeout(() => {
+        this.isLoading = false;
         this.cdr.detectChanges();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar los productos destacados:', err);
-        this.topProductos = [];
-        this.isLoading = false;
-        this.showErrorMessage(
-          `Se cargaron las métricas, pero no los productos destacados. (${err.error?.message})`,
-          3500
-        );
-      }
+      }, 500);
     });
   }
 
   descargarCsv(): void {
     if (!this.fechaInicio || !this.fechaFin) return;
-
+    this.isLoading = true;
+    this.hasError = false;
     this.reportesService.descargarCsvGanancias(
       this.fechaInicio,
       this.fechaFin,
       this.limiteProductos
-    ).subscribe({
-      next: (archivo) => {
-        const url = URL.createObjectURL(archivo);
-        const enlace = document.createElement('a');
-        enlace.href = url;
-        enlace.download = `reporte-ganancias-${this.fechaInicio}-${this.fechaFin}.csv`;
-        enlace.click();
-        URL.revokeObjectURL(url);
-      },
-      error: (error) => {
-        console.error('Error al descargar el reporte:', error);
-        this.errorMessage = 'No fue posible descargar el reporte CSV.';
-      }
+    ).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al descargar Csv: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al descargar el reporte. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY
+      })
+    ).subscribe((data) => {
+      const url = URL.createObjectURL(data);
+      const enlace = document.createElement('a');
+      enlace.href = url;
+      enlace.download = `reporte-ganancias-${this.fechaInicio}-${this.fechaFin}.csv`;
+      enlace.click();
+      URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.showSuccesMessage(`Reporte descargado correctamente!`);
     });
   }
 
