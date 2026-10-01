@@ -50,23 +50,23 @@ export class CompraDistribuidores implements OnInit{
     this.cargarProductos();
   }
 
-  private showSuccesMessage(message: string, duration: number): void {
+  private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
@@ -95,8 +95,8 @@ export class CompraDistribuidores implements OnInit{
       this.distribuidores = data;
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
-      },500);
+        this.cdr.detectChanges();
+      }, 500);
     });
   }
 
@@ -118,15 +118,15 @@ export class CompraDistribuidores implements OnInit{
             `Ocurrió un error al cargar los distribuidores. (${error.status})`,
             3500
           );
-        }
+        };
         return of([]);
       })
     ).subscribe((data) => {
       this.productos = data;
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
-      },500);
+        this.cdr.detectChanges();
+      }, 500);
     });
   }
 
@@ -134,7 +134,7 @@ export class CompraDistribuidores implements OnInit{
     if (this.productoSeleccionado) {
       // Sugiere el precio de compra actual registrado en el producto
       this.precioUnitarioCompra = this.productoSeleccionado.precioCompra || 0;
-    }
+    };
   }
 
   agregarProducto(): void {
@@ -154,7 +154,7 @@ export class CompraDistribuidores implements OnInit{
 
     this.calcularTotal();
     this.limpiarSeleccionProducto();
-  }
+  };
 
   quitarItem(index: number): void {
     this.items.splice(index, 1);
@@ -171,7 +171,7 @@ export class CompraDistribuidores implements OnInit{
     if (!this.distribuidorSeleccionadoId || this.items.length === 0) {
       alert('Seleccione un distribuidor y al menos un producto.');
       return;
-    }
+    };
 
     const payload: CompraRequest = {
       distribuidorId: this.distribuidorSeleccionadoId,
@@ -198,7 +198,7 @@ export class CompraDistribuidores implements OnInit{
             `Ocurrió un error al cargar los distribuidores. (${error.status})`,
             3500
           );
-        }
+        };
         return EMPTY;
       })
     ).subscribe(() => {
