@@ -41,23 +41,23 @@ export class HistoricoMercancia implements OnInit{
     this.cargarCompras();
     this.cargarDistribuidores();
   }
-    private showSuccesMessage(message: string, duration: number): void {
+    private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
@@ -87,8 +87,8 @@ export class HistoricoMercancia implements OnInit{
       console.log('Compras cargadas: ', data.length);
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
-      }, 1000);
+        this.cdr.detectChanges();
+      }, 500);
     });
   }
 
@@ -122,7 +122,7 @@ export class HistoricoMercancia implements OnInit{
         this.historial = [data];
         setTimeout(() =>{
           this.isLoading = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }, 500);
     });
   }
@@ -152,8 +152,8 @@ export class HistoricoMercancia implements OnInit{
       this.distribuidores = data;
       setTimeout(() => {
         this.isLoading = false;
-        this.cdr.markForCheck();
-      });
+        this.cdr.detectChanges();
+      }, 500);
     });
   }
 
@@ -195,7 +195,7 @@ export class HistoricoMercancia implements OnInit{
         this.historial = data;
         setTimeout(() => {
           this.isLoading = false;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         }, 500);
     });
   }
