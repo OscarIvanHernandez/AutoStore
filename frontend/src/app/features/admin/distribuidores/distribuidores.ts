@@ -39,23 +39,23 @@ export class Distribuidores implements OnInit{
     this.cargarDistribuidores();
   }
 
-  private showSuccesMessage(message: string, duration: number): void {
+  private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
@@ -88,8 +88,8 @@ export class Distribuidores implements OnInit{
       console.log('Distribuidores mostrados:', this.distribuidores);
       setTimeout(() =>{
         this.isLoading = false;
-        this.cdr.markForCheck();
-      }, 1500);
+        this.cdr.detectChanges();
+      }, 500);
     });
   }
 
@@ -127,8 +127,8 @@ export class Distribuidores implements OnInit{
         distribuidor = this.resetForm();
         setTimeout(() => {
           this.isLoading = false;
-          this.cdr.markForCheck();
-        })
+          this.cdr.detectChanges();
+        }, 500)
       });
     } else {
       this.distribuidorService.crear(distribuidor).pipe(
@@ -157,8 +157,8 @@ export class Distribuidores implements OnInit{
         distribuidor = this.resetForm();
         setTimeout(() =>{
           this.isLoading = false;
-          this.cdr.markForCheck();
-        });
+          this.cdr.detectChanges();
+        }, 500);
       });
     };
   }
