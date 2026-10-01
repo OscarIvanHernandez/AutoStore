@@ -73,7 +73,7 @@ export class DevolucionesComponent implements OnInit {
       catchError((error) => {
         this.hasError = true;
         this.isLoading = false;
-        console.log('Error al registrar la devolucion: ', error);
+        console.log('Error al cargar ventas: ', error);
         if (error.status === 0){
           this.showErrorMessage(
             `No se pudo conectar con el servidor.`,
@@ -81,8 +81,8 @@ export class DevolucionesComponent implements OnInit {
           );
         } else {
           this.showErrorMessage(
-            `Ocurrió un error al registrar la devolución. (${error.status})`,
-            4500
+            `Ocurrió un error al cargar las ventas. (${error.status})`,
+            3500
           );
         };
         return of([]);
