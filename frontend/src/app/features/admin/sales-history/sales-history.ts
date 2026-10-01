@@ -5,6 +5,7 @@ import { ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges } from '
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, RouterModule } from '@angular/router';
 import { VentaInterface } from '../../../services/autostore.models';
+import { catchError, EMPTY, of } from 'rxjs';
 
 @Component({
   selector: 'app-sales-history',
@@ -20,6 +21,7 @@ export class SalesHistory implements OnInit{
 
   // Variable para la carga de los datos
   isLoading: boolean = true;
+  hasError: boolean = false;
 
   // Variables para mensajes
   successMessage: string | null = null;
@@ -50,23 +52,23 @@ export class SalesHistory implements OnInit{
     };
   }
 
-  private showSuccesMessage(message: string, duration: number): void {
+  private showSuccesMessage(message: string, duration = 2500): void {
     this.successMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.successMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
-  private showErrorMessage(message: string, duration: number): void {
+  private showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.errorMessage = null;
-      this.cdr.markForCheck();
+      this.cdr.detectChanges();
     }, duration);
   }
 
@@ -79,21 +81,31 @@ export class SalesHistory implements OnInit{
 
   cargarVentas(): void {
     this.isLoading = true;
-    this.saleService.obtenerVentas().subscribe({
-      next: (ventas) => {
-        console.log('Productos cargados:', ventas);
-        this.ventas = ventas;
+    this.saleService.obtenerVentas().pipe(
+      catchError((error) => {
+        this.hasError = true;
         this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
+        console.log('Error al cargar las ventas: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cargar las ventas. (${error.status})`,
+            3500
+          );
+        };
+        return of([]);
+      })
+    ).subscribe((ventas) => {
+      console.log('Productos cargados:', ventas);
+      this.ventas = ventas;
+      setTimeout(() => {
         this.isLoading = false;
-        console.error('Error al cargar ventas:', error);
-        this.showErrorMessage(
-          `Hubo un error al cargar los horarios. (${error.status})`,
-          12000
-        );
-      }
+        this.cdr.detectChanges();
+      })
     });
   }
 
@@ -104,22 +116,34 @@ export class SalesHistory implements OnInit{
   cancelarVenta(venta: any): void {
     if(!confirm(`¿Estaás seguro de cancelar la venta #${venta.id}? EL stock será devuelto.`)) {
       return;
-    }
-
-    this.saleService.cancelarVenta(venta.id).subscribe({
-      next: (update) => {
-        this.showSuccesMessage(
-          'Venta cancelada correctamente. Stock devuelto',
-          2500
-        );
-        this.cargarVentas();
-      }, error: (err) => {
-        this.showErrorMessage(
-          'Hubo un error al cancelar la venta. Operación cancelada',
-          2500
-        );
-        this.cargarVentas();
-      }
+    };
+    this.isLoading = true;
+    this.hasError = false;
+    this.saleService.cancelarVenta(venta.id).pipe(
+      catchError((error) => {
+        this.hasError = true;
+        this.isLoading = false;
+        console.log('Error al cancelar la venta: ', error);
+        if (error.status === 0){
+          this.showErrorMessage(
+            `No se pudo conectar con el servidor.`,
+            3500
+          );
+        } else {
+          this.showErrorMessage(
+            `Ocurrió un error al cancelar la venta. (${error.status})`,
+            3500
+          );
+        };
+        return EMPTY;
+      })
+    ).subscribe(() => {
+      this.cargarVentas();
+      this.isLoading = false;
+      this.showSuccesMessage(
+        'Venta cancelada correctamente. Stock devuelto',
+        2500
+      );
     });
-  }
+  };
 }

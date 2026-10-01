@@ -136,8 +136,8 @@ export class Sales implements OnInit {
             `Ocurrió un error al cargar los clientes. (${error.status})`,
             3500
           );
-        }
-        return of([])
+        };
+        return of([]);
       })
     ).subscribe((data) =>{
       console.log('clientes: ',data);
@@ -167,8 +167,8 @@ export class Sales implements OnInit {
             `Ocurrió un error al verificar el estado de caja. (${error.status})`,
             4500
           );
-        }
-        return EMPTY
+        };
+        return EMPTY;
     })
   ).subscribe((estado) => {
       this.datosCaja = estado;
@@ -212,8 +212,8 @@ export class Sales implements OnInit {
             `Ocurrió un error al abrir la caja. (${error.status})`,
             3500
           );
-        }
-        return EMPTY
+        };
+        return EMPTY;
       })
     ).subscribe(()=>{
         this.mostrarModalApertura = false;
@@ -249,8 +249,8 @@ export class Sales implements OnInit {
             `Ocurrió un error al cargar los productos. (${error.status})`,
             3500
           );
-        }
-        return of([])
+        };
+        return of([]);
       })
     ).subscribe((data) => {
       console.log('Productos cargados:', data);
@@ -283,8 +283,8 @@ export class Sales implements OnInit {
               `Ocurrió un error al obtener los productos. (${error.status})`,
               3500
             );
-          }
-          return of([])
+          };
+          return of([]);
         })
         ).subscribe((data) => {
           this.productosEncontrados = data
@@ -400,12 +400,12 @@ export class Sales implements OnInit {
     if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
       alert("Debe seleccionar un cliente para ventas a crédito.");
       return;
-    }
+    };
 
     if (this.tipoVenta === 'CREDITO' && this.creditoExcedeLimite) {
       this.showErrorMessage('La venta excede el límite de crédito del cliente.', 6000);
       return;
-    }
+    };
 
     this.ventaRealizada = null;
     this.mostrarModalCobro = true;
@@ -415,12 +415,12 @@ export class Sales implements OnInit {
     if (this.tipoVenta === 'CONTADO' && this.efectivoRecibido < this.totalFinal) {
       alert('El efectivo recibido debe cubrir el total de la venta.');
       return;
-    }
+    };
 
     if (this.tipoVenta === 'CREDITO' && this.creditoExcedeLimite) {
       this.showErrorMessage('La venta excede el límite de crédito del cliente.', 6000);
       return;
-    }
+    };
 
     const payload: VentaRequest = {
       productos: this.carrito.map(item => ({
@@ -453,8 +453,8 @@ export class Sales implements OnInit {
             `Ocurrió un error al procesar la venta. (${error.status})`,
             3500
           );
-        }
-        return EMPTY
+        };
+        return EMPTY;
       })
     ).subscribe((data) => {
       this.ventaRealizada = data;
