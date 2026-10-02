@@ -150,71 +150,41 @@ export class Products extends BaseComponent implements OnInit{
   }
 
   filtrarProductos(): void{
-    this.errorMessage = null;
-    if (!this.textoBusqueda && !this.estadoSeleccionado) {
-      this.cargarProductos();
-      return;
-    }
     this.isLoading = true;
-    this.productoService.buscar({
+    this.cargarRecurso('filtroProductos', this.productoService.buscar({
       q: this.textoBusqueda,
-      estado: this.estadoSeleccionado,
-    }).pipe(
-      catchError((error) => {
-        this.registrarErrorCarga(error, 'buscar productos');
-        return EMPTY;
-      }),
-      finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe((data) => {
-      console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
+      estado: this.estadoSeleccionado
+    }), (data) => {
       this.productos = data;
-      this.hasLoadedProducts = true;
+      this.isLoading = false;
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      }, 500)
     });
   }
 
   cargarProductos(): void {
-    this.errorMessage = null;
-    this.initialLoadError = null;
     this.isLoading = true;
-    this.productoService.getProductos().pipe(
-      catchError((error) => {
-        this.registrarErrorCarga(error, 'cargar los productos');
-        return EMPTY;
-      }),
-      finalize(() => {
-        this.isLoading = false;
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
       this.productos = data;
+      this.hasLoadedProducts = true;
+      this.isLoading = false;
       setTimeout(() => {
-        this.hasLoadedProducts = true;
-        this.cdr.detectChanges();
-      });
+        this.cdr.detectChanges;
+      }, 1000)
     });
   }
 
   private buscarProductos(filtros: { q?: string; marca?: string; categoria?: string; activo?: boolean }): void {
-    this.errorMessage = null;
-    this.initialLoadError = null;
-    this.isLoading = true;
-    this.productoService.buscar(filtros).pipe(
-      catchError((error) => {
-        this.registrarErrorCarga(error, 'buscar los productos');
-        return EMPTY;
-      }),
-      finalize(() => {
+      this.isLoading = true;
+      this.cargarRecurso('buscarProductos', this.productoService.buscar(filtros), (data) => {
+        this.productos = data;
         this.isLoading = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe((data) => {
-      console.log('Productos buscados:', data);
-      this.productos = data;
-      this.hasLoadedProducts = true;
-    });
-  }
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 500)
+      });
+    }
 
   guardarProducto(producto: ProductoInterface) {
     this.ejecutarMutacion(this.productoService.crear(producto), 'guardar el producto', (data) => {

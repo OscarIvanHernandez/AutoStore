@@ -2,9 +2,9 @@
 
   @if (isLoading && !hasLoadedProducts) {
     <div class="spinner">Cargando tus productos, un momento...</div>
-  } @else if (initialLoadError && !hasLoadedProducts) {
+  } @else if (loadingStates['productos'] && !hasLoadedProducts) {
     <div class="alert alert-danger">
-      {{ initialLoadError }}
+      {{ loadErrors['productos'] }}
       <button (click)="cargarProductos()">Reintentar</button>
     </div>
   } @else {

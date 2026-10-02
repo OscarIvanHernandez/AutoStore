@@ -30,6 +30,7 @@ export class Sales extends BaseComponent implements OnInit {
   hasLoadedClientes: boolean = false;
 
   // Variable de error
+  initialLoadClientes: string | null = null;
   hasError: boolean = false;
 
   // Busqueda de productos
@@ -77,7 +78,7 @@ export class Sales extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.verificarEstadoCaja();
-    this.cargarProductos();
+    this.cargarDatosIniciales();
   }
 
   abrirModalCobro(): void {
@@ -92,43 +93,46 @@ export class Sales extends BaseComponent implements OnInit {
 
   cambiarTipoVenta(tipo: 'CONTADO' | 'CREDITO'): void {
     if (tipo === 'CREDITO') {
-      this.cargarClientes();
+      this.cargarDatosIniciales();
       return;
     }
 
     this.clienteIdSeleccionado = null;
   }
 
-  cargarClientes(): void {
+  cargarDatosIniciales(): void {
+    // Cargar productos
+    this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
+      this.productos = data;
+    });
+
+    // Cargar clientes
+    this.cargarRecurso('clientes', this.clientesService.listarClientes(), (data) => {
+      this.clientes = data;
+    });
+  }
+
+  /*cargarClientes(): void {
     this.isLoading = true;
-    this.hasError = false;
+    this.initialLoadClientes = null;
+    this.errorMessage = null;
     this.clientesService.listarClientesActivos().pipe(
       catchError((error) =>{
-        this.hasError = true;
+        this.registrarErrorCarga(error, 'cargar los clientes');
+        return EMPTY;
+      }),
+      finalize(() =>{
         this.isLoading = false;
-        console.log('Error al cargar los clientes: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los clientes. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
       })
     ).subscribe((data) =>{
       console.log('clientes: ',data);
       this.clientes = data;
       setTimeout(() =>{
-        this.isLoading = false;
+        this.hasLoadedClientes = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  }*/
 
   verificarEstadoCaja(): void {
     this.isLoading = true;
@@ -158,7 +162,7 @@ export class Sales extends BaseComponent implements OnInit {
       if (!this.cajaAbierta) {
         this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
       } else {
-        this.cargarProductos();
+        this.cargarDatosIniciales();
         }
     });
   }
@@ -212,7 +216,7 @@ export class Sales extends BaseComponent implements OnInit {
     });
   }
 
-  cargarProductos(): void {
+  /*cargarProductos(): void {
     this.initialLoadError = null;
     this.errorMessage = null;
     this.isLoading = true;
@@ -232,7 +236,7 @@ export class Sales extends BaseComponent implements OnInit {
         this.hasLoadedProductos = true;
       }, 500);
     });
-  }
+  }*/
 
   // Buscar productos en tiempo real
   BuscarProducto(): void {
