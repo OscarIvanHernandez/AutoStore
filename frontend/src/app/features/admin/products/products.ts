@@ -10,6 +10,7 @@ import { EditarProducto } from './modales/editar-producto/editar-producto';
 import { InventarioProducto } from './modales/inventario-producto/inventario-producto';
 import { EstadoProducto } from './modales/estado-producto/estado-producto';
 import { catchError, EMPTY, finalize, Observable } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 
 @Component({
@@ -27,7 +28,7 @@ import { catchError, EMPTY, finalize, Observable } from 'rxjs';
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
-export class Products implements OnInit{
+export class Products extends BaseComponent implements OnInit{
   // Varaibles Producto
   productos: ProductoInterface[] = [];
   productoSeleccionado: ProductoInterface | null = null;
@@ -38,14 +39,7 @@ export class Products implements OnInit{
   ajuste: AjusteRequestInterface = this.resetearAjuste();
 
   // Variable para la carga de los datos
-  isLoading: boolean = true;
-  isSaving: boolean = false;
   hasLoadedProducts: boolean = false;
-  initialLoadError: string | null = null;
-
-  // Variables para mensajes
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
 
   // Variables MODAL
   // Crear producto
@@ -64,9 +58,9 @@ export class Products implements OnInit{
 
   constructor(
     private productoService: ProductoService,
-    private cdr: ChangeDetectorRef,
+    cdr: ChangeDetectorRef,
     private route: ActivatedRoute
-  ){}
+  ){ super(cdr)}
 
   ngOnInit(): void{
     this.route.queryParams.subscribe(params => {
@@ -109,26 +103,6 @@ export class Products implements OnInit{
     cantidad: 0,
     motivo: ''
     }
-  }
-
-  private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
   }
 
   abrirModalCrearProducto() {
@@ -244,7 +218,7 @@ export class Products implements OnInit{
     this.ejecutarMutacion(this.productoService.crear(producto), 'guardar el producto', (data) => {
       this.productos.push(data);
       this.cerrarModal();
-      this.showSuccesMessage('Nuevo producto agregado.', 3500);
+      this.showSuccessMessage('Nuevo producto agregado.', 3500);
     });
   }
 
@@ -257,7 +231,7 @@ export class Products implements OnInit{
         this.productos[index] = data;
       }
       this.cerrarModalEditar();
-      this.showSuccesMessage('El producto fue editado correctamente.', 3500);
+      this.showSuccessMessage('El producto fue editado correctamente.', 3500);
     });
   }
 
@@ -271,12 +245,12 @@ export class Products implements OnInit{
       }
       this.cerrarModalStock();
       if (ajuste.tipo === 'ENTRADA') {
-        this.showSuccesMessage(
+        this.showSuccessMessage(
           `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
           8000
         );
       } else {
-        this.showSuccesMessage(
+        this.showSuccessMessage(
           `Ajuste exitoso: Retirado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
           8000
         );
@@ -294,38 +268,8 @@ export class Products implements OnInit{
       }
       const accion = data.activo ? 'activado' : 'desactivado';
       this.cerrarModalAlternar();
-      this.showSuccesMessage(`Producto "${data.nombre}" ${accion} con éxito.`, 5000);
+      this.showSuccessMessage(`Producto "${data.nombre}" ${accion} con éxito.`, 5000);
     });
-  }
-
-  private registrarErrorCarga(error: { status?: number }, accion: string): void {
-    const message = this.mensajeError(error, accion);
-    if (this.hasLoadedProducts) {
-      this.showErrorMessage(message);
-    } else {
-      this.initialLoadError = message;
-    }
-  }
-
-  private ejecutarMutacion<T>(request: Observable<T>, accion: string, onSuccess: (data: T) => void): void {
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.isSaving = true;
-    request.pipe(
-      catchError((error) => {
-        this.showErrorMessage(this.mensajeError(error, accion));
-        return EMPTY;
-      }),
-      finalize(() => {
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      })
-    ).subscribe(onSuccess);
-  }
-
-  private mensajeError(error: { status?: number }, accion: string): string {
-    if (error.status === 0) return 'No se pudo conectar con el servidor.';
-    return `Ocurrió un error al ${accion}. (${error.status ?? 'desconocido'})`;
   }
 
 }

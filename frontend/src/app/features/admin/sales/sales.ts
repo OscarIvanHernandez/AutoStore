@@ -9,7 +9,8 @@ import { RouterLink } from '@angular/router';
 import { Caja } from './modal/caja/caja';
 import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 import { ClienteService } from '../../../services/autostore.clientes-service';
-import { catchError, EMPTY, of } from 'rxjs';
+import { catchError, EMPTY, finalize, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-sales',
@@ -18,17 +19,17 @@ import { catchError, EMPTY, of } from 'rxjs';
   templateUrl: './sales.html',
   styleUrls: ['./sales.css'],
 })
-export class Sales implements OnInit {
+export class Sales extends BaseComponent implements OnInit {
   private readonly limiteCreditoAdvertencia = 0.8;
 
   // Obetener los productos
   productos: ProductoInterface[] = [];
 
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-
   // Variable de carga
-  isLoading: boolean = false;
+  hasLoadedProductos: boolean = false;
+  hasLoadedClientes: boolean = false;
+
+  // Variable de error
   hasError: boolean = false;
 
   // Busqueda de productos
@@ -70,33 +71,13 @@ export class Sales implements OnInit {
     private ventaService: SaleService,
     private cajaService: CajaService,
     private clientesService: ClienteService,
-    private cdr: ChangeDetectorRef
+    cdr: ChangeDetectorRef
 
-  ) {}
+  ) { super (cdr)}
 
   ngOnInit(): void {
     this.verificarEstadoCaja();
     this.cargarProductos();
-  }
-
-  private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
   }
 
   abrirModalCobro(): void {
@@ -232,32 +213,23 @@ export class Sales implements OnInit {
   }
 
   cargarProductos(): void {
+    this.initialLoadError = null;
+    this.errorMessage = null;
     this.isLoading = true;
-    this.hasError = false;
     this.productoService.getProductosActivos().pipe(
       catchError((error) => {
-        this.hasError = true;
+        this.registrarErrorCarga(error,'cargar los productos')
+        return EMPTY
+      }),
+      finalize(() =>{
         this.isLoading = false;
-        console.log('Error al cargar los productos: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los productos. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
       })
     ).subscribe((data) => {
       console.log('Productos cargados:', data);
       this.productos = data;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
+        this.hasLoadedProductos = true;
       }, 500);
     });
   }
