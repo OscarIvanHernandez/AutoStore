@@ -186,11 +186,13 @@ export class Products extends BaseComponent implements OnInit{
       }),
       finalize(() => {
         this.isLoading = false;
-        this.cdr.detectChanges();
       })
     ).subscribe((data) => {
       this.productos = data;
-      this.hasLoadedProducts = true;
+      setTimeout(() => {
+        this.hasLoadedProducts = true;
+        this.cdr.detectChanges();
+      });
     });
   }
 
