@@ -7,6 +7,7 @@
     </p>
 
     <form #ajusteForm="ngForm" (ngSubmit)="guardarCambios()">
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
       <div class="form-grid">
 
         <div class="form-group">
@@ -52,8 +53,8 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="cerrar()">Cancelar</button>
-        <button type="submit" class="btn-primary">Aplicar Ajuste</button>
+        <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="ajusteForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Aplicar Ajuste' }}</button>
       </div>
     </form>
   </div>

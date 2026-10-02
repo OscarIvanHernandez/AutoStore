@@ -13,6 +13,8 @@ import { EstadoProductoInterface } from '../../../../../services/autostore.model
 })
 export class EstadoProducto implements OnChanges {
   @Input() visible = false;
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
   @Input() productoEstado: EstadoProductoInterface | null = null;
 
   @Output() close = new EventEmitter<void>();
@@ -40,7 +42,7 @@ export class EstadoProducto implements OnChanges {
   }
 
   guardarCambios() {
-    if (this.productoEstado && this.productoNuevoEstado) {
+    if (this.productoEstado && this.productoNuevoEstado && !this.isSaving) {
       const productoActualizado: EstadoProductoInterface = {
         id: this.productoEstado.id,
         nombre: this.productoEstado.nombre,
@@ -49,10 +51,6 @@ export class EstadoProducto implements OnChanges {
 
       this.update.emit(productoActualizado);
     }
-
-    this.productoActualEstado = null;
-    this.productoNuevoEstado = null;
-    this.cerrar();
   }
 
   cerrar() {

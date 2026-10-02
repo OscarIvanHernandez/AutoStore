@@ -1,14 +1,14 @@
 <div class="products-content">
 
-  @if (isLoading) {
-    <div class="spinner">Cargando tus productos, un momemento...</div>
-  } @else if (hasError) {
+  @if (isLoading && !hasLoadedProducts) {
+    <div class="spinner">Cargando tus productos, un momento...</div>
+  } @else if (initialLoadError && !hasLoadedProducts) {
     <div class="alert alert-danger">
-      {{errorMessage}}
+      {{ initialLoadError }}
       <button (click)="cargarProductos()">Reintentar</button>
     </div>
   } @else {
-    <div *ngIf="!isLoading">
+    <div>
 
       <section class="products-header-content">
         <div class="products-header-info">
@@ -17,17 +17,19 @@
         </div>
 
         <div class="products-header-actions">
-          <button (click)="abrirModalCrearProducto()">Agregar producto</button>
+          <button (click)="abrirModalCrearProducto()" [disabled]="isLoading || isSaving">Agregar producto</button>
         </div>
       </section>
 
       <div *ngIf="successMessage" class=" card alert-success">{{ successMessage }}</div>
-      <div *ngIf="productos.length === 0" class=" card empty-state">
+      <div *ngIf="errorMessage && !mostrarModal && !mostrarModalEditar && !mostrarModalStock && !mostrarModalAlternar" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+      <div *ngIf="isLoading" class="spinner">Actualizando productos...</div>
+      <div *ngIf="!isLoading && productos.length === 0 && !errorMessage" class=" card empty-state">
         <p>No hay productos registrados en inventario</p>
       </div>
 
       <div class="filtros-estado">
-        <select [(ngModel)]="estadoSeleccionado" (change)="filtrarProductos()">
+        <select [(ngModel)]="estadoSeleccionado" (change)="filtrarProductos()" [disabled]="isLoading">
           <option value="">Todos los productos</option>
           <option value="activo">Solo Activos</option>
           <option value="inactivo">Solo Inactivos</option>
@@ -56,9 +58,9 @@
                 </div>
               </td>
               <td style="text-align: end;">
-                <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario">📦</button>
-                <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos">📝</button>
-                <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'">
+                <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario" [disabled]="isSaving">📦</button>
+                <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos" [disabled]="isSaving">📝</button>
+                <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'" [disabled]="isSaving">
                   {{ producto.activo ? '❌' : '🔄' }}
                 </button>
               </td>
@@ -72,6 +74,8 @@
   <app-agregar-producto
     *ngIf="mostrarModal"
     [visible]="mostrarModal"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
     (close)="cerrarModal()"
     (save)="guardarProducto($event)"
   />
@@ -79,6 +83,8 @@
   <app-editar-producto
   *ngIf="mostrarModalEditar"
   [visible]="mostrarModalEditar"
+  [isSaving]="isSaving"
+  [errorMessage]="errorMessage"
   [producto]="productoEditar"
   (close)="cerrarModalEditar()"
   (update)="editarProducto($event)"
@@ -87,6 +93,8 @@
   <app-inventario-producto
   *ngIf="mostrarModalStock"
   [visible]="mostrarModalStock"
+  [isSaving]="isSaving"
+  [errorMessage]="errorMessage"
   [producto]="productoSeleccionado"
   (close)="cerrarModalStock()"
   (update)="guardarAjusteStock($event.producto, $event.ajuste)"
@@ -95,6 +103,8 @@
   <app-estado-producto
   *ngIf="mostrarModalAlternar"
   [visible]="mostrarModalAlternar"
+  [isSaving]="isSaving"
+  [errorMessage]="errorMessage"
   [productoEstado]="productoEstadoSeleccionado"
   (close)="cerrarModalAlternar()"
   (update)="cambiarEstado($event)"

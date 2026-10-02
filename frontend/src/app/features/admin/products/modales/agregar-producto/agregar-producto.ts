@@ -13,14 +13,16 @@ import { ProductoInterface } from '../../../../../services/autostore.models';
 })
 export class AgregarProducto {
   @Input() visible = false;
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<ProductoInterface>();
 
   nuevoProducto: ProductoInterface = this.resetearFormulario();
 
   guardar() {
+    if (this.isSaving) return;
     this.save.emit({ ...this.nuevoProducto });
-    this.resetearFormulario();
   }
 
   cerrar() {

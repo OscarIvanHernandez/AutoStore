@@ -9,7 +9,7 @@ import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
 import { EditarProducto } from './modales/editar-producto/editar-producto';
 import { InventarioProducto } from './modales/inventario-producto/inventario-producto';
 import { EstadoProducto } from './modales/estado-producto/estado-producto';
-import { catchError, EMPTY, of } from 'rxjs';
+import { catchError, EMPTY, finalize, Observable } from 'rxjs';
 
 
 @Component({
@@ -39,7 +39,9 @@ export class Products implements OnInit{
 
   // Variable para la carga de los datos
   isLoading: boolean = true;
-  hasError: boolean = false;
+  isSaving: boolean = false;
+  hasLoadedProducts: boolean = false;
+  initialLoadError: string | null = null;
 
   // Variables para mensajes
   successMessage: string | null = null;
@@ -174,213 +176,100 @@ export class Products implements OnInit{
   }
 
   filtrarProductos(): void{
-    this.isLoading = true;
-    this.hasError = false;
+    this.errorMessage = null;
     if (!this.textoBusqueda && !this.estadoSeleccionado) {
       this.cargarProductos();
       return;
     }
+    this.isLoading = true;
     this.productoService.buscar({
       q: this.textoBusqueda,
       estado: this.estadoSeleccionado,
     }).pipe(
-      catchError((error) =>{
-        this.hasError = true;
+      catchError((error) => {
+        this.registrarErrorCarga(error, 'buscar productos');
+        return EMPTY;
+      }),
+      finalize(() => {
         this.isLoading = false;
-        console.log('Error al cargar los productos: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al buscar productos. (${error.status})`,
-            3500
-          );
-        }
-        return of([]);
+        this.cdr.detectChanges();
       })
     ).subscribe((data) => {
       console.log('Filtro de estado:', this.estadoSeleccionado, 'resultados:', data.length);
       this.productos = data;
-      this.isLoading = false;
-      this.cdr.detectChanges();
+      this.hasLoadedProducts = true;
     });
   }
 
   cargarProductos(): void {
+    this.errorMessage = null;
+    this.initialLoadError = null;
     this.isLoading = true;
-    this.hasError = false;
     this.productoService.getProductos().pipe(
       catchError((error) => {
-        this.hasError = true;
+        this.registrarErrorCarga(error, 'cargar los productos');
+        return EMPTY;
+      }),
+      finalize(() => {
         this.isLoading = false;
-        console.log('Error al cargar los productos: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los productos. (${error.status})`,
-            3500
-          );
-        }
-        return of([]);
+        this.cdr.detectChanges();
       })
-    ).subscribe ((data) => {
+    ).subscribe((data) => {
       this.productos = data;
-      setTimeout(() =>{
-        this.isLoading = false;
-        this.cdr.detectChanges()
-      },1200);
+      this.hasLoadedProducts = true;
     });
   }
 
   private buscarProductos(filtros: { q?: string; marca?: string; categoria?: string; activo?: boolean }): void {
+    this.errorMessage = null;
+    this.initialLoadError = null;
     this.isLoading = true;
-    this.hasError = false;
     this.productoService.buscar(filtros).pipe(
       catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al buscar los productos: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al buscar los productos. (${error.status})`,
-            3500
-          );
-        }
-        return of([]);
-      })
-    ).subscribe((data) => {
-        console.log('Productos buscados:', data);
-        this.productos = data;
+        this.registrarErrorCarga(error, 'buscar los productos');
+        return EMPTY;
+      }),
+      finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
+      })
+    ).subscribe((data) => {
+      console.log('Productos buscados:', data);
+      this.productos = data;
+      this.hasLoadedProducts = true;
     });
   }
 
   guardarProducto(producto: ProductoInterface) {
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.isLoading = true;
-    this.hasError = false;
-    this.productoService.crear(producto).pipe(
-      catchError((error) =>{
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al guardar el producto: ', error);
-        if (error.status === 0){
-          this.cerrarModal();
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.cerrarModal();
-          this.showErrorMessage(
-            `Ocurrió un error al guardar los cambios. (${error.status})`,
-            3500
-          );
-        }
-        return EMPTY;
-      })
-    ).subscribe((data) => {
-        // Se añade el nuevo producto
-        this.productos.push(data);
-        this.cerrarModal();
-        this.isLoading = false;
-        this.showSuccesMessage(
-          'Nuevo producto agregado!.',
-          3500
-        );
+    this.ejecutarMutacion(this.productoService.crear(producto), 'guardar el producto', (data) => {
+      this.productos.push(data);
+      this.cerrarModal();
+      this.showSuccesMessage('Nuevo producto agregado.', 3500);
     });
   }
 
   editarProducto(producto: ProductoInterface) {
     if(!producto || !producto.id) return;
 
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.isLoading = true;
-    this.hasError = false;
-
-    this.productoService.actualizar(producto.id, producto).pipe(
-      catchError((error) =>{
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar los productos: ', error);
-        if (error.status === 0){
-          this.cerrarModalEditar();
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.cerrarModalEditar();
-          this.showErrorMessage(
-            `Ocurrió un error al guardar los cambios. (${error.status})`,
-            3500
-          );
-        }
-        return EMPTY
-      })
-    ).subscribe((data) => {
+    this.ejecutarMutacion(this.productoService.actualizar(producto.id, producto), 'guardar los cambios', (data) => {
       const index = this.productos.findIndex(p => p.id === data.id);
       if(index !== -1){
         this.productos[index] = data;
       }
       this.cerrarModalEditar();
-      this.isLoading = false;
-      this.showSuccesMessage(
-        'El producto fue editado correctamente.',
-        3500
-      );
+      this.showSuccesMessage('El producto fue editado correctamente.', 3500);
     });
   }
 
   guardarAjusteStock(producto: ProductoInterface, ajuste: AjusteRequestInterface): void {
     if(!producto || !producto.id) return;
 
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.isLoading = true;
-    this.hasError = false;
-    this.productoService.ajustarStock(producto.id, ajuste).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al guardar el producto: ', error);
-        if (error.status === 0){
-          this.cerrarModalStock();
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.cerrarModalStock();
-          this.showErrorMessage(
-            `Ocurrió un error al guardar los cambios. (${error.status})`,
-            3500
-          );
-        }
-        return EMPTY
-      })
-    ).subscribe((data) => {
+    this.ejecutarMutacion(this.productoService.ajustarStock(producto.id, ajuste), 'guardar el ajuste de inventario', (data) => {
       const index = this.productos.findIndex(p => p.id === data.id);
       if(index !== -1){
         this.productos[index] = data;
       }
       this.cerrarModalStock();
-      this.isLoading = false;
       if (ajuste.tipo === 'ENTRADA') {
         this.showSuccesMessage(
           `Ajuste exitoso: Agregado(s) ${ajuste.cantidad} en inventario de "${data.nombre}"`,
@@ -398,44 +287,45 @@ export class Products implements OnInit{
   cambiarEstado(productoEstado: EstadoProductoInterface): void {
     if(!productoEstado || !productoEstado.id) return;
 
+    this.ejecutarMutacion(this.productoService.actualizarEstado(productoEstado), 'guardar el cambio de estado', (data) => {
+      const index = this.productos.findIndex(p => p.id === data.id);
+      if(index !== -1){
+        this.productos[index] = data;
+      }
+      const accion = data.activo ? 'activado' : 'desactivado';
+      this.cerrarModalAlternar();
+      this.showSuccesMessage(`Producto "${data.nombre}" ${accion} con éxito.`, 5000);
+    });
+  }
+
+  private registrarErrorCarga(error: { status?: number }, accion: string): void {
+    const message = this.mensajeError(error, accion);
+    if (this.hasLoadedProducts) {
+      this.showErrorMessage(message);
+    } else {
+      this.initialLoadError = message;
+    }
+  }
+
+  private ejecutarMutacion<T>(request: Observable<T>, accion: string, onSuccess: (data: T) => void): void {
     this.successMessage = null;
     this.errorMessage = null;
-    this.isLoading = true;
-    this.hasError = false;
-
-    this.productoService.actualizarEstado(productoEstado).pipe(
+    this.isSaving = true;
+    request.pipe(
       catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al guardar cambios: ', error);
-        if (error.status === 0){
-          this.cerrarModalAlternar();
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.cerrarModalAlternar();
-          this.showErrorMessage(
-            `Ocurrió un error al guardar los cambios. (${error.status})`,
-            3500
-          );
-        }
-        return EMPTY
+        this.showErrorMessage(this.mensajeError(error, accion));
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.isSaving = false;
+        this.cdr.detectChanges();
       })
-    ).subscribe((data) => {
-        const index = this.productos.findIndex(p => p.id === data.id);
-        if(index !== -1){
-          this.productos[index] = data;
-        }
-        const accion = data.activo ? 'activado' : 'desactivado';
-        this.cerrarModalAlternar();
-        this.isLoading = false;
-        this.showSuccesMessage(
-          `Producto "${data.nombre}" ${accion} con éxito.`,
-          5000
-        );
-    });
+    ).subscribe(onSuccess);
+  }
+
+  private mensajeError(error: { status?: number }, accion: string): string {
+    if (error.status === 0) return 'No se pudo conectar con el servidor.';
+    return `Ocurrió un error al ${accion}. (${error.status ?? 'desconocido'})`;
   }
 
 }

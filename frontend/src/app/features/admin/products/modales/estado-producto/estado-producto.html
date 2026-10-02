@@ -7,6 +7,7 @@
     </p>
 
     <form (ngSubmit)="guardarCambios()">
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
           <label>Estado del producto</label>
@@ -22,8 +23,8 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="cerrar()">Cerrar</button>
-        <button type="submit" class="btn-primary">Aplicar Cambio</button>
+        <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cerrar</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">{{ isSaving ? 'Guardando...' : 'Aplicar Cambio' }}</button>
       </div>
     </form>
   </div>

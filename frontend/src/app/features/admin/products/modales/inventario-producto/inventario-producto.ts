@@ -13,6 +13,8 @@ import { AjusteRequestInterface, ProductoInterface } from '../../../../../servic
 })
 export class InventarioProducto implements OnChanges{
   @Input() visible = false;
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
   @Input() producto: ProductoInterface | null = null;
 
   @Output() close = new EventEmitter<void>();
@@ -39,14 +41,12 @@ export class InventarioProducto implements OnChanges{
     }
 
   guardarCambios() {
-    if (this.productoAjustar) {
+    if (this.productoAjustar && !this.isSaving) {
       this.update.emit({
         producto: this.productoAjustar,
         ajuste: this.nuevoAjuste
       });
-      this.nuevoAjuste = this.resetearAjuste();
     }
-    this.cerrar();
   }
 
   cerrar() {

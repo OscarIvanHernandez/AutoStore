@@ -3,6 +3,7 @@
     <h2>Editar Producto</h2>
 
     <form #productoForm="ngForm" (ngSubmit)="guardarCambios()">
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
       <div class="form-grid">
         <div class="form-input">
           <label>Nombre:</label>
@@ -124,8 +125,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="cerrar()">Cancelar</button>
-        <button type="submit" class="btn-primary" [disabled]="productoForm.invalid">Guardar en Inventario</button>
+        <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="productoForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Guardar en Inventario' }}</button>
       </div>
     </form>
   </section>

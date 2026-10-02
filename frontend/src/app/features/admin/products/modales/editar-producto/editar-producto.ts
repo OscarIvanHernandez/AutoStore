@@ -13,6 +13,8 @@ import { ProductoInterface } from '../../../../../services/autostore.models';
 })
 export class EditarProducto implements OnChanges{
   @Input() visible = false;
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
   @Input() producto: ProductoInterface | null = null;
 
   @Output() close = new EventEmitter<void>();
@@ -29,10 +31,9 @@ export class EditarProducto implements OnChanges{
   }
 
   guardarCambios() {
-    if (this.productoEditar) {
+    if (this.productoEditar && !this.isSaving) {
       this.update.emit({ ...this.productoEditar });
     }
-    this.cerrar();
   }
 
   cerrar() {
