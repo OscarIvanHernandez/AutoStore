@@ -6,6 +6,7 @@ import { CompraDistribuidorService } from '../../../services/autostore.compra-di
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Detalles } from './modal/detalles/detalles';
 import { catchError, EMPTY, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-historico-mercancia',
@@ -14,7 +15,7 @@ import { catchError, EMPTY, of } from 'rxjs';
   templateUrl: './historico-mercancia.html',
   styleUrl: './historico-mercancia.css',
 })
-export class HistoricoMercancia implements OnInit{
+export class HistoricoMercancia extends BaseComponent implements OnInit{
   //Compras y sus detalles
   historial: Compra[] = [];
   compraId: number | null = null;
@@ -25,72 +26,28 @@ export class HistoricoMercancia implements OnInit{
   compraSeleccionada: Compra | null = null;
   mostrarDetalles = false;
 
-  isLoading: boolean = false;
-  hasError: boolean = false;
-
-  successMessage: String | null = null;
-  errorMessage: String | null = null;
-
   constructor(
     private compraService: CompraDistribuidorService,
     private distribuidorService: DistribuidorService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    cdr: ChangeDetectorRef
+  ) {super(cdr);};
 
   ngOnInit(): void {
     this.cargarCompras();
     this.cargarDistribuidores();
-  }
-    private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
+  };
 
   cargarCompras(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.compraService.listarCompras().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al obtener las compras: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al obtener las compras. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('cargarCompras', this.compraService.listarCompras(), (data) => {
       this.historial = data;
       console.log('Compras cargadas: ', data.length);
+      this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   buscarCompraPorId(): void {
     if (!this.compraId || this.compraId < 1) {
@@ -99,59 +56,22 @@ export class HistoricoMercancia implements OnInit{
     }
 
     this.isLoading = true;
-    this.hasError = false;
-    this.compraService.buscarPorId(this.compraId).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al obtener la compra: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al buscar la compra. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('buscarCompraId', this.compraService.buscarPorId(this.compraId), (data) => {
         this.historial = [data];
+        this.isLoading = false;
         setTimeout(() =>{
-          this.isLoading = false;
+
           this.cdr.detectChanges();
         }, 500);
     });
-  }
+  };
 
   cargarDistribuidores(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.distribuidorService.listar().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al obtener los distribuidores: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al obtener los distribuidores. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('distribuidores', this.distribuidorService.listar(), (data) => {
       this.distribuidores = data;
+      this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
@@ -169,32 +89,13 @@ export class HistoricoMercancia implements OnInit{
     }
 
     this.isLoading = true;
-    this.hasError = false;
-    this.compraService.filtrarCompras(
+    this.cargarRecurso('filtrarCompras', this.compraService.filtrarCompras(
       this.fechaInicio || undefined,
       this.fechaFin || undefined,
-      this.distribuidorId || undefined).pipe(
-        catchError((error) => {
-          this.hasError = true;
-          this.isLoading = false;
-          console.log('Error al aplicar filtros: ', error);
-          if (error.status === 0){
-            this.showErrorMessage(
-              `No se pudo conectar con el servidor.`,
-              3500
-            );
-          } else {
-            this.showErrorMessage(
-              `Ocurrió un error al aplicar filtros. (${error.status})`,
-              3500
-            );
-          };
-          return EMPTY;
-        })
-      ).subscribe((data) => {
+      this.distribuidorId || undefined), (data) => {
         this.historial = data;
+        this.isLoading = false;
         setTimeout(() => {
-          this.isLoading = false;
           this.cdr.detectChanges();
         }, 500);
     });
