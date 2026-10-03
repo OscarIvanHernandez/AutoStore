@@ -6,6 +6,7 @@ import { DistribuidorService } from '../../../services/autostore.distribuidor-se
 import { Agregar } from './modal/agregar/agregar';
 import { Editar } from './modal/editar/editar';
 import { catchError, EMPTY, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-distribuidores',
@@ -14,15 +15,9 @@ import { catchError, EMPTY, of } from 'rxjs';
   templateUrl: './distribuidores.html',
   styleUrl: './distribuidores.css',
 })
-export class Distribuidores implements OnInit{
+export class Distribuidores extends BaseComponent implements OnInit{
   distribuidores: Distribuidor[] = [];
   mostrarInactivos: boolean = false;
-
-  isLoading: boolean = false;
-  hasError: boolean = false;
-
-  successMessage: String | null = null;
-  errorMessage: String | null = null;
 
   // Modal y Formulario
   mostrarModalDistribuidor: boolean = false;
@@ -33,54 +28,16 @@ export class Distribuidores implements OnInit{
 
   constructor(
     private distribuidorService: DistribuidorService,
-    private cdr: ChangeDetectorRef) {}
+    cdr: ChangeDetectorRef)
+    {super(cdr);};
 
   ngOnInit(): void {
     this.cargarDistribuidores();
-  }
-
-  private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
+  };
 
   cargarDistribuidores(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.distribuidorService.listar().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar los distribuidores : ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los distribuidores . (${error.status})`,
-            4500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('cargaDistribuidores', this.distribuidorService.listar(), (data) => {
       this.distribuidores = this.mostrarInactivos
         ? data
         : data.filter(d => d.activo);
@@ -91,7 +48,7 @@ export class Distribuidores implements OnInit{
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   guardar(distribuidor: Partial<Distribuidor>): void {
     if (!distribuidor.nombre || !distribuidor.telefono) {
@@ -99,59 +56,18 @@ export class Distribuidores implements OnInit{
       return;
     };
     this.isLoading = true;
-    this.hasError = false;
     if (distribuidor.id) {
-      this.distribuidorService.actualizar(distribuidor.id, distribuidor).pipe(
-        catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        distribuidor = this.resetForm();
-        this.cerrarModalEditar();
-        console.log('Error al guardar los cambios: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al guardar los cambios. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-        })
-      ).subscribe(() => {
+      this.ejecutarMutacion(this.distribuidorService.actualizar(distribuidor.id, distribuidor), 'actualizar distribuidor' ,() =>{
         this.cargarDistribuidores();
         this.cerrarModalEditar();
         distribuidor = this.resetForm();
         setTimeout(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
-        }, 500)
+        }, 500);
       });
     } else {
-      this.distribuidorService.crear(distribuidor).pipe(
-        catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        distribuidor = this.resetForm();
-        this.cerrarModalAgregar();
-        console.log('Error al agrear el distribuidor: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al agregar el distribuidor. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-        })
-      ).subscribe(() =>{
+      this.ejecutarMutacion(this.distribuidorService.crear(distribuidor), 'crear distribuidor', () => {
         this.cargarDistribuidores();
         this.cerrarModalAgregar();
         distribuidor = this.resetForm();
@@ -161,92 +77,52 @@ export class Distribuidores implements OnInit{
         }, 500);
       });
     };
-  }
+  };
 
   desactivar(id: number): void {
     if (confirm('¿Desea desactivar este distribuidor?')) {
       this.isLoading = true;
-      this.hasError = false;
-      this.distribuidorService.desactivar(id).pipe(
-        catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al desactivar el distribuidor: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al desactivar el distribuidor. (${error.status})`,
-            4500
-          );
-        };
-        return EMPTY;
-        })
-      ).subscribe(() => {
+      this.ejecutarMutacion(this.distribuidorService.desactivar(id), 'desactivar distribuidor', () => {
         this.cargarDistribuidores();
         this.isLoading = false;
-        this.showSuccesMessage(
+        this.showSuccessMessage(
           `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
-          3500
         );
       });
     };
-  }
+  };
 
   activar(id: number): void {
     if (confirm('¿Desea activar este distribuidor?')) {
       this.isLoading = true;
-      this.hasError = false;
-      this.distribuidorService.activar(id).pipe(
-        catchError((error) => {
-          this.hasError = true;
-          this.isLoading = false;
-          console.log('Error al activar el distribuidor: ', error);
-          if (error.status === 0){
-            this.showErrorMessage(
-              `No se pudo conectar con el servidor.`,
-              3500
-            );
-          } else {
-            this.showErrorMessage(
-              `Ocurrió un error al activar el distribuidor. (${error.status})`,
-              4500
-            );
-          };
-          return EMPTY;
-        })
-      ).subscribe(() => {
+      this.ejecutarMutacion(this.distribuidorService.activar(id), 'activar distribuidor', () => {
         this.cargarDistribuidores();
         this.isLoading = false;
-        this.showSuccesMessage(
-          `Proveedor (${this.distribuidores[id].nombre}) activado`,
-          3500
+        this.showSuccessMessage(
+          `Proveedor (${this.distribuidores[id].nombre}) activado`
         );
       });
     };
-  }
+  };
 
   abrirModalNuevo(): void {
     this.mostrarModalAgregar = true;
-  }
+  };
 
   abrirModalEditar(distribuidor: Distribuidor): void {
     this.distribuidorForm = { ...distribuidor };
     this.mostrarModalEditar = true;
-  }
+  };
 
   cerrarModalAgregar(): void {
     this.mostrarModalAgregar = false;
-  }
+  };
 
   cerrarModalEditar(): void {
     this.mostrarModalEditar = false;
-  }
+  };
 
   private resetForm(): Partial<Distribuidor> {
     return { nombre: '', telefono: '', contacto: '' };
-  }
-}
+  };
+};
