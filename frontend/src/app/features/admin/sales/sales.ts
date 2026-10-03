@@ -305,6 +305,7 @@ export class Sales extends BaseComponent implements OnInit {
       return;
     };
 
+    this.isLoading = true;
     const payload: VentaRequest = {
       productos: this.carrito.map(item => ({
         id: item.productoId,
@@ -319,7 +320,6 @@ export class Sales extends BaseComponent implements OnInit {
         : {})
     };
 
-    this.isLoading = true;
     this.ejecutarMutacion(this.ventaService.crearVenta(payload), 'crear venta', (data) => {
       this.ventaRealizada = data;
       this.mostrarModalCobro = false;
