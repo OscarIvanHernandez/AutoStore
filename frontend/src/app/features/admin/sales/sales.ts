@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { Caja } from './modal/caja/caja';
 import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 import { ClienteService } from '../../../services/autostore.clientes-service';
-import { catchError, EMPTY, finalize, of } from 'rxjs';
+import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
@@ -26,11 +26,9 @@ export class Sales extends BaseComponent implements OnInit {
   productos: ProductoInterface[] = [];
 
   // Variable de carga
-  hasLoadedProductos: boolean = false;
-  hasLoadedClientes: boolean = false;
+  hasLoadedSales: boolean = false;
 
   // Variable de error
-  initialLoadClientes: string | null = null;
   hasError: boolean = false;
 
   // Busqueda de productos
@@ -93,77 +91,49 @@ export class Sales extends BaseComponent implements OnInit {
 
   cambiarTipoVenta(tipo: 'CONTADO' | 'CREDITO'): void {
     if (tipo === 'CREDITO') {
-      this.cargarDatosIniciales();
+      this.cargarClientes();
       return;
     }
 
     this.clienteIdSeleccionado = null;
   }
-
   cargarDatosIniciales(): void {
-    // Cargar productos
-    this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
-      this.productos = data;
-    });
-
-    // Cargar clientes
-    this.cargarRecurso('clientes', this.clientesService.listarClientes(), (data) => {
-      this.clientes = data;
-    });
+    //Productos
+    this.cargarProductos();
+    // Clientes
+    this.cargarClientes();
   }
-
-  /*cargarClientes(): void {
+  cargarClientes(): void {
     this.isLoading = true;
-    this.initialLoadClientes = null;
-    this.errorMessage = null;
-    this.clientesService.listarClientesActivos().pipe(
-      catchError((error) =>{
-        this.registrarErrorCarga(error, 'cargar los clientes');
-        return EMPTY;
-      }),
-      finalize(() =>{
-        this.isLoading = false;
-      })
-    ).subscribe((data) =>{
-      console.log('clientes: ',data);
+    this.cargarRecurso('clientes', this.clientesService.listarClientes(), (data) =>{
       this.clientes = data;
-      setTimeout(() =>{
-        this.hasLoadedClientes = false;
+      this.isLoading = false;
+      setTimeout(() => {
         this.cdr.detectChanges();
       }, 500);
     });
-  }*/
+  }
+
+  cargarProductos(): void {
+    this.isLoading = true;
+    this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
+      this.productos = data;
+      this.isLoading = false;
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      }, 500);
+    });
+  }
 
   verificarEstadoCaja(): void {
     this.isLoading = true;
-    this.hasError = false;
-  this.cajaService.obtenerEstado().pipe(
-    catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al verificar caja: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al verificar el estado de caja. (${error.status})`,
-            4500
-          );
-        };
-        return EMPTY;
-    })
-  ).subscribe((estado) => {
-      this.datosCaja = estado;
-      this.cajaAbierta = estado.abierta;
+    this.cargarRecurso('verificarCaja', this.cajaService.obtenerEstado(), (data) => {
+      this.datosCaja = data;
+      this.cajaAbierta = data.abierta;
       this.isLoading = false;
       if (!this.cajaAbierta) {
         this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
-      } else {
-        this.cargarDatosIniciales();
-        }
+      };
     });
   }
 
@@ -180,27 +150,7 @@ export class Sales extends BaseComponent implements OnInit {
   }
 
   onAbrirCaja(efectivoInicial: number): void {
-    this.isLoading = true;
-    this.hasError = false;
-    this.cajaService.abrirCaja(efectivoInicial).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al abrir caja: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al abrir la caja. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-      })
-    ).subscribe(()=>{
+    this.ejecutarMutacion(this.cajaService.abrirCaja(efectivoInicial),'abrir caja', () => {
         this.mostrarModalApertura = false;
         this.isLoading = false;
         this.verificarEstadoCaja();
@@ -208,70 +158,27 @@ export class Sales extends BaseComponent implements OnInit {
   }
 
   onCerrarCaja(efectivoReal: number): void {
-    this.cajaService.cerrarCaja(efectivoReal).subscribe({
-      next: () => {
-        this.mostrarModalCierre = false;
-        this.verificarEstadoCaja();
-      }
+    this.ejecutarMutacion(this.cajaService.cerrarCaja(efectivoReal), 'cerrar caja', () => {
+      this.mostrarModalCierre = false;
+      this.verificarEstadoCaja();
     });
   }
-
-  /*cargarProductos(): void {
-    this.initialLoadError = null;
-    this.errorMessage = null;
-    this.isLoading = true;
-    this.productoService.getProductosActivos().pipe(
-      catchError((error) => {
-        this.registrarErrorCarga(error,'cargar los productos')
-        return EMPTY
-      }),
-      finalize(() =>{
-        this.isLoading = false;
-      })
-    ).subscribe((data) => {
-      console.log('Productos cargados:', data);
-      this.productos = data;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-        this.hasLoadedProductos = true;
-      }, 500);
-    });
-  }*/
 
   // Buscar productos en tiempo real
   BuscarProducto(): void {
     if (this.busquedaTexto.trim().length > 1) {
       this.isLoading = true;
-      this.hasError = false;
-      this.productoService.buscar({q: this.busquedaTexto, estado: "activo"})
-        .pipe(
-          catchError((error) =>{
-          this.hasError = true;
-          this.isLoading = false;
-          console.log('Error al obtener los productos: ', error);
-          if (error.status === 0){
-            this.showErrorMessage(
-              `No se pudo conectar con el servidor.`,
-              3500
-            );
-          } else {
-            this.showErrorMessage(
-              `Ocurrió un error al obtener los productos. (${error.status})`,
-              3500
-            );
-          };
-          return of([]);
-        })
-        ).subscribe((data) => {
+      this.cargarRecurso('buscarProducto', this.productoService.buscar({
+        q: this.busquedaTexto,
+        estado: "activo"
+      }), (data) => {
           this.productosEncontrados = data
+          this.isLoading = false;
           setTimeout(() => {
-            this.isLoading = false;
             this.cdr.detectChanges();
           }, 500);
-        });
-    } else {
-      this.productosEncontrados = [];
-    }
+      });
+    };
   }
 
   // Agrega producto a carrito
