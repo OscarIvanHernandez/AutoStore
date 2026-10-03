@@ -320,32 +320,13 @@ export class Sales extends BaseComponent implements OnInit {
     };
 
     this.isLoading = true;
-    this.hasError = false;
-    this.ventaService.crearVenta(payload).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al procesar venta: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al procesar la venta. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-      })
-    ).subscribe((data) => {
+    this.ejecutarMutacion(this.ventaService.crearVenta(payload), 'crear venta', (data) => {
       this.ventaRealizada = data;
       this.mostrarModalCobro = false;
       this.mostrarModalTicket = true;
       this.verificarEstadoCaja();
+      this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
