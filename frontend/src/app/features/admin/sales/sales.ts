@@ -65,6 +65,11 @@ export class Sales extends BaseComponent implements OnInit {
   efectivoInicialInput: number = 0;
   efectivoRealInput: number = 0;
 
+  // Variables de carga
+  hasLoadedProductos: boolean = false;
+  hasLoadedClientes: boolean = false;
+  hasLoadedCaja: boolean = false;
+
   constructor(
     private productoService: ProductoService,
     private ventaService: SaleService,
@@ -105,23 +110,21 @@ export class Sales extends BaseComponent implements OnInit {
   }
   cargarClientes(): void {
     this.isLoading = true;
+    this.hasLoadedClientes = false
     this.cargarRecurso('clientes', this.clientesService.listarClientes(), (data) =>{
       this.clientes = data;
       this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
+      this.hasLoadedClientes = true;
     });
   }
 
   cargarProductos(): void {
     this.isLoading = true;
+    this.hasLoadedProductos = false;
     this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
       this.productos = data;
       this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
+      this.hasLoadedProductos = true;
     });
   }
 
@@ -133,7 +136,9 @@ export class Sales extends BaseComponent implements OnInit {
       this.isLoading = false;
       if (!this.cajaAbierta) {
         this.mostrarModalApertura = true; // Bloquea la pantalla hasta abrir
+        this.hasLoadedCaja = false;
       };
+      this.hasLoadedCaja = true;
     });
   }
 
@@ -150,9 +155,9 @@ export class Sales extends BaseComponent implements OnInit {
   }
 
   onAbrirCaja(efectivoInicial: number): void {
+    this.hasLoadedCaja = false;
     this.ejecutarMutacion(this.cajaService.abrirCaja(efectivoInicial),'abrir caja', () => {
         this.mostrarModalApertura = false;
-        this.isLoading = false;
         this.verificarEstadoCaja();
     });
   }
@@ -174,9 +179,7 @@ export class Sales extends BaseComponent implements OnInit {
       }), (data) => {
           this.productosEncontrados = data
           this.isLoading = false;
-          setTimeout(() => {
-            this.cdr.detectChanges();
-          }, 500);
+
       });
     };
   }
@@ -326,9 +329,7 @@ export class Sales extends BaseComponent implements OnInit {
       this.mostrarModalTicket = true;
       this.verificarEstadoCaja();
       this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
+
     });
   }
 

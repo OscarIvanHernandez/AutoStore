@@ -4,34 +4,34 @@
 }
 
 .sales-main {
-  display: flex;
-  flex-direction: column;
-  height: 100%;           /* o 100% si está dentro de otro contenedor */
-  overflow: hidden;        /* evita desborde global */
+  min-height: 100%;
+  padding: 2rem;
+  background: #f6f8fb;
+  color: #172033;
 }
 
 /* ==================== HEADER ==================== */
-.info-sales {
-  flex-shrink: 0;           /* No se encoge */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: space-between;
+.sales-header-info {
+  display: flex;
   align-items: center;
-  margin: 0 1.5rem;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 .info-left {
-  padding: 3.5rem 0;
   width: 100%;
 }
 .info-right {
-  padding: 3.5rem 0;
   width: 100%;
+  text-align: end;;
 }
 .info-left h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+}
+.info-left p {
+  margin: 0.35rem 0 0;
+  color: #64748b;
 }
 
 /* ==================== GRID DE DOS COLUMNAS ==================== */

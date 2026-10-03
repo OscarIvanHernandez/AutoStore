@@ -1,7 +1,8 @@
 <div class="sales-main">
-  <section class="info-sales">
+  <section class="sales-header-info">
     <div class="info-left">
       <h1>Punto de venta</h1>
+      <p>Busca productos, agrégalos al carrito y cobra en efectivo.</p>
     </div>
     <div class="info-right">
       <span *ngIf="cajaAbierta" class="badge bg-success">
@@ -10,10 +11,10 @@
       <span *ngIf="cajaAbierta" class="badge bg-info">
         💵 Efectivo esperado: ${{ datosCaja?.efectivoEsperado ?? 0 }}
       </span>
-      <button *ngIf="cajaAbierta" (click)="mostrarModalCierre = true" class="btn btn-warning">
+      <button *ngIf="cajaAbierta" type="button" (click)="mostrarModalCierre = true" class="btn-primary">
         🔒 Corte de Caja
       </button>
-      <button *ngIf="!cajaAbierta" type="button" (click)="abrirModalApertura()" class="btn btn-primary">
+      <button *ngIf="!cajaAbierta" type="button" (click)="abrirModalApertura()" class="btn-primary">
         Abrir caja
       </button>
     </div>
