@@ -115,7 +115,7 @@ export abstract class BaseComponent {
     ).subscribe(onSuccess);
   }
 
-  private mensajeError(error: { status?: number }, accion: string): string {
+  protected mensajeError(error: { status?: number }, accion: string): string {
     if (error.status === 0) return 'No se pudo conectar con el servidor.';
     return `Ocurrió un error al ${accion}. (${error.status ?? 'desconocido'})`;
   }
