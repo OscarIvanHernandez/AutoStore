@@ -1,85 +1,162 @@
-<div class="mercancia-main-container">
-  <div class="info-page">
-    <section>
-      <h2>Historico de mercancia</h2>
-    </section>
+<main class="history-page">
+  <header class="page-header">
+    <div>
+      <h1>Histórico de mercancía</h1>
+      <p>Consulta compras recibidas, filtra por fecha o distribuidor y revisa sus detalles.</p>
+    </div>
+  </header>
+
+  <div *ngIf="successMessage" class="message success-message" role="status">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="message error-message" role="alert">
+    {{ errorMessage }}
   </div>
 
-  <div class="search-bar">
-    <label for="compra-id">Buscar compra por ID</label>
-    <input
-      id="compra-id"
-      type="number"
-      min="1"
-      [(ngModel)]="compraId"
-      placeholder="Ej. 25"
-      (keyup.enter)="buscarCompraPorId()"
-    />
-    <button type="button" (click)="buscarCompraPorId()" [disabled]="isLoading">
-      Buscar
-    </button>
-    <button type="button" (click)="limpiarBusqueda()" [disabled]="isLoading">
-      Limpiar
-    </button>
-  </div>
+  <section class="search-panel" aria-label="Buscar compra por folio interno">
+    <div class="panel-heading">
+      <div>
+        <h2>Búsqueda directa</h2>
+        <p>Encuentra una compra específica por su número de ID.</p>
+      </div>
+    </div>
+    <div class="search-controls">
+      <div class="field-group search-id-field">
+        <label for="compra-id">ID de compra</label>
+        <input
+          id="compra-id"
+          type="number"
+          min="1"
+          [(ngModel)]="compraId"
+          placeholder="Ej. 25"
+          (keyup.enter)="buscarCompraPorId()"
+          [disabled]="cargandoCompras"
+        />
+      </div>
+      <button
+        class="btn-primary"
+        type="button"
+        (click)="buscarCompraPorId()"
+        [disabled]="cargandoCompras"
+      >
+        {{ loadingStates['buscarCompraId'] ? 'Buscando...' : 'Buscar compra' }}
+      </button>
+      <button class="btn-secondary" type="button" (click)="limpiarBusqueda()" [disabled]="cargandoCompras">
+        Limpiar búsqueda
+      </button>
+    </div>
+    <div *ngIf="loadErrors['buscarCompraId']" class="message error-message inline-message" role="alert">
+      <span>{{ loadErrors['buscarCompraId'] }}</span>
+      <button type="button" class="text-button" (click)="buscarCompraPorId()" [disabled]="cargandoCompras">Reintentar</button>
+    </div>
+  </section>
 
-  <div class="filters-bar">
-    <label for="fecha-inicio">Desde</label>
-    <input id="fecha-inicio" type="date" [(ngModel)]="fechaInicio" />
+  <section class="filters-panel" aria-label="Filtrar compras">
+    <div class="panel-heading">
+      <div>
+        <h2>Filtrar compras</h2>
+        <p>Reduce los resultados por fecha de compra o distribuidor.</p>
+      </div>
+    </div>
+    <div class="filter-controls">
+      <div class="field-group">
+        <label for="fecha-inicio">Desde</label>
+        <input id="fecha-inicio" type="date" [(ngModel)]="fechaInicio" [disabled]="cargandoCompras" />
+      </div>
 
-    <label for="fecha-fin">Hasta</label>
-    <input id="fecha-fin" type="date" [(ngModel)]="fechaFin" />
+      <div class="field-group">
+        <label for="fecha-fin">Hasta</label>
+        <input id="fecha-fin" type="date" [(ngModel)]="fechaFin" [disabled]="cargandoCompras" />
+      </div>
 
-    <label for="distribuidor">Distribuidor</label>
-    <select id="distribuidor" [(ngModel)]="distribuidorId">
-      <option [ngValue]="null">Todos</option>
-      <option *ngFor="let distribuidor of distribuidores" [ngValue]="distribuidor.id">
-        {{ distribuidor.nombre }}
-      </option>
-    </select>
+      <div class="field-group distributor-field">
+        <label for="distribuidor">Distribuidor</label>
+        <select
+          id="distribuidor"
+          [(ngModel)]="distribuidorId"
+          [disabled]="loadingStates['distribuidores'] || cargandoCompras"
+        >
+          <option [ngValue]="null">Todos los distribuidores</option>
+          <option *ngFor="let distribuidor of distribuidores" [ngValue]="distribuidor.id">
+            {{ distribuidor.nombre }}
+          </option>
+        </select>
+        <small *ngIf="loadingStates['distribuidores']">Cargando distribuidores...</small>
+        <small *ngIf="loadErrors['distribuidores']" class="field-error">
+          No se pudieron cargar los distribuidores.
+          <button type="button" class="text-button" (click)="cargarDistribuidores()">Reintentar</button>
+        </small>
+      </div>
 
-    <button type="button" (click)="aplicarFiltros()" [disabled]="isLoading">
-      Filtrar
-    </button>
-    <button type="button" (click)="limpiarBusqueda()" [disabled]="isLoading">
-      Limpiar filtros
-    </button>
-  </div>
+      <button
+        class="btn-primary"
+        type="button"
+        (click)="aplicarFiltros()"
+        [disabled]="cargandoCompras"
+      >
+        {{ loadingStates['filtrarCompras'] ? 'Filtrando...' : 'Aplicar filtros' }}
+      </button>
+      <button class="btn-secondary" type="button" (click)="limpiarBusqueda()" [disabled]="cargandoCompras">
+        Limpiar filtros
+      </button>
+    </div>
+    <div *ngIf="loadErrors['filtrarCompras']" class="message error-message inline-message" role="alert">
+      <span>{{ loadErrors['filtrarCompras'] }}</span>
+      <button type="button" class="text-button" (click)="aplicarFiltros()" [disabled]="cargandoCompras">Reintentar</button>
+    </div>
+  </section>
 
-  <div class="messages">
-    <span *ngIf="successMessage">{{ successMessage }}</span>
-    <span *ngIf="errorMessage">{{ errorMessage }}</span>
-  </div>
+  <section class="purchases-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Compras registradas</h2>
+        <p>Selecciona una compra para consultar los productos recibidos.</p>
+      </div>
+      <span *ngIf="hasLoadedCompras" class="result-count">{{ historial.length }} resultados</span>
+    </div>
 
-  <table class="historico-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Distribuidor</th>
-        <th>Fecha</th>
-        <th>Total de compra</th>
-        <th>Folio</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let elem of historial">
-        <td>{{elem.id}}</td>
-        <td>{{elem.distribuidor.nombre}}</td>
-        <td>{{elem.fecha | date:'dd/MM/yyyy HH:mm'}}</td>
-        <td>{{elem.total | number:'1.2-2'}}</td>
-        <td>{{elem.folio}}</td>
-        <td>
-          <button type="button" (click)="abrirDetalles(elem)">Detalles</button>
-        </td>
-      </tr>
-      <tr *ngIf="!isLoading && historial.length === 0">
-        <td colspan="6">No hay compras para mostrar.</td>
-      </tr>
-    </tbody>
+    <div *ngIf="loadingStates['cargarCompras'] && !hasLoadedCompras" class="state-message" role="status">
+      <span class="loading-indicator" aria-hidden="true"></span>
+      Cargando histórico de compras...
+    </div>
+    <div *ngIf="loadErrors['cargarCompras']" class="message error-message" role="alert">
+      <span>{{ loadErrors['cargarCompras'] }}</span>
+      <button type="button" class="text-button" (click)="cargarCompras()" [disabled]="cargandoCompras">Reintentar carga</button>
+    </div>
+    <div *ngIf="cargandoCompras && hasLoadedCompras" class="refresh-message" role="status">
+      Actualizando resultados; se conservan los datos actuales hasta terminar.
+    </div>
 
-  </table>
-  <p *ngIf="isLoading">Buscando compras...</p>
+    <div class="table-wrapper" *ngIf="hasLoadedCompras">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Distribuidor</th>
+            <th>Fecha</th>
+            <th>Total de compra</th>
+            <th>Folio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let compra of historial">
+            <td>#{{ compra.id }}</td>
+            <td>{{ compra.distribuidor.nombre }}</td>
+            <td>{{ compra.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ compra.total | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td>{{ compra.folio || '—' }}</td>
+            <td>
+              <button class="btn-table" type="button" (click)="abrirDetalles(compra)">Ver detalles</button>
+            </td>
+          </tr>
+          <tr *ngIf="!cargandoCompras && historial.length === 0">
+            <td class="empty-state" colspan="6">No hay compras para mostrar con los criterios seleccionados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
   <app-detalles
     *ngIf="mostrarDetalles"
@@ -87,4 +164,4 @@
     [compra]="compraSeleccionada"
     (close)="cerrarDetalles()"
   />
-</div>
+</main>

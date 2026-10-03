@@ -5,7 +5,6 @@ import { Compra, Distribuidor } from '../../../services/autostore.models';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { Detalles } from './modal/detalles/detalles';
-import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
@@ -26,6 +25,9 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
   compraSeleccionada: Compra | null = null;
   mostrarDetalles = false;
 
+  hasLoadedCompras: boolean = false;
+  hasLoadedDistribuidores: boolean = false;
+
   constructor(
     private compraService: CompraDistribuidorService,
     private distribuidorService: DistribuidorService,
@@ -38,14 +40,9 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
   };
 
   cargarCompras(): void {
-    this.isLoading = true;
     this.cargarRecurso('cargarCompras', this.compraService.listarCompras(), (data) => {
       this.historial = data;
-      console.log('Compras cargadas: ', data.length);
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
+      this.hasLoadedCompras = true;
     });
   };
 
@@ -55,25 +52,16 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
       return;
     }
 
-    this.isLoading = true;
     this.cargarRecurso('buscarCompraId', this.compraService.buscarPorId(this.compraId), (data) => {
-        this.historial = [data];
-        this.isLoading = false;
-        setTimeout(() =>{
-
-          this.cdr.detectChanges();
-        }, 500);
+      this.historial = [data];
+      this.hasLoadedCompras = true;
     });
   };
 
   cargarDistribuidores(): void {
-    this.isLoading = true;
     this.cargarRecurso('distribuidores', this.distribuidorService.listar(), (data) => {
       this.distribuidores = data;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
+      this.hasLoadedDistribuidores = true;
     });
   }
 
@@ -88,18 +76,20 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
       return;
     };
 
-    this.isLoading = true;
     this.cargarRecurso('filtrarCompras', this.compraService.filtrarCompras(
       this.fechaInicio || undefined,
       this.fechaFin || undefined,
       this.distribuidorId || undefined), (data) => {
-        this.historial = data;
-        this.isLoading = false;
-        setTimeout(() => {
-          this.cdr.detectChanges();
-        }, 500);
+      this.historial = data;
+      this.hasLoadedCompras = true;
     });
   };
+
+  get cargandoCompras(): boolean {
+    return this.loadingStates['cargarCompras']
+      || this.loadingStates['buscarCompraId']
+      || this.loadingStates['filtrarCompras'];
+  }
 
   limpiarBusqueda(): void {
     this.compraId = null;
