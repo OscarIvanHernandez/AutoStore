@@ -15,6 +15,7 @@ import { BaseComponent } from '../base-component/base-component';
 export class Dashboard extends BaseComponent implements OnInit{
 
   dashboardDatos: DashboardData | null = null;
+  hasLoadedDashboard: boolean = false;
 
   constructor(
     private dashboardService: DashboardService,
@@ -27,9 +28,11 @@ export class Dashboard extends BaseComponent implements OnInit{
 
   obtenerDatos(): void {
     this.isLoading = true;
+    this.hasLoadedDashboard = false;
     this.cargarRecurso('cargarDashboard', this.dashboardService.obtenerDashboard(), (data) => {
       console.log('Datos de dashboard ok', data)
       this.dashboardDatos = data;
+      this.hasLoadedDashboard = true;
       this.isLoading = false;
       setTimeout(() => {
         this.cdr.detectChanges();

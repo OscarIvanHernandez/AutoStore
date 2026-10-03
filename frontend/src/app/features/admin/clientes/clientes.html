@@ -48,7 +48,7 @@
         <td class="monto-deuda">${{ cliente.deudaActual | number:'1.2-2' }}</td>
         <td>
           <button (click)="abrirModalEditar(cliente)">✏️ Editar</button>
-          <button (click)="abrirAbono(cliente)" class="btn-success">💰 Abonos</button>
+          <button (click)="obtenerAbonos(cliente)" class="btn-success">💰 Abonos</button>
           <button *ngIf="cliente.activo" (click)="eliminarCliente(cliente.id)" class="btn-danger">🗑️</button>
           <button *ngIf="!cliente.activo" (click)="activarCliente(cliente.id)">🟢</button>
         </td>
