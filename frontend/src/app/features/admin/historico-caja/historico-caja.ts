@@ -19,6 +19,8 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
 
   corteSeleccionado: CorteCaja | null = null;
 
+  hasLoadedHistorico: boolean = false;
+
   fechaInicio: string = '';
   fechaFin: string = '';
   historicoFiltrado: CorteCaja[] = [];
@@ -47,12 +49,14 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
 
   cargarHistorial(): void{
     this.isLoading = true;
+    this.hasLoadedHistorico = false;
     this.cargarRecurso('cargarHistorial', this.cajaService.obtenerHistorialCaja(), (data) => {
       this.historico = data;
       this.historicoFiltrado = [];
       this.filtroAplicado = false;
+      this.isLoading = false;
+      this.hasLoadedHistorico = true;
       setTimeout(()=>{
-        this.isLoading = false
         this.cdr.detectChanges();
       }, 500);
     });

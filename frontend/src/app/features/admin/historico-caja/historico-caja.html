@@ -1,4 +1,12 @@
 <div class="historical-main">
+  @if (isLoading && !hasLoadedHistorico) {
+    <div class="spinner">Cargando, un momento...</div>
+  } @else if (!isLoading && loadingStates['cargarHistorial'] && !hasLoadedHistorico) {
+    <div class="alert alert-danger">
+      {{ loadErrors['cargarHistorial'] }}
+      <button (click)="cargarHistorial()">Reintentar</button>
+    </div>
+  } @else {
   <section class="info-historical">
     <div class="info-left">
       <h1>Historico de Caja</h1>
@@ -99,6 +107,7 @@
       </div>
     </div>
   </div>
+  }
 
   <app-corte-detalle-ticket
   *ngIf="mostrarCorteDetalle"

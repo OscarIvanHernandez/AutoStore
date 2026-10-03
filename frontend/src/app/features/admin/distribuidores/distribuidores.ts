@@ -22,6 +22,8 @@ export class Distribuidores extends BaseComponent implements OnInit{
   // Modal y Formulario
   mostrarModalDistribuidor: boolean = false;
 
+  hasLoadedDistribuidores: boolean = false;
+
   mostrarModalAgregar: boolean = false;
   mostrarModalEditar: boolean = false;
   distribuidorForm: Partial<Distribuidor> = this.resetForm();
@@ -37,14 +39,16 @@ export class Distribuidores extends BaseComponent implements OnInit{
 
   cargarDistribuidores(): void {
     this.isLoading = true;
+    this.hasLoadedDistribuidores = false;
     this.cargarRecurso('cargaDistribuidores', this.distribuidorService.listar(), (data) => {
       this.distribuidores = this.mostrarInactivos
         ? data
         : data.filter(d => d.activo);
       console.log('Distribuidores recibidos:', data);
       console.log('Distribuidores mostrados:', this.distribuidores);
+      this.hasLoadedDistribuidores = true;
+      this.isLoading = false;
       setTimeout(() =>{
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
@@ -61,8 +65,8 @@ export class Distribuidores extends BaseComponent implements OnInit{
         this.cargarDistribuidores();
         this.cerrarModalEditar();
         distribuidor = this.resetForm();
+        this.isLoading = false;
         setTimeout(() => {
-          this.isLoading = false;
           this.cdr.detectChanges();
         }, 500);
       });
@@ -71,8 +75,8 @@ export class Distribuidores extends BaseComponent implements OnInit{
         this.cargarDistribuidores();
         this.cerrarModalAgregar();
         distribuidor = this.resetForm();
+        this.isLoading = false;
         setTimeout(() =>{
-          this.isLoading = false;
           this.cdr.detectChanges();
         }, 500);
       });
