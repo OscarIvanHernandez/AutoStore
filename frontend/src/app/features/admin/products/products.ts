@@ -54,6 +54,7 @@ export class Products extends BaseComponent implements OnInit{
   // Variables para los filtro de busqueda
   textoBusqueda: string  = '';
   estadoSeleccionado: string  = '';
+  private filtrosIniciales: { q?: string; marca?: string; categoria?: string; activo?: boolean } | null = null;
 
 
   constructor(
@@ -76,8 +77,10 @@ export class Products extends BaseComponent implements OnInit{
           this.estadoSeleccionado = estado.trim();
         }
 
-        this.buscarProductos({ q, marca, categoria, activo });
+        this.filtrosIniciales = { q, marca, categoria, activo };
+        this.buscarProductos(this.filtrosIniciales);
       } else {
+        this.filtrosIniciales = null;
         this.cargarProductos();
       }
     });
@@ -150,41 +153,40 @@ export class Products extends BaseComponent implements OnInit{
   }
 
   filtrarProductos(): void{
-    this.isLoading = true;
     this.cargarRecurso('filtroProductos', this.productoService.buscar({
       q: this.textoBusqueda,
       estado: this.estadoSeleccionado
     }), (data) => {
       this.productos = data;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500)
+      this.hasLoadedProducts = true;
     });
   }
 
   cargarProductos(): void {
-    this.isLoading = true;
     this.cargarRecurso('productos', this.productoService.getProductos(), (data) => {
       this.productos = data;
       this.hasLoadedProducts = true;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges;
-      }, 1000)
     });
   }
 
   private buscarProductos(filtros: { q?: string; marca?: string; categoria?: string; activo?: boolean }): void {
-      this.isLoading = true;
       this.cargarRecurso('buscarProductos', this.productoService.buscar(filtros), (data) => {
         this.productos = data;
-        this.isLoading = false;
-        setTimeout(() => {
-          this.cdr.detectChanges();
-        }, 500)
+        this.hasLoadedProducts = true;
       });
+  }
+
+  get cargandoProductos(): boolean {
+    return this.loadingStates['productos']
+      || this.loadingStates['filtroProductos']
+      || this.loadingStates['buscarProductos'];
+  }
+
+  reintentarBusquedaInicial(): void {
+    if (this.filtrosIniciales) {
+      this.buscarProductos(this.filtrosIniciales);
     }
+  }
 
   guardarProducto(producto: ProductoInterface) {
     this.ejecutarMutacion(this.productoService.crear(producto), 'guardar el producto', (data) => {

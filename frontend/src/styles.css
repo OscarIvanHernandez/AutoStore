@@ -17,59 +17,165 @@ body{
 /*ESTILOS GLOBAL PARA MODAL*/
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+  inset: 0;
+  z-index: 1000;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000; /* Asegura que flote sobre el navbar y aside */
+  justify-content: center;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: rgb(15 23 42 / 55%);
 }
 
 .modal-card {
-  background: white;
-  padding: 32px;
+  width: min(600px, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgb(15 23 42 / 25%);
+}
+
+.modal-card h2 {
+  margin: 0 0 1.25rem;
+  color: #172033;
+  font-size: 1.3rem;
+}
+
+.modal-card .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-card .form-input,
+.modal-card .form-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-card label {
+  padding: 0;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.modal-card .form-input input,
+.modal-card .form-input select,
+.modal-card .form-input textarea,
+.modal-card .form-group input:not([type='radio']):not([type='checkbox']),
+.modal-card .form-group select,
+.modal-card .form-group textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  color: #172033;
+  background: #ffffff;
+  font: inherit;
+}
+
+.modal-card input:focus,
+.modal-card select:focus,
+.modal-card textarea:focus {
+  border-color: #2563eb;
+  outline: 3px solid rgb(37 99 235 / 15%);
+}
+
+.modal-card .form-input .span-text,
+.modal-card .form-group .span-text {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: #fef2f2;
+}
+
+.modal-card .error-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  color: #b91c1c;
+  font-size: 0.8rem;
+}
+
+.modal-card .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.modal-card .modal-actions button {
+  min-height: 40px;
+  padding: 0.6rem 1rem;
+  border: 0;
   border-radius: 8px;
-  width: 600px; /* Ancho cómodo para 2 columnas de inputs */
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  font: inherit;
+  font-weight: 700;
+}
+
+.modal-card .modal-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.modal-card .modal-actions .btn-primary {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.modal-card .modal-actions .btn-secondary {
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  background: #ffffff;
+}
+
+@media (max-width: 560px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  .modal-card .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .modal-card .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-card .modal-actions button {
+    width: 100%;
+  }
 }
 
 .form-grid {
   margin-bottom: 24px;
 }
 
-.form-input {
-margin: 8px;
-padding-left: 50px;
-width: 100%;
-font-size: 1.1rem;
-}
-
-label {
-  padding-right: 1rem;
-}
-
-input {
-  width: 90%;
-}
-
 .span-text {
-  display: inline-block;
-  width: 90%;
-  background-color: #ff00001f;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  border-radius: 0 0 18px 18px;
+  display: block;
 }
 
 .error-text {
-  padding-left: 5%;
-  font-size: 14px;
-  color: #ff3232e8;
+  font-size: 0.875rem;
 }
 /*FIN ESTILOS GLOBAL PARA MODAL*/
 
 /*  ### VARIABLES ### */
-

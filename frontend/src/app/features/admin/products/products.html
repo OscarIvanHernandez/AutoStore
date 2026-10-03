@@ -1,75 +1,150 @@
-<div class="products-content">
-
-  @if (isLoading && !hasLoadedProducts) {
-    <div class="spinner">Cargando tus productos, un momento...</div>
-  } @else if (loadingStates['productos'] && !hasLoadedProducts) {
-    <div class="alert alert-danger">
-      {{ loadErrors['productos'] }}
-      <button (click)="cargarProductos()">Reintentar</button>
+<main class="products-content">
+  <section class="products-header-content">
+    <div class="products-header-info">
+      <h1>Inventario</h1>
+      <p>
+        <ng-container *ngIf="hasLoadedProducts; else productsCountLoading">
+          {{ productos.length }} {{ productos.length === 1 ? 'producto' : 'productos' }}
+        </ng-container>
+        <ng-template #productsCountLoading>Consulta y administra los productos del inventario.</ng-template>
+      </p>
     </div>
-  } @else {
-    <div>
 
-      <section class="products-header-content">
-        <div class="products-header-info">
-          <h1>Inventario</h1>
-          <p>{{ productos.length }} productos</p>
-        </div>
-
-        <div class="products-header-actions">
-          <button (click)="abrirModalCrearProducto()" [disabled]="isLoading || isSaving">Agregar producto</button>
-        </div>
-      </section>
-
-      <div *ngIf="successMessage" class=" card alert-success">{{ successMessage }}</div>
-      <div *ngIf="errorMessage && !mostrarModal && !mostrarModalEditar && !mostrarModalStock && !mostrarModalAlternar" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
-      <div *ngIf="isLoading" class="spinner">Actualizando productos...</div>
-      <div *ngIf="!isLoading && productos.length === 0 && !errorMessage" class=" card empty-state">
-        <p>No hay productos registrados en inventario</p>
-      </div>
-
-      <div class="filtros-estado">
-        <select [(ngModel)]="estadoSeleccionado" (change)="filtrarProductos()" [disabled]="isLoading">
-          <option value="">Todos los productos</option>
-          <option value="activo">Solo Activos</option>
-          <option value="inactivo">Solo Inactivos</option>
-        </select>
-      </div>
-
-      <div *ngIf="productos.length > 0" class="products-card-content">
-        <table class="products-table">
-          <thead>
-            <th class="col-1">Producto</th>
-            <th class="col-2">Categoría</th>
-            <th class="col-3">Marca</th>
-            <th class="col-4">Precio de mostrador</th>
-            <th class="col-5">Stock</th>
-            <th class="col-6">Acciones</th>
-          </thead>
-          <tbody>
-            <tr class="product-field" *ngFor="let producto of productos">
-              <td style="text-align: initial;">{{producto.nombre}}</td>
-              <td>{{producto.categoria}}</td>
-              <td>{{producto.marca}}</td>
-              <td>${{producto.precioVentaMostrador}}</td>
-              <td class="stock-field">
-                <div [ngClass]="{'low-stock': producto.stockActual <= producto.stockMinimo,
-                  'in-stock': producto.stockActual > producto.stockMinimo}">Actual {{producto.stockActual}} / Min {{producto.stockMinimo}}
-                </div>
-              </td>
-              <td style="text-align: end;">
-                <button class="btn-icon" (click)="abrirModalAjustarStock(producto)" title="Ajustar Inventario" [disabled]="isSaving">📦</button>
-                <button class="btn-icon" (click)="abrirModalEditarProducto(producto)" title="Editar datos" [disabled]="isSaving">📝</button>
-                <button class="btn-icon" (click)="abrirModalAlternarEstado(producto)" [title]="producto.activo ? 'Desactivar' : 'Activar'" [disabled]="isSaving">
-                  {{ producto.activo ? '❌' : '🔄' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="products-header-actions">
+      <button
+        class="btn-primary"
+        type="button"
+        (click)="abrirModalCrearProducto()"
+        [disabled]="cargandoProductos || isSaving"
+      >
+        Agregar producto
+      </button>
     </div>
-  }
+  </section>
+
+  <div *ngIf="successMessage" class="message success-message" role="status">{{ successMessage }}</div>
+  <div
+    *ngIf="errorMessage && !mostrarModal && !mostrarModalEditar && !mostrarModalStock && !mostrarModalAlternar"
+    class="message error-message"
+    role="alert"
+  >
+    {{ errorMessage }}
+  </div>
+
+  <section class="products-toolbar" aria-label="Filtros del inventario">
+    <div class="field-group">
+      <label for="estado-productos">Estado del producto</label>
+      <select
+        id="estado-productos"
+        [(ngModel)]="estadoSeleccionado"
+        (change)="filtrarProductos()"
+        [disabled]="cargandoProductos"
+      >
+        <option value="">Todos los productos</option>
+        <option value="activo">Solo activos</option>
+        <option value="inactivo">Solo inactivos</option>
+      </select>
+    </div>
+    <span *ngIf="cargandoProductos && hasLoadedProducts" class="refresh-message" role="status">
+      Actualizando inventario...
+    </span>
+  </section>
+
+  <div *ngIf="cargandoProductos && !hasLoadedProducts" class="state-message" role="status">
+    <span class="loading-indicator" aria-hidden="true"></span>
+    Cargando productos...
+  </div>
+  <div *ngIf="loadErrors['productos']" class="message error-message" role="alert">
+    <span>{{ loadErrors['productos'] }}</span>
+    <button class="text-button" type="button" (click)="cargarProductos()" [disabled]="cargandoProductos">
+      Reintentar carga
+    </button>
+  </div>
+  <div *ngIf="loadErrors['buscarProductos']" class="message error-message" role="alert">
+    <span>{{ loadErrors['buscarProductos'] }}</span>
+    <button class="text-button" type="button" (click)="reintentarBusquedaInicial()" [disabled]="cargandoProductos">
+      Reintentar búsqueda
+    </button>
+  </div>
+  <div *ngIf="loadErrors['filtroProductos']" class="message error-message" role="alert">
+    <span>{{ loadErrors['filtroProductos'] }}</span>
+    <button class="text-button" type="button" (click)="filtrarProductos()" [disabled]="cargandoProductos">
+      Reintentar filtro
+    </button>
+  </div>
+
+  <section class="products-card-content" *ngIf="hasLoadedProducts && productos.length">
+    <div class="table-wrapper">
+      <table class="products-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Marca</th>
+            <th>Precio de mostrador</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="product-field" *ngFor="let producto of productos" [class.inactivo]="producto.activo === false">
+            <td class="product-name">{{ producto.nombre }}</td>
+            <td>{{ producto.categoria }}</td>
+            <td>{{ producto.marca || '—' }}</td>
+            <td>{{ producto.precioVentaMostrador | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td class="stock-field">
+              <span
+                class="stock-badge"
+                [class.low-stock]="producto.stockActual <= producto.stockMinimo"
+                [class.in-stock]="producto.stockActual > producto.stockMinimo"
+              >
+                {{ producto.stockActual }} <small> / mín. {{ producto.stockMinimo }}</small>
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.status-inactive]="producto.activo === false">
+                {{ producto.activo === false ? 'Inactivo' : 'Activo' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="btn-icon"
+                type="button"
+                (click)="abrirModalAjustarStock(producto)"
+                title="Ajustar inventario"
+                aria-label="Ajustar inventario"
+                [disabled]="isSaving || cargandoProductos"
+              >📦</button>
+              <button
+                class="btn-icon"
+                type="button"
+                (click)="abrirModalEditarProducto(producto)"
+                title="Editar producto"
+                aria-label="Editar producto"
+                [disabled]="isSaving || cargandoProductos"
+              >📝</button>
+              <button
+                class="btn-icon"
+                type="button"
+                (click)="abrirModalAlternarEstado(producto)"
+                [title]="producto.activo === false ? 'Activar producto' : 'Desactivar producto'"
+                [attr.aria-label]="producto.activo === false ? 'Activar producto' : 'Desactivar producto'"
+                [disabled]="isSaving || cargandoProductos"
+              >
+                {{ producto.activo === false ? '🔄' : '❌' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div *ngIf="hasLoadedProducts && !productos.length && !cargandoProductos" class="empty-state">
+    <strong>No hay productos para mostrar</strong>
+    <span>Prueba con otro estado o agrega un producto al inventario.</span>
+  </div>
 
   <app-agregar-producto
     *ngIf="mostrarModal"
@@ -81,32 +156,32 @@
   />
 
   <app-editar-producto
-  *ngIf="mostrarModalEditar"
-  [visible]="mostrarModalEditar"
-  [isSaving]="isSaving"
-  [errorMessage]="errorMessage"
-  [producto]="productoEditar"
-  (close)="cerrarModalEditar()"
-  (update)="editarProducto($event)"
+    *ngIf="mostrarModalEditar"
+    [visible]="mostrarModalEditar"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
+    [producto]="productoEditar"
+    (close)="cerrarModalEditar()"
+    (update)="editarProducto($event)"
   />
 
   <app-inventario-producto
-  *ngIf="mostrarModalStock"
-  [visible]="mostrarModalStock"
-  [isSaving]="isSaving"
-  [errorMessage]="errorMessage"
-  [producto]="productoSeleccionado"
-  (close)="cerrarModalStock()"
-  (update)="guardarAjusteStock($event.producto, $event.ajuste)"
+    *ngIf="mostrarModalStock"
+    [visible]="mostrarModalStock"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
+    [producto]="productoSeleccionado"
+    (close)="cerrarModalStock()"
+    (update)="guardarAjusteStock($event.producto, $event.ajuste)"
   />
 
   <app-estado-producto
-  *ngIf="mostrarModalAlternar"
-  [visible]="mostrarModalAlternar"
-  [isSaving]="isSaving"
-  [errorMessage]="errorMessage"
-  [productoEstado]="productoEstadoSeleccionado"
-  (close)="cerrarModalAlternar()"
-  (update)="cambiarEstado($event)"
+    *ngIf="mostrarModalAlternar"
+    [visible]="mostrarModalAlternar"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
+    [productoEstado]="productoEstadoSeleccionado"
+    (close)="cerrarModalAlternar()"
+    (update)="cambiarEstado($event)"
   />
-</div>
+</main>
