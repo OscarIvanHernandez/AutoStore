@@ -81,12 +81,12 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
     if (!this.fechaInicio && !this.fechaFin && !this.distribuidorId) {
       this.cargarCompras();
       return;
-    }
+    };
 
     if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
       this.showErrorMessage('La fecha inicial no puede ser posterior a la fecha final.', 3500);
       return;
-    }
+    };
 
     this.isLoading = true;
     this.cargarRecurso('filtrarCompras', this.compraService.filtrarCompras(
@@ -99,7 +99,7 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
           this.cdr.detectChanges();
         }, 500);
     });
-  }
+  };
 
   limpiarBusqueda(): void {
     this.compraId = null;
@@ -107,15 +107,15 @@ export class HistoricoMercancia extends BaseComponent implements OnInit{
     this.fechaFin = '';
     this.distribuidorId = null;
     this.cargarCompras();
-  }
+  };
 
   abrirDetalles(compra: Compra): void {
     this.compraSeleccionada = compra;
     this.mostrarDetalles = true;
-  }
+  };
 
   cerrarDetalles(): void {
     this.mostrarDetalles = false;
     this.compraSeleccionada = null;
-  }
-}
+  };
+};

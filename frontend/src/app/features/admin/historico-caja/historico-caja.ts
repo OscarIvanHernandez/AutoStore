@@ -5,6 +5,7 @@ import { CorteCaja } from '../../../services/autostore.models';
 import { FormsModule } from '@angular/forms';
 import { CorteDetalleTicket } from './modal/corte-detalle-ticket/corte-detalle-ticket';
 import { catchError, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-historico-caja',
@@ -13,7 +14,7 @@ import { catchError, of } from 'rxjs';
   templateUrl: './historico-caja.html',
   styleUrl: './historico-caja.css',
 })
-export class HistoricoCaja implements OnInit {
+export class HistoricoCaja extends BaseComponent implements OnInit {
   historico: CorteCaja[] = [];
 
   corteSeleccionado: CorteCaja | null = null;
@@ -23,19 +24,13 @@ export class HistoricoCaja implements OnInit {
   historicoFiltrado: CorteCaja[] = [];
   filtroAplicado: boolean = false;
 
-  isLoading: boolean = false;
-  hasError: boolean = false;
-
   mostrarCorteDetalle: boolean = false;
   cerrarCorteDetalle: boolean = false;
 
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-
     constructor(
     private cajaService: CajaService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    cdr: ChangeDetectorRef
+  ) {super(cdr);};
 
   ngOnInit(): void {
     this.cargarHistorial();
