@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { DevolucionesService } from '../../../services/autostore.devoluciones-service';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { DevolucionRequest, Devoluciones, ProductoDevolucionSeleccionado, VentaInterface } from '../../../services/autostore.models';
-import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
@@ -23,6 +22,9 @@ export class DevolucionesComponent extends BaseComponent implements OnInit {
   productosADevolver: ProductoDevolucionSeleccionado[] = [];
   motivo = '';
 
+  hasLoadedVentas: boolean = false;
+  hasLoadedDevoluciones: boolean = false;
+
   constructor(
     private saleService: SaleService,
     private devolucionesService: DevolucionesService,
@@ -30,36 +32,54 @@ export class DevolucionesComponent extends BaseComponent implements OnInit {
   ) {super(cdr);};
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.cargarVentas();
     this.cargarDevoluciones();
+    this.isLoading = false;
   };
 
   cargarVentas(): void {
-    this.isLoading = true;
     this.cargarRecurso('cargarVentas', this.saleService.obtenerVentas(), (data) => {
+      const idSeleccionado = this.ventaSeleccionada?.id;
+      const cantidadesSeleccionadas = new Map(
+        this.productosADevolver.map((producto) => [producto.productoId, producto.cantidad])
+      );
       this.ventas = data.filter((venta) => venta.estado !== 'CANCELADA');
-      if (!this.ventaSeleccionada && this.ventas.length) {
+      const ventaActualizada = this.ventas.find((venta) => venta.id === idSeleccionado);
+
+      if (ventaActualizada) {
+        this.ventaSeleccionada = ventaActualizada;
+        this.productosADevolver = ventaActualizada.detalles.map((detalle) => ({
+          productoId: detalle.producto.id,
+          nombre: detalle.producto.nombre,
+          marca: detalle.producto.marca ?? '',
+          cantidad: Math.min(cantidadesSeleccionadas.get(detalle.producto.id) ?? 0, detalle.cantidad),
+          maxCantidad: detalle.cantidad,
+          precioUnitario: detalle.precioUnitario,
+        }));
+      } else if (!idSeleccionado && this.ventas.length) {
         this.seleccionarVenta(this.ventas[0]);
-      };
-      setTimeout(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 500);
+      } else if (idSeleccionado) {
+        this.ventaSeleccionada = null;
+        this.productosADevolver = [];
+        this.motivo = '';
+      }
+
+      this.hasLoadedVentas = true;
     });
   };
 
   puedeRegistrarDevolucion(): boolean {
-    return this.ventaSeleccionada !== null && this.ventaSeleccionada.estado !== 'DEVOLUCION_TOTAL' && this.ventaSeleccionada.estado !== 'CANCELADA';
+    return this.hasLoadedVentas
+      && this.ventaSeleccionada !== null
+      && this.ventaSeleccionada.estado !== 'DEVOLUCION_TOTAL'
+      && this.ventaSeleccionada.estado !== 'CANCELADA';
   };
 
   cargarDevoluciones(): void {
-    this.isLoading = true;
     this.cargarRecurso('cargarDevoluciones', this.devolucionesService.listar(), (data) => {
       this.devoluciones = data;
-      setTimeout(() =>{
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }, 500);
+      this.hasLoadedDevoluciones = true;
     });
   };
 
@@ -77,6 +97,11 @@ export class DevolucionesComponent extends BaseComponent implements OnInit {
   };
 
   registrarDevolucion(): void {
+    if (!this.hasLoadedVentas) {
+      this.showErrorMessage('Espera a que las ventas terminen de cargar antes de registrar una devolución.');
+      return;
+    };
+
     if (!this.ventaSeleccionada) {
       this.showErrorMessage('Selecciona una venta antes de registrar la devolución.');
       return;
@@ -110,11 +135,9 @@ export class DevolucionesComponent extends BaseComponent implements OnInit {
       productos,
     };
 
-    this.isLoading = true;
     this.ejecutarMutacion(this.devolucionesService.crear(payload), 'registrar devolución', () => {
       this.motivo = '';
       this.productosADevolver = [];
-      this.isLoading = false;
       this.cargarVentas();
       this.cargarDevoluciones();
       this.showSuccessMessage('Devolución registrada correctamente.');
