@@ -34,59 +34,20 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarHistorial();
-  }
-
-    private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
+  };
 
   abrirCorteDetalle(corteDetalle: CorteCaja): void {
     this.corteSeleccionado = corteDetalle;
     this.mostrarCorteDetalle = true;
-  }
+  };
 
   cerrarModalCorteDetalle(): void {
     this.mostrarCorteDetalle = false;
-  }
+  };
 
   cargarHistorial(): void{
     this.isLoading = true;
-    this.hasError = false;
-    this.cajaService.obtenerHistorialCaja().pipe(
-      catchError((error) =>{
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar el historial: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar el historial. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) =>{
+    this.cargarRecurso('cargarHistorial', this.cajaService.obtenerHistorialCaja(), (data) => {
       this.historico = data;
       this.historicoFiltrado = [];
       this.filtroAplicado = false;
@@ -95,7 +56,7 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   filtrarPorFechas(): void {
     if (!this.fechaInicio && !this.fechaFin) return;
@@ -104,26 +65,9 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
       return;
     }
     this.isLoading = true;
-    this.hasError = false;
-    this.cajaService.buscarHistorialPorFechas(this.fechaInicio, this.fechaFin).pipe(
-      catchError((error) =>{
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar el historial: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar el historial. (${error.status})`,
-            3500
-          );
-        }
-        return of([])
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('filtrarPorFechas', this.cajaService.buscarHistorialPorFechas(
+      this.fechaInicio,
+      this.fechaFin), (data) => {
         this.historicoFiltrado = data;
         this.filtroAplicado = true;
         setTimeout(() => {
@@ -131,7 +75,7 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
           this.cdr.detectChanges();
         }, 500);
     });
-  }
+  };
 
   limpiarFiltros(): void {
     this.fechaInicio = '';
@@ -139,13 +83,13 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
     this.historicoFiltrado = [];
     this.filtroAplicado = false;
     this.cargarHistorial();
-  }
+  };
 
   verTicket(corte: CorteCaja): void {
     this.corteSeleccionado = corte;
-  }
+  };
 
   cerrarModal(): void {
     this.corteSeleccionado = null;
-  }
-}
+  };
+};
