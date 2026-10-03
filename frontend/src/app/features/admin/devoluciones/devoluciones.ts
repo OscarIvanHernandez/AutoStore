@@ -4,17 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { DevolucionesService } from '../../../services/autostore.devoluciones-service';
 import { SaleService } from '../../../services/autostore.sales-service';
-import { DevolucionRequest, Devoluciones, VentaInterface } from '../../../services/autostore.models';
+import { DevolucionRequest, Devoluciones, ProductoDevolucionSeleccionado, VentaInterface } from '../../../services/autostore.models';
 import { catchError, EMPTY, of } from 'rxjs';
-
-interface ProductoDevolucionSeleccionado {
-  productoId: number;
-  nombre: string;
-  marca: string;
-  cantidad: number;
-  maxCantidad: number;
-  precioUnitario: number;
-}
 
 @Component({
   selector: 'app-devoluciones',

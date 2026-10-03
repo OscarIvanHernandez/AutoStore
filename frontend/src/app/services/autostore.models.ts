@@ -208,6 +208,15 @@ export interface UltimaVentaSummary {
 
 // Devoluciones
 
+export interface ProductoDevolucionSeleccionado {
+  productoId: number;
+  nombre: string;
+  marca: string;
+  cantidad: number;
+  maxCantidad: number;
+  precioUnitario: number;
+}
+
 export interface ProductoDevolucionRequest {
   productoId: number;
   cantidad: number;
