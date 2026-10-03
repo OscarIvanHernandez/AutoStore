@@ -6,6 +6,7 @@ import { DistribuidorService } from '../../../services/autostore.distribuidor-se
 import { ProductoService } from '../../../services/autostore.product-service';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
 import { catchError, EMPTY, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-compra-distribuidores',
@@ -14,7 +15,7 @@ import { catchError, EMPTY, of } from 'rxjs';
   templateUrl: './compra-distribuidores.html',
   styleUrl: './compra-distribuidores.css',
 })
-export class CompraDistribuidores implements OnInit{
+export class CompraDistribuidores extends BaseComponent implements OnInit{
 
   distribuidores: Distribuidor[] = [];
   productos: ProductoInterface[] = [];
@@ -32,110 +33,46 @@ export class CompraDistribuidores implements OnInit{
   items: ItemCarrito[] = [];
   totalCompra: number = 0;
 
-  isLoading: boolean = false;
-  hasError: boolean = false;
-
-  successMessage: String | null = null;
-  errorMessage: String | null = null;
-
   constructor(
     private distribuidorService: DistribuidorService,
     private productoService: ProductoService,
     private compraService: CompraDistribuidorService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    cdr: ChangeDetectorRef
+  ) {super(cdr);};
 
   ngOnInit(): void {
     this.cargarDistribuidores();
     this.cargarProductos();
-  }
-
-  private showSuccesMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3500): void {
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
+  };
 
   cargarDistribuidores(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.distribuidorService.listar().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar los distribuidores: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
-            3500
-          );
-        }
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('cargarDistribuidores', this.distribuidorService.listar(), (data) => {
       this.distribuidores = data;
+      this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   cargarProductos(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.productoService.getProductos().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar los distribuidores: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('cargarProductos', this.productoService.getProductos(), (data) => {
       this.productos = data;
+      this.isLoading = false;
       setTimeout(() => {
-        this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   onSeleccionarProducto(): void {
     if (this.productoSeleccionado) {
       // Sugiere el precio de compra actual registrado en el producto
       this.precioUnitarioCompra = this.productoSeleccionado.precioCompra || 0;
     };
-  }
+  };
 
   agregarProducto(): void {
     if (!this.productoSeleccionado || this.cantidad <= 0 || this.precioUnitarioCompra <= 0) return;
@@ -159,15 +96,14 @@ export class CompraDistribuidores implements OnInit{
   quitarItem(index: number): void {
     this.items.splice(index, 1);
     this.calcularTotal();
-  }
+  };
 
   calcularTotal(): void {
     this.totalCompra = this.items.reduce((acc, item) => acc + item.subTotal, 0);
-  }
+  };
 
   guardarCompra(): void {
     this.isLoading = true;
-    this.hasError = false;
     if (!this.distribuidorSeleccionadoId || this.items.length === 0) {
       alert('Seleccione un distribuidor y al menos un producto.');
       return;
@@ -182,40 +118,20 @@ export class CompraDistribuidores implements OnInit{
         precioUnitarioCompra: item.precioUnitario
       }))
     };
-
-    this.compraService.registrarCompra(payload).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar los distribuidores: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar los distribuidores. (${error.status})`,
-            3500
-          );
-        };
-        return EMPTY;
-      })
-    ).subscribe(() => {
+    this.ejecutarMutacion(this.compraService.registrarCompra(payload), 'guardar compra', () => {
       console.log('Compra de mercancancia registrada OK');
       this.items = [];
       this.folio = '';
       this.totalCompra = 0;
-      this.showSuccesMessage(
-        `📦 Entrada de mercancía registrada. Stock e historial actualizados.`,
-        4500
+      this.showSuccessMessage(
+        `📦 Entrada de mercancía registrada. Stock e historial actualizados.`
       );
     });
-  }
+  };
 
   private limpiarSeleccionProducto(): void {
     this.productoSeleccionado = null;
     this.cantidad = 1;
     this.precioUnitarioCompra = 0;
-  }
-}
+  };
+};
