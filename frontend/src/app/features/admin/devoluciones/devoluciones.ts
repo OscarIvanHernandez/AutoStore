@@ -6,6 +6,7 @@ import { DevolucionesService } from '../../../services/autostore.devoluciones-se
 import { SaleService } from '../../../services/autostore.sales-service';
 import { DevolucionRequest, Devoluciones, ProductoDevolucionSeleccionado, VentaInterface } from '../../../services/autostore.models';
 import { catchError, EMPTY, of } from 'rxjs';
+import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-devoluciones',
@@ -14,115 +15,53 @@ import { catchError, EMPTY, of } from 'rxjs';
   templateUrl: './devoluciones.html',
   styleUrl: './devoluciones.css',
 })
-export class DevolucionesComponent implements OnInit {
+export class DevolucionesComponent extends BaseComponent implements OnInit {
+
   ventas: VentaInterface[] = [];
   devoluciones: Devoluciones[] = [];
   ventaSeleccionada: VentaInterface | null = null;
   productosADevolver: ProductoDevolucionSeleccionado[] = [];
   motivo = '';
-  isLoading = false;
-  hasError: boolean = false;
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
 
   constructor(
     private saleService: SaleService,
     private devolucionesService: DevolucionesService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    cdr: ChangeDetectorRef
+  ) {super(cdr);};
 
   ngOnInit(): void {
     this.cargarVentas();
     this.cargarDevoluciones();
-  }
-
-  private showSuccessMessage(message: string, duration = 2500): void {
-    this.successMessage = message;
-    this.errorMessage = null;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.successMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
-
-  private showErrorMessage(message: string, duration = 3000): void {
-    this.errorMessage = message;
-    this.successMessage = null;
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      this.errorMessage = null;
-      this.cdr.detectChanges();
-    }, duration);
-  }
+  };
 
   cargarVentas(): void {
     this.isLoading = true;
-    this.saleService.obtenerVentas().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar ventas: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar las ventas. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((ventas) => {
-      this.ventas = ventas.filter((venta) => venta.estado !== 'CANCELADA');
+    this.cargarRecurso('cargarVentas', this.saleService.obtenerVentas(), (data) => {
+      this.ventas = data.filter((venta) => venta.estado !== 'CANCELADA');
       if (!this.ventaSeleccionada && this.ventas.length) {
         this.seleccionarVenta(this.ventas[0]);
-      }
+      };
       setTimeout(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   puedeRegistrarDevolucion(): boolean {
     return this.ventaSeleccionada !== null && this.ventaSeleccionada.estado !== 'DEVOLUCION_TOTAL' && this.ventaSeleccionada.estado !== 'CANCELADA';
-  }
+  };
 
   cargarDevoluciones(): void {
     this.isLoading = true;
-    this.hasError = false;
-    this.devolucionesService.listar().pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al cargar devoluciones: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al cargar las devoluciones. (${error.status})`,
-            3500
-          );
-        };
-        return of([]);
-      })
-    ).subscribe((data) => {
+    this.cargarRecurso('cargarDevoluciones', this.devolucionesService.listar(), (data) => {
       this.devoluciones = data;
       setTimeout(() =>{
         this.isLoading = false;
         this.cdr.detectChanges();
       }, 500);
     });
-  }
+  };
 
   seleccionarVenta(venta: VentaInterface): void {
     this.ventaSeleccionada = venta;
@@ -135,7 +74,7 @@ export class DevolucionesComponent implements OnInit {
       maxCantidad: detalle.cantidad, // cantidad vendida en esta venta, no el stock actual del inventario
       precioUnitario: detalle.precioUnitario,
     }));
-  }
+  };
 
   registrarDevolucion(): void {
     if (!this.ventaSeleccionada) {
@@ -172,27 +111,7 @@ export class DevolucionesComponent implements OnInit {
     };
 
     this.isLoading = true;
-    this.hasError = false;
-
-    this.devolucionesService.crear(payload).pipe(
-      catchError((error) => {
-        this.hasError = true;
-        this.isLoading = false;
-        console.log('Error al registrar la devolucion: ', error);
-        if (error.status === 0){
-          this.showErrorMessage(
-            `No se pudo conectar con el servidor.`,
-            3500
-          );
-        } else {
-          this.showErrorMessage(
-            `Ocurrió un error al registrar la devolución. (${error.status})`,
-            4500
-          );
-        };
-        return EMPTY;
-      })
-    ).subscribe(() => {
+    this.ejecutarMutacion(this.devolucionesService.crear(payload), 'registrar devolución', () => {
       this.motivo = '';
       this.productosADevolver = [];
       this.isLoading = false;
@@ -200,17 +119,17 @@ export class DevolucionesComponent implements OnInit {
       this.cargarDevoluciones();
       this.showSuccessMessage('Devolución registrada correctamente.');
     });
-  }
+  };
 
   get productosSeleccionados(): ProductoDevolucionSeleccionado[] {
     return this.productosADevolver.filter((producto) => producto.cantidad > 0);
-  }
+  };
 
   get totalReembolso(): number {
     return this.productosADevolver.reduce((total, producto) => {
       return total + producto.cantidad * producto.precioUnitario;
     }, 0);
-  }
-}
+  };
+};
 
 export { DevolucionesComponent as Devoluciones };
