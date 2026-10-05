@@ -26,12 +26,12 @@
         <div class="form-input">
           <label>Telefono:</label>
           <input
-            type="text"
+            type="tel"
             [(ngModel)]="clienteForm.telefono"
             name="telefono"
             placeholder="Teléfono"
             required
-            maxlength="10"
+            maxlength="12"
             minlength="10"
             #telModel = "ngModel"
           />
@@ -97,7 +97,7 @@
       </div>
 
       <div class="modal-actions">
-        <button type="submit" class="btn-primary">Guardar</button>
+        <button type="submit" class="btn-primary" [disabled]="clienteNgForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Guardar' }}</button>
         <button type="button" (click)="cerrar()">Cancelar</button>
       </div>
     </form>
