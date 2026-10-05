@@ -123,6 +123,8 @@
   <app-agregar
     *ngIf="mostrarModalAgregar"
     [visible]="mostrarModalAgregar"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
     (close)="cerrarModalAgregar()"
     (save)="guardar($event)"
   />
@@ -130,6 +132,8 @@
   <app-editar
     *ngIf="mostrarModalEditar"
     [visible]="mostrarModalEditar"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
     [distribuidor]="distribuidorForm"
     (close)="cerrarModalEditar()"
     (update)="guardar($event)"

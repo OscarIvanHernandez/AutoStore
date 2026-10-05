@@ -2,18 +2,65 @@
   <div class="modal-overlay" *ngIf="visible">
     <div class="modal-card">
       <h3>{{ distribuidorForm.id ? 'Editar' : 'Nuevo' }} Distribuidor</h3>
-      <form (ngSubmit)="guardar()">
-        <label>Nombre del Proveedor *</label>
-        <input type="text" [(ngModel)]="distribuidorForm.nombre" name="nombre" placeholder="Ej. Refaccionaria del Norte" required />
-
-        <label>Teléfono *</label>
-        <input type="text" [(ngModel)]="distribuidorForm.telefono" name="telefono" placeholder="Ej. 8331234567" required />
-
-        <label>Persona de Contacto (Opcional)</label>
-        <input type="text" [(ngModel)]="distribuidorForm.contacto" name="contacto" placeholder="Ej. Atención con Ing. Carlos" />
-
+      <form #distribuidorNgForm = "ngForm" (ngSubmit)="guardar()">
+        <div class="form-grid">
+          <div class="form-input">
+            <label>Nombre del Proveedor *</label>
+            <input
+              type="text"
+              [(ngModel)]="distribuidorForm.nombre"
+              name="nombre"
+              placeholder="Ej. Refaccionaria del Norte"
+              minlength="3"
+              required
+              #nombreModel = "ngModel"
+            />
+            <span class="span-text" *ngIf="nombreModel.invalid && (nombreModel.touched || distribuidorNgForm.submitted)">
+              <span class="error-text" *ngIf="nombreModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+                El nombre del distribuidor es obligatorio</span>
+              <span class="error-text" *ngIf="nombreModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+                Debe tener al menos 3 caracteres</span>
+            </span>
+          </div>
+          <div class="form-input">
+            <label>Teléfono *</label>
+            <input
+              type="tel"
+              [(ngModel)]="distribuidorForm.telefono"
+              name="telefono"
+              placeholder="Ej. 8331234567"
+              maxlength="12"
+              minlength="10"
+              required
+              #telModel = "ngModel"
+            />
+            <span class="span-text" *ngIf="telModel.invalid && (telModel.touched || distribuidorNgForm.submitted)">
+              <span class="error-text" *ngIf="telModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+                El telefono es obligatorio.</span>
+              <span class="error-text" *ngIf="telModel.errors?.['maxlength']"><mat-icon fontIcon="info"></mat-icon>
+                El número es demasiado largo.</span>
+              <span class="error-text" *ngIf="telModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+                El número es demasiado corto.</span>
+            </span>
+          </div>
+          <div class="form-input">
+            <label>Persona de Contacto (Opcional)</label>
+            <input
+              type="text"
+              [(ngModel)]="distribuidorForm.contacto"
+              name="contacto"
+              placeholder="Ej. Atención con Ing. Carlos"
+              minlength="5"
+              #contactoModel = "ngModel"
+            />
+            <span class="span-text" *ngIf="contactoModel.invalid && (contactoModel.touched || distribuidorNgForm.submitted)">
+              <span class="error-text" *ngIf="contactoModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+                El nombre es demasiado corto.</span>
+            </span>
+          </div>
+        </div>
         <div class="modal-actions">
-          <button type="submit" class="btn-primary">Guardar</button>
+          <button type="submit" class="btn-primary" [disabled]="distribuidorNgForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Guardar' }}</button>
           <button type="button" (click)="cerrar()">Cancelar</button>
         </div>
       </form>
