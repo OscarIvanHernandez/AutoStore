@@ -15,6 +15,9 @@ export class Editar implements OnChanges {
   @Input() visible = false;
   @Input() cliente: Cliente | null = null;
 
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
+
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<Cliente>();
 

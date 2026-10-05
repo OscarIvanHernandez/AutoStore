@@ -173,6 +173,8 @@
   <app-crear-cliente
     *ngIf="mostrarModalCliente && !clienteForm.id"
     [visible]="mostrarModalCliente"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
     [cliente]="clienteForm"
     (close)="cerrarModalCliente()"
     (save)="guardarClienteDesdeModal($event)"
@@ -181,6 +183,8 @@
   <app-editar-cliente
     *ngIf="mostrarModalCliente && !!clienteForm.id"
     [visible]="mostrarModalCliente"
+    [isSaving]="isSaving"
+    [errorMessage]="errorMessage"
     [cliente]="clienteParaEditar"
     (close)="cerrarModalCliente()"
     (save)="guardarClienteDesdeModal($event)"

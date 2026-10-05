@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class Crear implements OnChanges {
   @Input() visible = false;
   @Input() cliente: Partial<Cliente> | null = null;
+  @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
 
   @Output() close = new EventEmitter<void>();
