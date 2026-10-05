@@ -14,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 export class Editar implements OnChanges {
   @Input() visible = false;
   @Input() distribuidor: Partial<Distribuidor> | null = null;
+  @Input() isSaving = false;
+  @Input() errorMessage: string | null = null;
 
   @Output() close = new EventEmitter<void>();
   @Output() update = new EventEmitter<Partial<Distribuidor>>();
