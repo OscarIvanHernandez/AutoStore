@@ -26,11 +26,12 @@ describe('SalesHistory', () => {
       producto: { id: 3, nombre: 'Producto', marca: 'Marca' },
     }],
   };
+  const ventaCancelada: VentaInterface = { ...venta, estado: 'CANCELADA' };
 
   beforeEach(async () => {
     saleService = {
       obtenerVentas: vi.fn(() => of([venta])),
-      cancelarVenta: vi.fn(() => of({ ...venta, estado: 'CANCELADA' })),
+      cancelarVenta: vi.fn(() => of(ventaCancelada)),
     };
 
     await TestBed.configureTestingModule({

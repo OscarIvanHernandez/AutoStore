@@ -3,10 +3,9 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Distribuidor } from '../../../services/autostore.models';
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
+import { BaseComponent } from '../base-component/base-component';
 import { Agregar } from './modal/agregar/agregar';
 import { Editar } from './modal/editar/editar';
-import { catchError, EMPTY, of } from 'rxjs';
-import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-distribuidores',
@@ -15,118 +14,99 @@ import { BaseComponent } from '../base-component/base-component';
   templateUrl: './distribuidores.html',
   styleUrl: './distribuidores.css',
 })
-export class Distribuidores extends BaseComponent implements OnInit{
+export class Distribuidores extends BaseComponent implements OnInit {
   distribuidores: Distribuidor[] = [];
-  mostrarInactivos: boolean = false;
-
-  // Modal y Formulario
-  mostrarModalDistribuidor: boolean = false;
-
-  hasLoadedDistribuidores: boolean = false;
-
-  mostrarModalAgregar: boolean = false;
-  mostrarModalEditar: boolean = false;
+  mostrarInactivos = false;
+  hasLoadedDistribuidores = false;
+  mostrarModalAgregar = false;
+  mostrarModalEditar = false;
   distribuidorForm: Partial<Distribuidor> = this.resetForm();
 
   constructor(
     private distribuidorService: DistribuidorService,
-    cdr: ChangeDetectorRef)
-    {super(cdr);};
+    cdr: ChangeDetectorRef
+  ) {
+    super(cdr);
+  }
 
   ngOnInit(): void {
     this.cargarDistribuidores();
-  };
+  }
 
   cargarDistribuidores(): void {
-    this.isLoading = true;
-    this.hasLoadedDistribuidores = false;
-    this.cargarRecurso('cargaDistribuidores', this.distribuidorService.listar(), (data) => {
-      this.distribuidores = this.mostrarInactivos
-        ? data
-        : data.filter(d => d.activo);
-      console.log('Distribuidores recibidos:', data);
-      console.log('Distribuidores mostrados:', this.distribuidores);
-      this.hasLoadedDistribuidores = true;
-      this.isLoading = false;
-      setTimeout(() =>{
-        this.cdr.detectChanges();
-      }, 500);
-    });
-  };
+    this.cargarRecurso(
+      'cargaDistribuidores',
+      this.distribuidorService.listar(),
+      (data) => {
+        this.distribuidores = this.mostrarInactivos ? data : data.filter((distribuidor) => distribuidor.activo);
+        this.hasLoadedDistribuidores = true;
+      },
+      'los distribuidores'
+    );
+  }
 
   guardar(distribuidor: Partial<Distribuidor>): void {
-    if (!distribuidor.nombre || !distribuidor.telefono) {
-      alert('Nombre y teléfono son obligatorios.');
+    const nombre = distribuidor.nombre?.trim();
+    const telefono = distribuidor.telefono?.trim();
+    if (!nombre || !telefono) {
+      this.showErrorMessage('Nombre y teléfono son obligatorios.');
       return;
-    };
-    this.isLoading = true;
-    if (distribuidor.id) {
-      this.ejecutarMutacion(this.distribuidorService.actualizar(distribuidor.id, distribuidor), 'actualizar distribuidor' ,() =>{
-        this.cargarDistribuidores();
-        this.cerrarModalEditar();
-        distribuidor = this.resetForm();
-        this.isLoading = false;
-        setTimeout(() => {
-          this.cdr.detectChanges();
-        }, 500);
-      });
-    } else {
-      this.ejecutarMutacion(this.distribuidorService.crear(distribuidor), 'crear distribuidor', () => {
-        this.cargarDistribuidores();
-        this.cerrarModalAgregar();
-        distribuidor = this.resetForm();
-        this.isLoading = false;
-        setTimeout(() =>{
-          this.cdr.detectChanges();
-        }, 500);
-      });
-    };
-  };
+    }
+
+    const datos = { ...distribuidor, nombre, telefono };
+    const id = datos.id;
+    const esEdicion = id !== undefined;
+    const request = id !== undefined
+      ? this.distribuidorService.actualizar(id, datos)
+      : this.distribuidorService.crear(datos);
+
+    this.ejecutarMutacion(request, esEdicion ? 'actualizar distribuidor' : 'crear distribuidor', () => {
+      this.cerrarModalAgregar();
+      this.cerrarModalEditar();
+      this.showSuccessMessage(esEdicion ? 'Distribuidor actualizado correctamente.' : 'Distribuidor creado correctamente.');
+      this.cargarDistribuidores();
+    });
+  }
 
   desactivar(id: number): void {
-    if (confirm('¿Desea desactivar este distribuidor?')) {
-      this.isLoading = true;
-      this.ejecutarMutacion(this.distribuidorService.desactivar(id), 'desactivar distribuidor', () => {
-        this.cargarDistribuidores();
-        this.isLoading = false;
-        this.showSuccessMessage(
-          `Proveedor (${this.distribuidores[id].nombre}) desactivado`,
-        );
-      });
-    };
-  };
+    const distribuidor = this.distribuidores.find((item) => item.id === id);
+    if (!distribuidor || !confirm(`¿Desea desactivar a ${distribuidor.nombre}?`)) return;
+
+    this.ejecutarMutacion(this.distribuidorService.desactivar(id), 'desactivar distribuidor', () => {
+      this.showSuccessMessage(`Distribuidor ${distribuidor.nombre} desactivado.`);
+      this.cargarDistribuidores();
+    });
+  }
 
   activar(id: number): void {
-    if (confirm('¿Desea activar este distribuidor?')) {
-      this.isLoading = true;
-      this.ejecutarMutacion(this.distribuidorService.activar(id), 'activar distribuidor', () => {
-        this.cargarDistribuidores();
-        this.isLoading = false;
-        this.showSuccessMessage(
-          `Proveedor (${this.distribuidores[id].nombre}) activado`
-        );
-      });
-    };
-  };
+    const distribuidor = this.distribuidores.find((item) => item.id === id);
+    if (!distribuidor || !confirm(`¿Desea reactivar a ${distribuidor.nombre}?`)) return;
+
+    this.ejecutarMutacion(this.distribuidorService.activar(id), 'activar distribuidor', () => {
+      this.showSuccessMessage(`Distribuidor ${distribuidor.nombre} reactivado.`);
+      this.cargarDistribuidores();
+    });
+  }
 
   abrirModalNuevo(): void {
+    this.distribuidorForm = this.resetForm();
     this.mostrarModalAgregar = true;
-  };
+  }
 
   abrirModalEditar(distribuidor: Distribuidor): void {
     this.distribuidorForm = { ...distribuidor };
     this.mostrarModalEditar = true;
-  };
+  }
 
   cerrarModalAgregar(): void {
     this.mostrarModalAgregar = false;
-  };
+  }
 
   cerrarModalEditar(): void {
     this.mostrarModalEditar = false;
-  };
+  }
 
   private resetForm(): Partial<Distribuidor> {
     return { nombre: '', telefono: '', contacto: '' };
-  };
-};
+  }
+}

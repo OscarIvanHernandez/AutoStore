@@ -1,63 +1,125 @@
-<div class="distribuidores-container">
-  @if (isLoading && !hasLoadedDistribuidores) {
-    <div class="spinner">Cargando, un momento...</div>
-  } @else if (!isLoading && loadingStates['cargaDistribuidores'] && !hasLoadedDistribuidores) {
-    <div class="alert alert-danger">
-      {{ loadErrors['cargaDistribuidores'] }}
-      <button (click)="cargarDistribuidores()">Reintentar</button>
+<main class="distribuidores-container">
+  <header class="page-header">
+    <div>
+      <h1>Gestión de distribuidores</h1>
+      <p>Administra proveedores y consulta su estado.</p>
     </div>
-  } @else {
-    <section>
-      <h2>🚚 Gestión de Distribuidores</h2>
-    </section>
+    <span *ngIf="hasLoadedDistribuidores" class="result-count">
+      {{ distribuidores.length }} {{ distribuidores.length === 1 ? 'distribuidor' : 'distribuidores' }}
+    </span>
+  </header>
 
-    <!-- Acciones y Filtro -->
-    <div class="actions-bar">
-      <button (click)="abrirModalNuevo()" class="btn-primary">➕ Nuevo Distribuidor</button>
-      <label>
-        <input type="checkbox" [(ngModel)]="mostrarInactivos" (change)="cargarDistribuidores()" />
-        Mostrar inactivos
-      </label>
-    </div>
-    <div class="messages">
-      <span *ngIf="successMessage">{{successMessage}}</span>
-      <span *ngIf="errorMessage">{{errorMessage}}</span>
-    </div>
+  <div *ngIf="successMessage" class="message success-message" role="status">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="message error-message" role="alert">{{ errorMessage }}</div>
 
-    <!-- Tabla de Registros -->
-    <table class="tabla-distribuidores" *ngIf="!isLoading && distribuidores.length > 0">
-      <thead>
-        <tr>
-          <th>Nombre / Proveedor</th>
-          <th>Teléfono</th>
-          <th>Contacto (Opcional)</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let d of distribuidores" [class.inactivo]="!d.activo">
-          <td><strong>{{ d.nombre }}</strong></td>
-          <td>{{ d.telefono }}</td>
-          <td>{{ d.contacto || '-' }}</td>
-          <td>
-            <span [class]="d.activo ? 'badge activo' : 'badge inactivo'">
-              {{ d.activo ? 'ACTIVO' : 'INACTIVO' }}
-            </span>
-          </td>
-          <td>
-            <ng-container *ngIf="d.activo">
-              <button (click)="abrirModalEditar(d)">✏️ Editar</button>
-              <button (click)="desactivar(d.id)" class="btn-danger">🗑️ Desactivar</button>
-            </ng-container>
-            <ng-container *ngIf="!d.activo">
-              <button (click)="activar(d.id)" class="btn-success">🔄 Reactivar</button>
-            </ng-container>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  }
+  <section class="actions-bar" aria-label="Acciones de distribuidores">
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="abrirModalNuevo()"
+      [disabled]="isSaving || loadingStates['cargaDistribuidores']"
+    >
+      Nuevo distribuidor
+    </button>
+
+    <label class="inactive-toggle">
+      <input
+        type="checkbox"
+        [(ngModel)]="mostrarInactivos"
+        (change)="cargarDistribuidores()"
+        [disabled]="loadingStates['cargaDistribuidores'] || isSaving"
+      />
+      <span>Mostrar inactivos</span>
+    </label>
+  </section>
+
+  <div *ngIf="loadingStates['cargaDistribuidores'] && !hasLoadedDistribuidores" class="state-message" role="status">
+    <span class="loading-indicator" aria-hidden="true"></span>
+    Cargando distribuidores...
+  </div>
+
+  <div *ngIf="loadErrors['cargaDistribuidores']" class="message error-message" role="alert">
+    <span>{{ loadErrors['cargaDistribuidores'] }}</span>
+    <button
+      type="button"
+      class="text-button"
+      (click)="cargarDistribuidores()"
+      [disabled]="loadingStates['cargaDistribuidores']"
+    >
+      Reintentar carga
+    </button>
+  </div>
+
+  <div *ngIf="loadingStates['cargaDistribuidores'] && hasLoadedDistribuidores" class="refresh-message" role="status">
+    Actualizando distribuidores; se conservan los datos actuales hasta terminar.
+  </div>
+
+  <section *ngIf="hasLoadedDistribuidores" class="distribuidores-panel" aria-label="Lista de distribuidores">
+    <div class="table-wrapper">
+      <table class="tabla-distribuidores">
+        <thead>
+          <tr>
+            <th scope="col">Nombre / Proveedor</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Contacto</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let distribuidor of distribuidores" [class.is-inactive]="!distribuidor.activo">
+            <td class="supplier-name">{{ distribuidor.nombre }}</td>
+            <td>{{ distribuidor.telefono }}</td>
+            <td>{{ distribuidor.contacto || '—' }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [class.status-active]="distribuidor.activo"
+                [class.status-inactive]="!distribuidor.activo"
+              >
+                {{ distribuidor.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button
+                *ngIf="distribuidor.activo"
+                type="button"
+                class="btn-table"
+                (click)="abrirModalEditar(distribuidor)"
+                [disabled]="isSaving || loadingStates['cargaDistribuidores']"
+              >
+                Editar
+              </button>
+              <button
+                *ngIf="distribuidor.activo"
+                type="button"
+                class="btn-danger"
+                (click)="desactivar(distribuidor.id)"
+                [disabled]="isSaving || loadingStates['cargaDistribuidores']"
+              >
+                Desactivar
+              </button>
+              <button
+                *ngIf="!distribuidor.activo"
+                type="button"
+                class="btn-success"
+                (click)="activar(distribuidor.id)"
+                [disabled]="isSaving || loadingStates['cargaDistribuidores']"
+              >
+                Reactivar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="distribuidores.length === 0">
+            <td colspan="5" class="empty-state">
+              {{ mostrarInactivos ? 'No hay distribuidores registrados.' : 'No hay distribuidores activos.' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <app-agregar
     *ngIf="mostrarModalAgregar"
     [visible]="mostrarModalAgregar"
@@ -72,5 +134,4 @@
     (close)="cerrarModalEditar()"
     (update)="guardar($event)"
   />
-
-</div>
+</main>
