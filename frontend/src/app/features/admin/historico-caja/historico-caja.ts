@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CajaService } from '../../../services/autostore.caja-service';
 import { CorteCaja } from '../../../services/autostore.models';
 import { FormsModule } from '@angular/forms';
 import { CorteDetalleTicket } from './modal/corte-detalle-ticket/corte-detalle-ticket';
-import { catchError, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-historico-caja',
   standalone: true,
-  imports: [CommonModule, FormsModule, CorteDetalleTicket],
+  imports: [CommonModule, FormsModule, RouterLink, CorteDetalleTicket],
   templateUrl: './historico-caja.html',
   styleUrl: './historico-caja.css',
 })
@@ -19,81 +19,93 @@ export class HistoricoCaja extends BaseComponent implements OnInit {
 
   corteSeleccionado: CorteCaja | null = null;
 
-  hasLoadedHistorico: boolean = false;
+  hasLoadedHistorico = false;
 
-  fechaInicio: string = '';
-  fechaFin: string = '';
+  fechaInicio = '';
+  fechaFin = '';
   historicoFiltrado: CorteCaja[] = [];
-  filtroAplicado: boolean = false;
+  filtroAplicado = false;
+  filterValidationError: string | null = null;
 
-  mostrarCorteDetalle: boolean = false;
-  cerrarCorteDetalle: boolean = false;
+  mostrarCorteDetalle = false;
 
-    constructor(
+  constructor(
     private cajaService: CajaService,
     cdr: ChangeDetectorRef
-  ) {super(cdr);};
+  ) {
+    super(cdr);
+  }
 
   ngOnInit(): void {
     this.cargarHistorial();
-  };
+  }
+
+  get cortesMostrados(): CorteCaja[] {
+    return this.filtroAplicado ? this.historicoFiltrado : this.historico;
+  }
 
   abrirCorteDetalle(corteDetalle: CorteCaja): void {
     this.corteSeleccionado = corteDetalle;
     this.mostrarCorteDetalle = true;
-  };
+  }
 
   cerrarModalCorteDetalle(): void {
     this.mostrarCorteDetalle = false;
-  };
+    this.corteSeleccionado = null;
+  }
 
-  cargarHistorial(): void{
-    this.isLoading = true;
-    this.hasLoadedHistorico = false;
-    this.cargarRecurso('cargarHistorial', this.cajaService.obtenerHistorialCaja(), (data) => {
-      this.historico = data;
-      this.historicoFiltrado = [];
-      this.filtroAplicado = false;
-      this.isLoading = false;
-      this.hasLoadedHistorico = true;
-      setTimeout(()=>{
-        this.cdr.detectChanges();
-      }, 500);
-    });
-  };
+  cargarHistorial(): void {
+    this.cargarRecurso(
+      'cargarHistorial',
+      this.cajaService.obtenerHistorialCaja(),
+      (data) => {
+        this.historico = data;
+        if (this.filtroAplicado) {
+          this.historicoFiltrado = this.filtrarCortesLocales(data);
+        }
+        this.hasLoadedHistorico = true;
+      },
+      'el historial de caja'
+    );
+  }
 
   filtrarPorFechas(): void {
+    this.filterValidationError = null;
     if (!this.fechaInicio && !this.fechaFin) return;
     if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
-      this.showErrorMessage('La fecha de inicio no puede ser posterior a la fecha de fin.', 4000);
+      this.filterValidationError = 'La fecha de inicio no puede ser posterior a la fecha de fin.';
       return;
     }
-    this.isLoading = true;
-    this.cargarRecurso('filtrarPorFechas', this.cajaService.buscarHistorialPorFechas(
-      this.fechaInicio,
-      this.fechaFin), (data) => {
+    this.cargarRecurso(
+      'filtrarHistorial',
+      this.cajaService.buscarHistorialPorFechas(
+        this.fechaInicio || undefined,
+        this.fechaFin || undefined
+      ),
+      (data) => {
         this.historicoFiltrado = data;
         this.filtroAplicado = true;
-        setTimeout(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        }, 500);
-    });
-  };
+      },
+      'los cortes de caja'
+    );
+  }
 
   limpiarFiltros(): void {
     this.fechaInicio = '';
     this.fechaFin = '';
     this.historicoFiltrado = [];
     this.filtroAplicado = false;
-    this.cargarHistorial();
-  };
+    this.filterValidationError = null;
+    this.clearResourceError('filtrarHistorial');
+  }
 
-  verTicket(corte: CorteCaja): void {
-    this.corteSeleccionado = corte;
-  };
+  private filtrarCortesLocales(cortes: CorteCaja[]): CorteCaja[] {
+    const inicio = this.fechaInicio ? new Date(`${this.fechaInicio}T00:00:00`) : null;
+    const fin = this.fechaFin ? new Date(`${this.fechaFin}T23:59:59.999`) : null;
 
-  cerrarModal(): void {
-    this.corteSeleccionado = null;
-  };
-};
+    return cortes.filter((corte) => {
+      const fechaApertura = new Date(corte.fechaApertura);
+      return (!inicio || fechaApertura >= inicio) && (!fin || fechaApertura <= fin);
+    });
+  }
+}

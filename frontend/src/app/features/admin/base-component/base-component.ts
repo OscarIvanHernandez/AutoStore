@@ -72,7 +72,8 @@ export abstract class BaseComponent {
   cargarRecurso<T>(
     recurso: string,
     request: Observable<T>,
-    onSuccess: (data: T) => void
+    onSuccess: (data: T) => void,
+    nombreRecurso = recurso
   ): void {
     this.loadingStates[recurso] = true;
     this.clearResourceError(recurso);
@@ -81,7 +82,7 @@ export abstract class BaseComponent {
       catchError((error) => {
         const msg = error.status === 0
           ? 'No se pudo conectar con el servidor.'
-          : `Error al cargar ${recurso}. (${error.status ?? 'desconocido'})`;
+          : `Error al cargar ${nombreRecurso}. (${error.status ?? 'desconocido'})`;
 
         this.setResourceError(recurso, msg);
         return EMPTY;
