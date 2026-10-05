@@ -5,7 +5,6 @@ import { CompraRequest, Distribuidor, ItemCarrito, ProductoInterface } from '../
 import { DistribuidorService } from '../../../services/autostore.distribuidor-service';
 import { ProductoService } from '../../../services/autostore.product-service';
 import { CompraDistribuidorService } from '../../../services/autostore.compra-distribuidor-service';
-import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
@@ -15,123 +14,138 @@ import { BaseComponent } from '../base-component/base-component';
   templateUrl: './compra-distribuidores.html',
   styleUrl: './compra-distribuidores.css',
 })
-export class CompraDistribuidores extends BaseComponent implements OnInit{
-
+export class CompraDistribuidores extends BaseComponent implements OnInit {
   distribuidores: Distribuidor[] = [];
   productos: ProductoInterface[] = [];
+  hasLoadedDistribuidores = false;
+  hasLoadedProductos = false;
 
-  // Formulario principal
   distribuidorSeleccionadoId: number | null = null;
-  folio: string = '';
-
-  // Formulario para agregar producto al carrito de entrada
+  folio = '';
   productoSeleccionado: ProductoInterface | null = null;
-  cantidad: number = 1;
-  precioUnitarioCompra: number = 0;
-
-  // Carrito de compras
+  cantidad = 1;
+  precioUnitarioCompra = 0;
   items: ItemCarrito[] = [];
-  totalCompra: number = 0;
+  totalCompra = 0;
 
   constructor(
     private distribuidorService: DistribuidorService,
     private productoService: ProductoService,
     private compraService: CompraDistribuidorService,
     cdr: ChangeDetectorRef
-  ) {super(cdr);};
+  ) {
+    super(cdr);
+  }
 
   ngOnInit(): void {
     this.cargarDistribuidores();
     this.cargarProductos();
-  };
+  }
 
   cargarDistribuidores(): void {
-    this.isLoading = true;
-    this.cargarRecurso('cargarDistribuidores', this.distribuidorService.listar(), (data) => {
-      this.distribuidores = data;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
-    });
-  };
+    this.cargarRecurso(
+      'cargarDistribuidores',
+      this.distribuidorService.listar(),
+      (data) => {
+        this.distribuidores = data.filter((distribuidor) => distribuidor.activo);
+        if (!this.distribuidores.some((distribuidor) => distribuidor.id === this.distribuidorSeleccionadoId)) {
+          this.distribuidorSeleccionadoId = null;
+        }
+        this.hasLoadedDistribuidores = true;
+      },
+      'los distribuidores'
+    );
+  }
 
   cargarProductos(): void {
-    this.isLoading = true;
-    this.cargarRecurso('cargarProductos', this.productoService.getProductos(), (data) => {
-      this.productos = data;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      }, 500);
-    });
-  };
+    this.cargarRecurso(
+      'cargarProductos',
+      this.productoService.getProductos(),
+      (data) => {
+        this.productos = data.filter((producto) => producto.activo !== false);
+        if (this.productoSeleccionado) {
+          this.productoSeleccionado = this.productos.find((producto) => producto.id === this.productoSeleccionado?.id) ?? null;
+        }
+        this.hasLoadedProductos = true;
+      },
+      'los productos'
+    );
+  }
 
   onSeleccionarProducto(): void {
+    this.errorMessage = null;
     if (this.productoSeleccionado) {
-      // Sugiere el precio de compra actual registrado en el producto
       this.precioUnitarioCompra = this.productoSeleccionado.precioCompra || 0;
-    };
-  };
+    }
+  }
 
   agregarProducto(): void {
-    if (!this.productoSeleccionado || this.cantidad <= 0 || this.precioUnitarioCompra <= 0) return;
+    if (!this.productoSeleccionado || this.productoSeleccionado.id == null) {
+      this.showErrorMessage('Selecciona un producto para agregarlo a la entrada.');
+      return;
+    }
+    if (!Number.isInteger(this.cantidad) || this.cantidad <= 0) {
+      this.showErrorMessage('La cantidad debe ser un número entero mayor que cero.');
+      return;
+    }
+    if (!Number.isFinite(this.precioUnitarioCompra) || this.precioUnitarioCompra <= 0) {
+      this.showErrorMessage('El costo unitario debe ser mayor que cero.');
+      return;
+    }
 
-    const subtotal = this.cantidad * this.precioUnitarioCompra;
-
-    this.items.push({
-      productoId: this.productoSeleccionado.id!,
+    this.items = [...this.items, {
+      productoId: this.productoSeleccionado.id,
       nombre: this.productoSeleccionado.nombre,
       cantidad: this.cantidad,
       precioUnitario: this.precioUnitarioCompra,
-      subTotal: subtotal,
+      subTotal: this.cantidad * this.precioUnitarioCompra,
       precioTipo: 'MOSTRADOR',
-      stockMaximo: this.productoSeleccionado.stockActual
-    });
+      stockMaximo: this.productoSeleccionado.stockActual,
+    }];
 
     this.calcularTotal();
     this.limpiarSeleccionProducto();
-  };
+    this.errorMessage = null;
+  }
 
   quitarItem(index: number): void {
-    this.items.splice(index, 1);
+    this.items = this.items.filter((_, itemIndex) => itemIndex !== index);
     this.calcularTotal();
-  };
+  }
 
   calcularTotal(): void {
-    this.totalCompra = this.items.reduce((acc, item) => acc + item.subTotal, 0);
-  };
+    this.totalCompra = this.items.reduce((total, item) => total + item.subTotal, 0);
+  }
 
   guardarCompra(): void {
-    this.isLoading = true;
-    if (!this.distribuidorSeleccionadoId || this.items.length === 0) {
-      alert('Seleccione un distribuidor y al menos un producto.');
+    if (this.distribuidorSeleccionadoId === null || this.items.length === 0) {
+      this.showErrorMessage('Selecciona un distribuidor y agrega al menos un producto.');
       return;
-    };
+    }
 
     const payload: CompraRequest = {
       distribuidorId: this.distribuidorSeleccionadoId,
-      folio: this.folio,
-      productos: this.items.map(item => ({
+      folio: this.folio.trim() || undefined,
+      productos: this.items.map((item) => ({
         productoId: item.productoId,
         cantidad: item.cantidad,
-        precioUnitarioCompra: item.precioUnitario
-      }))
+        precioUnitarioCompra: item.precioUnitario,
+      })),
     };
-    this.ejecutarMutacion(this.compraService.registrarCompra(payload), 'guardar compra', () => {
-      console.log('Compra de mercancancia registrada OK');
+
+    this.ejecutarMutacion(this.compraService.registrarCompra(payload), 'registrar compra', () => {
       this.items = [];
+      this.calcularTotal();
       this.folio = '';
-      this.totalCompra = 0;
-      this.showSuccessMessage(
-        `📦 Entrada de mercancía registrada. Stock e historial actualizados.`
-      );
+      this.limpiarSeleccionProducto();
+      this.showSuccessMessage('Entrada registrada. Se está actualizando el inventario.');
+      this.cargarProductos();
     });
-  };
+  }
 
   private limpiarSeleccionProducto(): void {
     this.productoSeleccionado = null;
     this.cantidad = 1;
     this.precioUnitarioCompra = 0;
-  };
-};
+  }
+}

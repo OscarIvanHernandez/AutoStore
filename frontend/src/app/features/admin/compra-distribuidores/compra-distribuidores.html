@@ -1,73 +1,217 @@
-<div class="compra-container">
-  <h2>📦 Registro de Entrada de Mercancía</h2>
-
-  <!-- Sección Distribuidor y Folio -->
-  <div class="header-form">
+<main class="purchase-page">
+  <header class="page-header">
     <div>
-      <label>Distribuidor:</label>
-      <select [(ngModel)]="distribuidorSeleccionadoId">
-        <option [ngValue]="null">-- Seleccionar Proveedor --</option>
-        <option *ngFor="let d of distribuidores" [value]="d.id">{{ d.nombre }}</option>
-      </select>
+      <h1>Entrada de mercancía</h1>
+      <p>Registra compras para actualizar las existencias del inventario.</p>
+    </div>
+  </header>
+
+  <div *ngIf="successMessage" class="message success-message" role="status">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="message error-message" role="alert">{{ errorMessage }}</div>
+
+  <section class="purchase-panel" aria-label="Datos de la compra">
+    <div class="section-heading">
+      <div>
+        <h2>Datos de la compra</h2>
+        <p>Selecciona el proveedor y agrega los productos recibidos.</p>
+      </div>
     </div>
 
-    <div>
-      <label>Folio/Nota (Opcional):</label>
-      <input type="text" [(ngModel)]="folio" placeholder="Ej. F-10492" />
+    <div class="header-form">
+      <div class="field-group">
+        <label for="proveedor-compra">Distribuidor</label>
+        <select
+          id="proveedor-compra"
+          [(ngModel)]="distribuidorSeleccionadoId"
+          [disabled]="loadingStates['cargarDistribuidores'] || !hasLoadedDistribuidores || isSaving"
+        >
+          <option [ngValue]="null">Selecciona un distribuidor</option>
+          <option *ngFor="let distribuidor of distribuidores" [ngValue]="distribuidor.id">
+            {{ distribuidor.nombre }}
+          </option>
+        </select>
+        <small *ngIf="loadingStates['cargarDistribuidores'] && !hasLoadedDistribuidores" class="field-hint">
+          Cargando distribuidores...
+        </small>
+        <small *ngIf="hasLoadedDistribuidores && distribuidores.length === 0" class="field-hint">
+          No hay distribuidores activos disponibles.
+        </small>
+        <div *ngIf="loadErrors['cargarDistribuidores']" class="field-error" role="alert">
+          <span>{{ loadErrors['cargarDistribuidores'] }}</span>
+          <button
+            type="button"
+            class="text-button"
+            (click)="cargarDistribuidores()"
+            [disabled]="loadingStates['cargarDistribuidores']"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="folio-compra">Folio / nota <span>(opcional)</span></label>
+        <input
+          id="folio-compra"
+          type="text"
+          [(ngModel)]="folio"
+          placeholder="Ej. F-10492"
+          maxlength="100"
+          [disabled]="isSaving"
+        />
+      </div>
     </div>
-  </div>
+  </section>
 
-  <hr>
-
-  <!-- Buscador y Agregador de Productos -->
-  <div class="agregar-producto-bar">
-    <div>
-      <label>Producto:</label>
-      <select [(ngModel)]="productoSeleccionado" (change)="onSeleccionarProducto()">
-        <option [ngValue]="null">-- Seleccionar Producto --</option>
-        <option *ngFor="let p of productos" [ngValue]="p">{{ p.nombre }} (Stock actual: {{ p.stockActual }})</option>
-      </select>
+  <section class="purchase-panel" aria-label="Agregar productos a la compra">
+    <div class="section-heading">
+      <div>
+        <h2>Agregar productos</h2>
+        <p>El costo unitario sugerido corresponde al costo registrado actualmente.</p>
+      </div>
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="cargarProductos()"
+        [disabled]="loadingStates['cargarProductos'] || isSaving"
+      >
+        {{ loadingStates['cargarProductos'] ? 'Actualizando...' : 'Actualizar productos' }}
+      </button>
     </div>
 
-    <div>
-      <label>Cantidad:</label>
-      <input type="number" [(ngModel)]="cantidad" min="1" />
+    <div *ngIf="loadingStates['cargarProductos'] && !hasLoadedProductos" class="state-message" role="status">
+      <span class="loading-indicator" aria-hidden="true"></span>
+      Cargando productos...
+    </div>
+    <div *ngIf="loadErrors['cargarProductos']" class="field-error load-error" role="alert">
+      <span>{{ loadErrors['cargarProductos'] }}</span>
+      <button
+        type="button"
+        class="text-button"
+        (click)="cargarProductos()"
+        [disabled]="loadingStates['cargarProductos']"
+      >
+        Reintentar carga
+      </button>
+    </div>
+    <div *ngIf="loadingStates['cargarProductos'] && hasLoadedProductos" class="refresh-message" role="status">
+      Actualizando productos...
     </div>
 
-    <div>
-      <label>Costo Unitario ($):</label>
-      <input type="number" [(ngModel)]="precioUnitarioCompra" min="0" step="0.5" />
+    <div class="agregar-producto-bar">
+      <div class="field-group product-field">
+        <label for="producto-compra">Producto</label>
+        <select
+          id="producto-compra"
+          [(ngModel)]="productoSeleccionado"
+          (ngModelChange)="onSeleccionarProducto()"
+          [disabled]="!hasLoadedProductos || loadingStates['cargarProductos'] || isSaving"
+        >
+          <option [ngValue]="null">Selecciona un producto</option>
+          <option *ngFor="let producto of productos" [ngValue]="producto">
+            {{ producto.nombre }} (existencia: {{ producto.stockActual }})
+          </option>
+        </select>
+        <small *ngIf="hasLoadedProductos && productos.length === 0" class="field-hint">
+          No hay productos disponibles.
+        </small>
+      </div>
+
+      <div class="field-group quantity-field">
+        <label for="cantidad-compra">Cantidad</label>
+        <input
+          id="cantidad-compra"
+          type="number"
+          [(ngModel)]="cantidad"
+          min="1"
+          step="1"
+          [disabled]="!hasLoadedProductos || loadingStates['cargarProductos'] || isSaving"
+        />
+      </div>
+
+      <div class="field-group price-field">
+        <label for="costo-unitario">Costo unitario</label>
+        <div class="currency-input">
+          <span>$</span>
+          <input
+            id="costo-unitario"
+            type="number"
+            [(ngModel)]="precioUnitarioCompra"
+            min="0.01"
+            step="0.01"
+            [disabled]="!hasLoadedProductos || loadingStates['cargarProductos'] || isSaving"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="agregarProducto()"
+        [disabled]="!productoSeleccionado || !hasLoadedProductos || loadingStates['cargarProductos'] || isSaving"
+      >
+        Agregar producto
+      </button>
+    </div>
+  </section>
+
+  <section class="purchase-panel items-panel" aria-label="Detalle de productos de la compra">
+    <div class="section-heading">
+      <div>
+        <h2>Detalle de entrada</h2>
+        <p>{{ items.length }} {{ items.length === 1 ? 'producto agregado' : 'productos agregados' }}</p>
+      </div>
     </div>
 
-    <button (click)="agregarProducto()" [disabled]="!productoSeleccionado">➕ Agregar</button>
-  </div>
+    <div class="table-wrapper">
+      <table class="purchase-table">
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col">Costo unitario</th>
+            <th scope="col">Subtotal</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items; let i = index">
+            <td class="item-name">{{ item.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.precioUnitario | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td>{{ item.subTotal | currency:'MXN':'symbol':'1.2-2' }}</td>
+            <td>
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="quitarItem(i)"
+                [disabled]="isSaving"
+                [attr.aria-label]="'Quitar ' + item.nombre"
+              >
+                Quitar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="items.length === 0">
+            <td colspan="5" class="empty-state">Agrega productos para preparar la entrada de mercancía.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <!-- Tabla de Detalle -->
-  <table class="tabla-compra" *ngIf="items.length > 0">
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Costo Unitario</th>
-        <th>Subtotal</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of items; let i = index">
-        <td>{{ item.nombre }}</td>
-        <td>{{ item.cantidad }}</td>
-        <td>${{ item.precioUnitario | number:'1.2-2' }}</td>
-        <td>${{ item.subTotal | number:'1.2-2' }}</td>
-        <td><button (click)="quitarItem(i)">🗑️</button></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="footer-compra">
-    <h3>Total Compra: ${{ totalCompra | number:'1.2-2' }}</h3>
-    <button (click)="guardarCompra()" [disabled]="items.length === 0 || !distribuidorSeleccionadoId" class="btn-success">
-      💾 Registrar Entrada y Surtir Inventario
-    </button>
-  </div>
-</div>
+    <footer class="purchase-footer">
+      <div class="purchase-total">
+        <span>Total de compra</span>
+        <strong>{{ totalCompra | currency:'MXN':'symbol':'1.2-2' }}</strong>
+      </div>
+      <button
+        type="button"
+        class="btn-primary submit-purchase"
+        (click)="guardarCompra()"
+        [disabled]="items.length === 0 || distribuidorSeleccionadoId === null || isSaving || !hasLoadedDistribuidores"
+      >
+        {{ isSaving ? 'Registrando entrada...' : 'Registrar entrada e inventario' }}
+      </button>
+    </footer>
+  </section>
+</main>
