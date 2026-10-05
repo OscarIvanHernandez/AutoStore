@@ -1,93 +1,179 @@
-<div class="history-main">
-  <div class="info-page">
-    <h1>Historial de ventas</h1>
+<main class="history-main">
+  <header class="page-header">
+    <div>
+      <h1>Historial de ventas</h1>
+      <p>Consulta las ventas registradas y revisa sus productos.</p>
+    </div>
+    <span *ngIf="hasLoadedVentas" class="result-count">
+      {{ ventas.length }} {{ ventas.length === 1 ? 'venta' : 'ventas' }}
+    </span>
+  </header>
+
+  <div *ngIf="successMessage" class="message success-message" role="status">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="message error-message" role="alert">{{ errorMessage }}</div>
+
+  <div *ngIf="loadingStates['cargarVentas'] && !hasLoadedVentas" class="state-message" role="status">
+    <span class="loading-indicator" aria-hidden="true"></span>
+    Cargando historial de ventas...
   </div>
 
-  <div class="history-container">
-      <div class="history-card-content">
-        <table class="w-full border-collapse">
+  <div *ngIf="loadErrors['cargarVentas']" class="message error-message" role="alert">
+    <span>{{ loadErrors['cargarVentas'] }}</span>
+    <button
+      type="button"
+      class="text-button"
+      (click)="cargarVentas()"
+      [disabled]="loadingStates['cargarVentas']"
+    >
+      Reintentar carga
+    </button>
+  </div>
+
+  <div *ngIf="loadingStates['cargarVentas'] && hasLoadedVentas" class="refresh-message" role="status">
+    Actualizando ventas; se conservan los datos actuales hasta terminar.
+  </div>
+
+  <section *ngIf="hasLoadedVentas" class="history-layout">
+    <section class="sales-panel" aria-label="Ventas registradas">
+      <div class="panel-heading">
+        <div>
+          <h2>Ventas registradas</h2>
+          <p>Selecciona una venta para consultar sus detalles.</p>
+        </div>
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="cargarVentas()"
+          [disabled]="loadingStates['cargarVentas'] || isSaving"
+        >
+          {{ loadingStates['cargarVentas'] ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="sales-table">
           <thead>
             <tr>
-              <th style="text-align: initial;">Folio</th>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Total</th>
-              <th style="text-align: end;">Estado</th>
+              <th scope="col">Folio</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Total</th>
+              <th scope="col">Estado</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let venta of ventas" (click)="verDetallesVenta(venta)">
-              <td style="text-align: initial;">#{{ venta.id }}</td>
+            <tr
+              *ngFor="let venta of ventas"
+              (click)="verDetallesVenta(venta)"
+              (keydown.enter)="verDetallesVenta(venta)"
+              (keydown.space)="verDetallesVenta(venta); $event.preventDefault()"
+              [class.is-selected]="ventaSeleccionada?.id === venta.id"
+              tabindex="0"
+              [attr.aria-label]="'Ver detalles de la venta ' + venta.id"
+            >
+              <td class="sale-id">#{{ venta.id }}</td>
               <td>{{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ venta.tipoVenta }}</td>
-              <td>${{ venta.total }}</td>
-              <td style="text-align: end;">
-                <span [class.text-green-600]="venta.estado === 'COMPLETADA'"
-                      [class.text-red-600]="venta.estado === 'CANCELADA'">
-                  {{ venta.estado }}
+              <td>{{ venta.total | currency:'MXN':'symbol':'1.2-2' }}</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [class.status-completed]="venta.estado === 'COMPLETADA'"
+                  [class.status-cancelled]="venta.estado === 'CANCELADA'"
+                  [class.status-returned]="venta.estado === 'DEVOLUCION_PARCIAL' || venta.estado === 'DEVOLUCION_TOTAL'"
+                >
+                  {{ venta.estado === 'DEVOLUCION_TOTAL' ? 'DEVUELTA' : venta.estado === 'DEVOLUCION_PARCIAL' ? 'DEVOLUCIÓN PARCIAL' : venta.estado }}
                 </span>
               </td>
-              <!--
-              <td>
-                Botón para ver el desglose de detalles
-                <button (click)="seleccionarVenta(venta)">🔍 Ver detalle</button>
-
-              </td>-->
+            </tr>
+            <tr *ngIf="ventas.length === 0">
+              <td class="empty-state" colspan="5">No hay ventas registradas.</td>
             </tr>
           </tbody>
         </table>
       </div>
+    </section>
 
-      <div class="details-card-content">
-        <table>
-          <thead>
-            <tr>
-              <th style="text-align: initial;">Detalles de la venta</th>
-            </tr>
-            <tr *ngIf="ventaSeleccionada">
-              <th style="text-align: initial;">
-                Folio: #{{ventaSeleccionada.id}}
-              </th>
-            </tr>
-            <tr>
-              <th>Cantidad</th>
-              <th>Producto</th>
-              <th>Precio Unitario</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody *ngIf="ventaSeleccionada">
-            <tr class="detail-field" *ngFor="let det of ventaSeleccionada.detalles">
-              <td class="det-cantidad">{{det.cantidad}}</td>
-              <td class="det-producto">{{det.producto.nombre}} - {{det.producto.marca}}</td>
-              <td class="det-precioUnitario">̣${{det.precioUnitario}}</td>
-              <td class="det-subtotal">${{det.subtotal}}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="info-client">
+    <section class="details-panel" aria-label="Detalle de la venta seleccionada">
+      <ng-container *ngIf="ventaSeleccionada as venta; else noSaleSelected">
+        <div class="panel-heading">
+          <div>
+            <h2>Detalle de la venta</h2>
+            <p>Folio #{{ venta.id }} · {{ venta.fechaVenta | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+          <span
+            class="status-badge"
+            [class.status-completed]="venta.estado === 'COMPLETADA'"
+            [class.status-cancelled]="venta.estado === 'CANCELADA'"
+            [class.status-returned]="venta.estado === 'DEVOLUCION_PARCIAL' || venta.estado === 'DEVOLUCION_TOTAL'"
+          >
+            {{ venta.estado === 'DEVOLUCION_TOTAL' ? 'DEVUELTA' : venta.estado === 'DEVOLUCION_PARCIAL' ? 'DEVOLUCIÓN PARCIAL' : venta.estado }}
+          </span>
+        </div>
 
-            </tr>
-            <tr class="actions">
-              <td>
-                <span>Acciones</span>
-                <div>
-                  <button
-                  *ngIf="ventaSeleccionada.estado !== 'CANCELADA' && esVentaDeHoy(ventaSeleccionada.fechaVenta)"
-                  (click)="cancelarVenta(ventaSeleccionada)"
-                  class="btn btn-danger btn-sm">
-                  Cancelar Venta
-                  </button>
+        <div class="sale-summary">
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ venta.subtotal | currency:'MXN':'symbol':'1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>Descuento</span>
+            <strong>{{ venta.descuento | currency:'MXN':'symbol':'1.2-2' }}</strong>
+          </div>
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>{{ venta.total | currency:'MXN':'symbol':'1.2-2' }}</strong>
+          </div>
+        </div>
 
-                  <span *ngIf="ventaSeleccionada.estado === 'CANCELADA'" class="badge bg-secondary">
-                    CANCELADA
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-  </div>
-</div>
+        <div class="table-wrapper detail-table-wrapper">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th scope="col">Cant.</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Precio unitario</th>
+                <th scope="col">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detalle of venta.detalles">
+                <td>{{ detalle.cantidad }}</td>
+                <td>{{ detalle.producto.nombre }} <small>{{ detalle.producto.marca || '' }}</small></td>
+                <td>{{ detalle.precioUnitario | currency:'MXN':'symbol':'1.2-2' }}</td>
+                <td>{{ detalle.subtotal | currency:'MXN':'symbol':'1.2-2' }}</td>
+              </tr>
+              <tr *ngIf="venta.detalles.length === 0">
+                <td class="empty-state" colspan="4">Esta venta no tiene productos detallados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
+        <footer class="details-footer">
+          <span *ngIf="venta.estado === 'CANCELADA'" class="status-badge status-cancelled">Venta cancelada</span>
+          <button
+            *ngIf="venta.estado !== 'CANCELADA' && esVentaDeHoy(venta.fechaVenta)"
+            type="button"
+            class="btn-danger"
+            (click)="cancelarVenta(venta)"
+            [disabled]="isSaving || loadingStates['cargarVentas']"
+          >
+            {{ isSaving ? 'Cancelando venta...' : 'Cancelar venta' }}
+          </button>
+          <span *ngIf="venta.estado !== 'CANCELADA' && !esVentaDeHoy(venta.fechaVenta)" class="action-hint">
+            Solo se pueden cancelar ventas del día actual.
+          </span>
+        </footer>
+      </ng-container>
+
+      <ng-template #noSaleSelected>
+        <div class="selection-empty">
+          <span class="selection-icon" aria-hidden="true">↖</span>
+          <h2>Selecciona una venta</h2>
+          <p>El detalle de los productos y las acciones disponibles aparecerán aquí.</p>
+        </div>
+      </ng-template>
+    </section>
+  </section>
+</main>

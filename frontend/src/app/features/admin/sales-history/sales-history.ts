@@ -1,84 +1,74 @@
-import { DetalleVentaResponse } from './../../../services/autostore.models';
-import { SaleService } from './../../../services/autostore.sales-service';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink, RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { SaleService } from '../../../services/autostore.sales-service';
 import { VentaInterface } from '../../../services/autostore.models';
-import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 
 @Component({
   selector: 'app-sales-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule],
   templateUrl: './sales-history.html',
   styleUrl: './sales-history.css',
 })
-export class SalesHistory extends BaseComponent implements OnInit{
-  //Obtener las ventas
+export class SalesHistory extends BaseComponent implements OnInit {
   ventas: VentaInterface[] = [];
-  ventaSeleccionada: VentaInterface = this.ventaAuxForm();
+  ventaSeleccionada: VentaInterface | null = null;
+  hasLoadedVentas = false;
 
   constructor(
     private saleService: SaleService,
-    cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
-  ){super (cdr);}
+    cdr: ChangeDetectorRef
+  ) {
+    super(cdr);
+  }
 
   ngOnInit(): void {
     this.cargarVentas();
   }
 
-  private ventaAuxForm(): VentaInterface{
-    return{
-        id: 0,
-        fechaVenta: '',
-        subtotal: 0,
-        descuento: 0,
-        total: 0,
-        tipoVenta: 'CONTADO',
-        clienteId: null,
-        estado: 'COMPLETADA',
-        metodoPago: '',
-        detalles: []
-    };
-  }
-
   esVentaDeHoy(fecha: string): boolean {
     if (!fecha) return false;
-    const fechaVenta = new Date(fecha).toISOString().split('T')[0];
-    const hoy = new Date().toISOString().split('T')[0];
-    return fechaVenta === hoy;
+    const fechaVenta = new Date(fecha);
+    if (Number.isNaN(fechaVenta.getTime())) return false;
+
+    const hoy = new Date();
+    return fechaVenta.getFullYear() === hoy.getFullYear()
+      && fechaVenta.getMonth() === hoy.getMonth()
+      && fechaVenta.getDate() === hoy.getDate();
   }
 
   cargarVentas(): void {
-    this.isLoading = true;
-    this.cargarRecurso('cargarVenta', this.saleService.obtenerVentas(), (data) => {
-      console.log('Productos cargados:', data);
-      this.ventas = data;
-      this.isLoading = false;
-      setTimeout(() => {
-        this.cdr.detectChanges();
-      });
-    });
+    this.cargarRecurso(
+      'cargarVentas',
+      this.saleService.obtenerVentas(),
+      (data) => {
+        this.ventas = data;
+        if (this.ventaSeleccionada) {
+          this.ventaSeleccionada = data.find((venta) => venta.id === this.ventaSeleccionada?.id) ?? null;
+        }
+        this.hasLoadedVentas = true;
+      },
+      'las ventas'
+    );
   }
 
-  verDetallesVenta(venta: any): void {
+  verDetallesVenta(venta: VentaInterface): void {
     this.ventaSeleccionada = venta;
   }
 
-  cancelarVenta(venta: any): void {
-    if(!confirm(`¿Estás seguro de cancelar la venta #${venta.id}? EL stock será devuelto.`)) {
-      return;
-    };
-    this.isLoading = true;
-    this.ejecutarMutacion(this.saleService.cancelarVenta(venta.id), 'cancelar venta', () => {
-      this.cargarVentas();
-      this.isLoading = false;
-      this.showSuccessMessage(
-        'Venta cancelada correctamente. Stock devuelto'
-      );
-    });
-  };
+  cancelarVenta(venta: VentaInterface): void {
+    if (venta.estado === 'CANCELADA' || !this.esVentaDeHoy(venta.fechaVenta) || this.isSaving) return;
+    if (!confirm(`¿Estás seguro de cancelar la venta #${venta.id}? El stock será devuelto.`)) return;
+
+    this.ejecutarMutacion(
+      this.saleService.cancelarVenta(venta.id),
+      'cancelar venta',
+      (ventaActualizada) => {
+        this.ventas = this.ventas.map((item) => item.id === ventaActualizada.id ? ventaActualizada : item);
+        this.ventaSeleccionada = ventaActualizada;
+        this.showSuccessMessage('Venta cancelada correctamente. El stock fue devuelto.');
+      }
+    );
+  }
 }
