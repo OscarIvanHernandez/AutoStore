@@ -2,14 +2,99 @@
   <div class="modal-card">
     <h3>{{ clienteForm.id ? 'Editar' : 'Nuevo' }} Cliente</h3>
 
-    <form (ngSubmit)="guardarCambios()">
-      <input type="text" [(ngModel)]="clienteForm.nombre" name="nombre" placeholder="Nombre completo" required />
-      <input type="text" [(ngModel)]="clienteForm.telefono" name="telefono" placeholder="Teléfono" required />
-      <input type="email" [(ngModel)]="clienteForm.correo" name="correo" placeholder="Correo electrónico" />
-      <input type="text" [(ngModel)]="clienteForm.direccion" name="direccion" placeholder="Dirección" />
-
-      <label>Límite Crédito (0 = Sin límite):</label>
-      <input type="number" [(ngModel)]="clienteForm.limiteCredito" name="limiteCredito" min="0" />
+    <form #clienteNgForm = "ngForm" (ngSubmit)="guardarCambios()">
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+      <div class="form-grid">
+        <div class="form-input">
+          <label>Nombre:</label>
+          <input
+            type="text"
+            [(ngModel)]="clienteForm.nombre"
+            name="nombre"
+            placeholder="Nombre completo"
+            required
+            minlength="3"
+            #nombreModel = "ngModel"
+          />
+          <span class="span-text" *ngIf="nombreModel.invalid && (nombreModel.touched || clienteNgForm.submitted)">
+            <span class="error-text" *ngIf="nombreModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              El nombre del cliente es obligatorio</span>
+            <span class="error-text" *ngIf="nombreModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+              El nombre es demasiado corto</span>
+          </span>
+        </div>
+        <div class="form-input">
+          <label>Telefono:</label>
+          <input
+            type="text"
+            [(ngModel)]="clienteForm.telefono"
+            name="telefono"
+            placeholder="Teléfono"
+            required
+            maxlength="10"
+            minlength="10"
+            #telModel = "ngModel"
+          />
+          <span class="span-text" *ngIf="telModel.invalid && (telModel.touched || clienteNgForm.submitted)">
+            <span class="error-text" *ngIf="telModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              El telefono del cliente es obligatorio</span>
+            <span class="error-text" *ngIf="telModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+              El telefono es demasiado corto</span>
+            <span class="error-text" *ngIf="telModel.errors?.['maxlength']"><mat-icon fontIcon="info"></mat-icon>
+              El telefono es demasiado largo</span>
+          </span>
+        </div>
+        <div class="form-input">
+          <label>Email:</label>
+          <input
+            type="email"
+            [(ngModel)]="clienteForm.correo"
+            name="correo"
+            placeholder="Correo electrónico"
+            #emailModel = "ngModel"
+            />
+          <span class="span-text" *ngIf="emailModel.invalid && (emailModel.touched || clienteNgForm.submitted)">
+            <span class="error-text" *ngIf="emailModel.errors?.['email']"><mat-icon fontIcon="info"></mat-icon>
+              Formato de correo inválido.</span>
+          </span>
+        </div>
+        <div class="form-input">
+          <label>Dirección #:</label>
+          <input
+            type="text"
+            [(ngModel)]="clienteForm.direccion"
+            name="direccion"
+            placeholder="Dirección"
+            pattern="^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+.*\d+.*$"
+            minlength="5"
+            #direccionModel="ngModel"
+            />
+          <span class="span-text" *ngIf="direccionModel.invalid && (direccionModel.touched || clienteNgForm.submitted)">
+            <span class="error-text" *ngIf="direccionModel.errors?.['pattern']"><mat-icon fontIcon="info"></mat-icon>
+              La dirección debe incluir texto y al menos un número</span>
+            <span class="error-text" *ngIf="direccionModel.errors?.['minlength']"><mat-icon fontIcon="info"></mat-icon>
+              La dirección debe tener mínimo 5 caracteres.</span>
+          </span>
+        </div>
+        <div class="form-input">
+          <label>Límite Crédito (0 = Sin límite):</label>
+          <input
+            type="number"
+            [(ngModel)]="clienteForm.limiteCredito"
+            name="limiteCredito"
+            min="0"
+            [defaultValue]="0"
+            required
+            #limiteModel = "ngModel"
+            />
+          <span class="span-text" *ngIf="limiteModel.invalid && (limiteModel.touched || clienteNgForm.submitted)">
+            <span class="error-text" *ngIf="limiteModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
+              Debe ingresar un límite valido.</span>
+            <span class="error-text" *ngIf="limiteModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El límite no puede ser negativo.</span>
+          </span>
+        </div>
+      </div>
 
       <div class="modal-actions">
         <button type="submit" class="btn-primary">Guardar</button>

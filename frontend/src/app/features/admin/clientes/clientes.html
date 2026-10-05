@@ -1,62 +1,175 @@
-<div class="clientes-container">
-  <h2>👥 Gestión de Clientes y Créditos</h2>
-
-  <!-- Tarjetas Estadísticas de Deudores -->
-  <div class="stats-grid" *ngIf="stats">
-    <div class="stat-card">
-      <p>Clientes Deudores</p>
-      <h3>{{ stats.totalDeudores }}</h3>
+<main class="clientes-page">
+  <header class="page-header">
+    <div>
+      <h1>Clientes</h1>
+      <p>Administra clientes, límites de crédito y abonos.</p>
     </div>
-    <div class="stat-card danger">
-      <p>Total en Deudas</p>
-      <h3>${{ stats.sumaDeudas | number:'1.2-2' }}</h3>
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="abrirModalNuevo()"
+      [disabled]="isSaving"
+    >
+      Nuevo cliente
+    </button>
+  </header>
+
+  <section class="stats-section" aria-labelledby="stats-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="stats-title">Resumen de crédito</h2>
+        <p>Estado actual de las cuentas por cobrar.</p>
+      </div>
+      <span *ngIf="loadingStates['cargarEstadisticas'] && hasLoadedStats" class="refresh-status" role="status">
+        Actualizando...
+      </span>
     </div>
-    <div class="stat-card">
-      <p>Deuda Promedio</p>
-      <h3>${{ stats.deudaPromedio | number:'1.2-2' }}</h3>
+
+    <div *ngIf="!hasLoadedStats && loadingStates['cargarEstadisticas']" class="stats-grid" role="status" aria-label="Cargando estadísticas">
+      <article class="stat-card" *ngFor="let item of [1, 2, 3]">
+        <span class="stat-skeleton-label"></span>
+        <span class="stat-skeleton-value"></span>
+      </article>
     </div>
-  </div>
 
-  <!-- Barra de Filtro y Nuevo Cliente -->
-  <div class="actions-bar">
-    <input
-      type="text"
-      placeholder="Buscar por nombre o teléfono..."
-      [(ngModel)]="filtroBusqueda"
-      (keyup.enter)="cargarClientes()"
-    />
-    <button (click)="cargarClientes()">🔍 Buscar</button>
-    <button (click)="abrirModalNuevo()" class="btn-primary">➕ Nuevo Cliente</button>
-  </div>
+    <div *ngIf="hasLoadedStats && stats as currentStats" class="stats-grid">
+      <article class="stat-card">
+        <span class="stat-icon debtors-icon" aria-hidden="true">👥</span>
+        <div>
+          <p>Clientes deudores</p>
+          <strong>{{ currentStats.totalDeudores }}</strong>
+        </div>
+      </article>
+      <article class="stat-card debt-total-card">
+        <span class="stat-icon debt-total-icon" aria-hidden="true">$</span>
+        <div>
+          <p>Total en deudas</p>
+          <strong>${{ currentStats.sumaDeudas | number:'1.2-2' }}</strong>
+        </div>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon average-icon" aria-hidden="true">↗</span>
+        <div>
+          <p>Deuda promedio</p>
+          <strong>${{ currentStats.deudaPromedio | number:'1.2-2' }}</strong>
+        </div>
+      </article>
+    </div>
 
-  <!-- Tabla de Clientes -->
-  <table class="tabla-clientes">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-        <th>Límite Crédito</th>
-        <th>Deuda Actual</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let cliente of clientes" [class.deudor]="cliente.deudaActual > 0">
-        <td>{{ cliente.nombre }}</td>
-        <td>{{ cliente.telefono }}</td>
-        <td>{{ cliente.limiteCredito > 0 ? ('$' + (cliente.limiteCredito | number:'1.2-2')) : 'Sin límite' }}</td>
-        <td class="monto-deuda">${{ cliente.deudaActual | number:'1.2-2' }}</td>
-        <td>
-          <button (click)="abrirModalEditar(cliente)">✏️ Editar</button>
-          <button (click)="obtenerAbonos(cliente)" class="btn-success">💰 Abonos</button>
-          <button *ngIf="cliente.activo" (click)="eliminarCliente(cliente.id)" class="btn-danger">🗑️</button>
-          <button *ngIf="!cliente.activo" (click)="activarCliente(cliente.id)">🟢</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div *ngIf="!hasLoadedStats && !loadingStates['cargarEstadisticas'] && loadErrors['cargarEstadisticas']" class="inline-error" role="alert">
+      <span>{{ loadErrors['cargarEstadisticas'] }}</span>
+      <button type="button" class="text-button" (click)="cargarEstadisticas()">Reintentar estadísticas</button>
+    </div>
+    <div *ngIf="hasLoadedStats && loadErrors['cargarEstadisticas']" class="inline-error" role="alert">
+      <span>No se pudieron actualizar las estadísticas. {{ loadErrors['cargarEstadisticas'] }}</span>
+      <button type="button" class="text-button" (click)="cargarEstadisticas()">Reintentar</button>
+    </div>
+  </section>
 
-  <!-- Modal Crear/Editar Cliente -->
+  <section class="clients-panel" aria-label="Lista de clientes">
+    <div class="clients-toolbar">
+      <div class="toolbar-heading">
+        <h2>Directorio de clientes</h2>
+        <span *ngIf="hasLoadedClientes" class="result-count">
+          {{ clientes.length }} {{ clientes.length === 1 ? 'cliente' : 'clientes' }}
+        </span>
+      </div>
+      <form class="search-form" (ngSubmit)="cargarClientes()">
+        <label class="visually-hidden" for="buscar-cliente">Buscar clientes</label>
+        <input
+          id="buscar-cliente"
+          type="search"
+          name="buscarCliente"
+          placeholder="Buscar por nombre o teléfono"
+          [(ngModel)]="filtroBusqueda"
+          [disabled]="loadingStates['cargarClientes']"
+        />
+        <button
+          type="submit"
+          class="btn-secondary"
+          [disabled]="loadingStates['cargarClientes']"
+        >
+          {{ loadingStates['cargarClientes'] ? 'Buscando...' : 'Buscar' }}
+        </button>
+      </form>
+    </div>
+
+    <div *ngIf="loadingStates['cargarClientes'] && hasLoadedClientes" class="refresh-status table-refresh" role="status">
+      Actualizando clientes...
+    </div>
+    <div *ngIf="loadErrors['cargarClientes']" class="inline-error" role="alert">
+      <span>{{ loadErrors['cargarClientes'] }}</span>
+      <button type="button" class="text-button" (click)="cargarClientes()" [disabled]="loadingStates['cargarClientes']">
+        Reintentar
+      </button>
+    </div>
+
+    <div *ngIf="loadingStates['cargarClientes'] && !hasLoadedClientes" class="table-loading" role="status">
+      <span class="loading-indicator" aria-hidden="true"></span>
+      Cargando clientes...
+    </div>
+
+    <div class="table-wrapper" *ngIf="hasLoadedClientes && clientes.length">
+      <table class="tabla-clientes">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Límite de crédito</th>
+            <th>Deuda actual</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes" [class.deudor]="cliente.deudaActual > 0">
+            <td class="client-name">{{ cliente.nombre }}</td>
+            <td>{{ cliente.telefono || '—' }}</td>
+            <td>{{ cliente.limiteCredito > 0 ? ('$' + (cliente.limiteCredito | number:'1.2-2')) : 'Sin límite' }}</td>
+            <td>
+              <span class="debt-value" [class.no-debt]="cliente.deudaActual <= 0">
+                ${{ cliente.deudaActual | number:'1.2-2' }}
+              </span>
+            </td>
+            <td class="client-actions">
+              <button type="button" class="icon-button" (click)="abrirModalEditar(cliente)" [disabled]="isSaving">
+                Editar
+              </button>
+              <button type="button" class="icon-button abonos-button" (click)="obtenerAbonos(cliente)" [disabled]="isSaving">
+                Abonos
+              </button>
+              <button
+                *ngIf="cliente.activo"
+                type="button"
+                class="icon-button danger-button"
+                (click)="eliminarCliente(cliente.id)"
+                [disabled]="isSaving"
+              >
+                Desactivar
+              </button>
+              <button
+                *ngIf="!cliente.activo"
+                type="button"
+                class="icon-button activate-button"
+                (click)="activarCliente(cliente.id)"
+                [disabled]="isSaving"
+              >
+                Reactivar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="hasLoadedClientes && !clientes.length" class="empty-state">
+      <strong>No hay clientes para mostrar</strong>
+      <span>Prueba otra búsqueda o registra un cliente nuevo.</span>
+    </div>
+  </section>
+
+  <div *ngIf="successMessage" class="inline-success" role="status">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="inline-error" role="alert">{{ errorMessage }}</div>
+
   <app-crear-cliente
     *ngIf="mostrarModalCliente && !clienteForm.id"
     [visible]="mostrarModalCliente"
@@ -73,28 +186,71 @@
     (save)="guardarClienteDesdeModal($event)"
   ></app-editar-cliente>
 
-  <!-- Modal Abonos -->
   <div class="modal" *ngIf="mostrarModalAbono && clienteSeleccionado">
     <div class="modal-content">
-      <h3>Registrar Abono - {{ clienteSeleccionado.nombre }}</h3>
-      <p>Deuda Actual: <strong>${{ clienteSeleccionado.deudaActual | number:'1.2-2' }}</strong></p>
+      <div class="modal-heading">
+        <div>
+          <p class="modal-eyebrow">Cuenta del cliente</p>
+          <h2>Abonos de {{ clienteSeleccionado.nombre }}</h2>
+        </div>
+        <button type="button" class="modal-close" (click)="cerrarModalAbono()" aria-label="Cerrar historial de abonos">×</button>
+      </div>
+      <p class="current-debt">Deuda actual <strong>${{ clienteSeleccionado.deudaActual | number:'1.2-2' }}</strong></p>
 
       <div class="abono-form">
-        <input type="number" [(ngModel)]="montoAbono" placeholder="Monto a abonar" [max]="clienteSeleccionado.deudaActual" />
-        <button (click)="procesarAbono()" class="btn-primary">Abonar</button>
-        <button (click)="liquidarDeuda()" class="btn-success">Liquidar Deuda</button>
+        <label class="visually-hidden" for="monto-abono">Monto a abonar</label>
+        <input
+          id="monto-abono"
+          type="number"
+          [(ngModel)]="montoAbono"
+          placeholder="Monto a abonar"
+          min="0.01"
+          [max]="clienteSeleccionado.deudaActual"
+          [disabled]="isSaving"
+        />
+        <button type="button" class="btn-primary" (click)="procesarAbono()" [disabled]="isSaving || montoAbono <= 0">
+          {{ isSaving ? 'Procesando...' : 'Abonar' }}
+        </button>
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="liquidarDeuda()"
+          [disabled]="isSaving || clienteSeleccionado.deudaActual <= 0"
+        >
+          Liquidar deuda
+        </button>
       </div>
 
-      <h4>Historial de Abonos</h4>
-      <ul class="historial-abonos">
-        <li *ngFor="let a of historialAbonos">
-          <span>{{ a.fecha | date:'short' }}</span>
-          <strong>Abonado: ${{ a.monto | number:'1.2-2' }}</strong>
-          <small>Resta: ${{ a.saldoRestante | number:'1.2-2' }}</small>
-        </li>
-      </ul>
+      <div *ngIf="loadingStates['cargarAbonos']" class="table-loading compact-loading" role="status">
+        <span class="loading-indicator" aria-hidden="true"></span>
+        Cargando historial de abonos...
+      </div>
+      <div *ngIf="loadErrors['cargarAbonos']" class="inline-error" role="alert">
+        <span>{{ loadErrors['cargarAbonos'] }}</span>
+        <button type="button" class="text-button" (click)="obtenerAbonos(clienteSeleccionado)">
+          Reintentar
+        </button>
+      </div>
 
-      <button (click)="cerrarModalAbono()" class="btn-secondary">Cerrar</button>
+      <section *ngIf="!loadingStates['cargarAbonos'] && !loadErrors['cargarAbonos']" class="payment-history">
+        <h3>Historial de abonos</h3>
+        <ul *ngIf="historialAbonos.length; else noPayments" class="historial-abonos">
+          <li *ngFor="let abono of historialAbonos">
+            <div>
+              <strong>${{ abono.monto | number:'1.2-2' }}</strong>
+              <small>{{ abono.fecha | date:'short' }}</small>
+            </div>
+            <span>Saldo: ${{ abono.saldoRestante | number:'1.2-2' }}</span>
+          </li>
+        </ul>
+        <ng-template #noPayments>
+          <div class="empty-state compact-empty">Este cliente aún no tiene abonos registrados.</div>
+        </ng-template>
+      </section>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="cerrarModalAbono()">Cerrar</button>
+      </div>
     </div>
   </div>
-</div>
+</main>
