@@ -6,7 +6,7 @@
       Estado actual: <strong>{{ productoActualEstado.activo }}</strong>
     </p>
 
-    <form (ngSubmit)="guardarCambios()">
+    <form #productoNgForm = "ngForm"(ngSubmit)="guardarCambios()">
       <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
       <div class="form-grid">
         <div class="form-group">
