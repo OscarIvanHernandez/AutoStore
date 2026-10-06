@@ -2,8 +2,12 @@ package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Abono;
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
+import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.ClienteSpecification;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.ProductoSpecification;
 import com.padawan.spring.systems.autostore_sys_web.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -39,6 +44,20 @@ public class ClienteController {
     public ResponseEntity<Cliente> crear(@RequestBody Cliente cliente) {
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.crearCliente(cliente));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Cliente>> search(
+                    @RequestParam(required = false) String q,
+            @RequestParam(required = false) String telefono,
+            @RequestParam(required = false) String direccion,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false, name = "activo") String activoParam){
+        String estadoFiltro = estado != null ? estado : activoParam;
+        Specification<Cliente> spec = ClienteSpecification.conFiltros(q, telefono, direccion, estadoFiltro);
+        List<Cliente> resultados = clienteService.buscarConEspecificacion(spec);
+        return ResponseEntity.ok(resultados);
+    }
+    
 
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> actualizar(@PathVariable Long id, @RequestBody Cliente cliente) {

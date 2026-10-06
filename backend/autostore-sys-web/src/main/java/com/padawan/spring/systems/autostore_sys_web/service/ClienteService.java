@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Abono;
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
+import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.repository.AbonoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ClienteRepository;
 
@@ -44,6 +46,10 @@ public class ClienteService {
     public Cliente obtenerPorId(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
+    }
+
+    public List<Cliente> buscarConEspecificacion(Specification<Cliente> spec){
+        return clienteRepository.findAll(spec);
     }
 
     @Transactional 

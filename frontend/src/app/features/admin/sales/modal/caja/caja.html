@@ -3,7 +3,23 @@
     <ng-container *ngIf="tipo === 'apertura'">
       <h2>⚠️ Apertura de Caja Requerida</h2>
       <p>Ingrese el dinero base (fondo de caja) para iniciar a vender.</p>
-      <input type="number" [(ngModel)]="efectivoInicial" placeholder="Ej. 500.00" min="0">
+      <div class=" form-grid">
+        <div class="form-input">
+          <label>Efectivo para abrir $:</label>
+          <input
+            type="number"
+            [(ngModel)]="efectivoInicial"
+            placeholder="Ej. 500.00"
+            min="0"
+            #efectivoModel = "ngModel"
+            />
+          <span class="span-text" *ngIf="efectivoModel.invalid && (efectivoModel.touched)">
+            <span class="error-text" *ngIf="efectivoModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El efectivo no puede ser negativo.
+          </span>
+        </span>
+        </div>
+      </div>
       <div class="modal-actions">
         <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
         <button type="button" (click)="confirmarApertura()" [disabled]="efectivoInicial < 0">
@@ -15,7 +31,23 @@
     <ng-container *ngIf="tipo === 'cierre'">
       <h2>🔒 Corte de Caja</h2>
       <p>Ingrese el efectivo real en caja para cerrar la jornada.</p>
-      <input type="number" [(ngModel)]="efectivoReal" placeholder="Ej. 1200.00" min="0">
+      <div class="form-grid">
+        <div class="form-input">
+          <label>Efectivo real $:</label>
+          <input
+            type="number"
+            [(ngModel)]="efectivoReal"
+            placeholder="Ej. 1200.00"
+            min="0"
+            #efectivoEditModel = "ngModel"
+          />
+          <span class="span-text" *ngIf="efectivoEditModel.invalid && (efectivoEditModel.touched)">
+            <span class="error-text" *ngIf="efectivoEditModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El efectivo no puede ser negativo.
+          </span>
+        </span>
+        </div>
+      </div>
       <div class="modal-actions">
         <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
         <button type="button" (click)="confirmarCierre()" [disabled]="efectivoReal < 0">
