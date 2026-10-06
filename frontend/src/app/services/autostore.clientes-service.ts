@@ -77,6 +77,29 @@ export class ClienteService {
     );
   }
 
+  // GET /api/productos/search?q=..
+  buscar(filtros: {q?: string; telefono?: string; direccion?: string; estado?: string}): Observable<Cliente[]> {
+    let params = new HttpParams();
+    if (filtros.q) {
+      params = params.set('q', filtros.q);
+    }
+    if (filtros.telefono) {
+      params = params.set('telefono', filtros.telefono)
+    }
+    if (filtros.direccion) {
+      params = params.set('direccion', filtros.direccion);
+    }
+    if (filtros.estado?.trim()) {
+      params = params.set('estado', filtros.estado.trim());
+    }
+    console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
+    return this.http.get<Cliente[]>(`${this.apiURL}/search`, { params }).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Cliente-Service:', response);
+      })
+    );
+  }
+
   registrarAbono(clienteId: number, monto: number): Observable<Abono> {
     console.log('📡 Petición POST a:', this.apiURL);
     return this.http.post<Abono>(`${this.apiURL}/${clienteId}/abonos`, { monto }).pipe(
