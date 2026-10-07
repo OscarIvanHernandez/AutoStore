@@ -15,4 +15,4 @@ public class EstadoCajaDTO {
     private BigDecimal efectivoEsperado;
 
     // Data - Getter y setters
-}
+};
