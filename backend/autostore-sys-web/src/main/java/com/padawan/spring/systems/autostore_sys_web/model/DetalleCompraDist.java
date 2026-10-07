@@ -42,5 +42,5 @@ public class DetalleCompraDist {
     @Column(nullable = false)
     private BigDecimal subtotal;
 
-    public DetalleCompraDist() {}
-}
+    public DetalleCompraDist() {};
+};
