@@ -28,15 +28,15 @@ public class DevolucionesController {
     @PostMapping
     public ResponseEntity<Devoluciones> crearDevolucion(@RequestBody DevolucionesDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(devolucionService.registrarDevoluciones(request));
-    }
+    };
 
     @GetMapping
     public ResponseEntity<List<Devoluciones>> listarDevoluciones() {
         return ResponseEntity.ok(devolucionService.listarDevoluciones());
-    }
+    };
 
     @GetMapping("/{id}")
     public ResponseEntity<Devoluciones> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(devolucionService.obtenerPorId(id));
-    }
-}
+    };
+};
