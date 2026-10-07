@@ -15,5 +15,5 @@ public class DevolucionesDTO {
     public static class ItemDevolucion {
         private Long productoId;
         private Integer cantidad;
-    }
-}
+    };
+};

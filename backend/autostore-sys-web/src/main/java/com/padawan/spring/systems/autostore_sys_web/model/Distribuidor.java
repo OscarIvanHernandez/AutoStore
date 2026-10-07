@@ -29,12 +29,12 @@ public class Distribuidor {
     @Column(nullable = false)
     private Boolean activo = true;
 
-    public Distribuidor() {}
+    public Distribuidor() {};
 
     public Distribuidor(String nombre, String telefono, String contacto) {
         this.nombre = nombre;
         this.telefono = telefono;
         this.contacto = contacto;
         this.activo = true;
-    }
-}
+    };
+};
