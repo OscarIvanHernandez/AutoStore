@@ -16,42 +16,41 @@ public class VentaRequestDTO {
 
     public List<ProductoVentaDTO> getProductos() {
         return this.productos;
-    }
+    };
 
     public BigDecimal getDescuento() {
         return this.descuento;
-    }
+    };
 
     public String getTipoVenta() {
         return this.tipoVenta;
-    }
+    };
 
     public Long getClienteId() {
         return this.clienteId;
-    }
+    };
 
     public BigDecimal getEfectivoRecibido() {
         return this.efectivoRecibido;
-    }
+    };
 
     public void setProductos(List<ProductoVentaDTO> values) {
         this.productos = values;
-    }
+    };
 
     public void setDescuento(BigDecimal value) {
         this.descuento = value;
-    }
+    };
 
     public void setTipoVenta(String value) {
         this.tipoVenta = value;
-    }
+    };
 
     public void setClienteId(Long value) {
         this.clienteId = value;
-    }
+    };
 
     public void setEfectivoRecibido(BigDecimal value) {
         this.efectivoRecibido = value;
-    }
-
-}
+    };
+};
