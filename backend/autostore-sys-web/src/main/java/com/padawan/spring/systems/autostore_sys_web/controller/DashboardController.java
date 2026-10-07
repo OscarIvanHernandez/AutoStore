@@ -21,5 +21,5 @@ public class DashboardController {
     @GetMapping
     public ResponseEntity<DashboardDTO> obtenerDashboard() {
         return ResponseEntity.ok(dashboardService.obtenerResumenDashboard());
-    }
-}
+    };
+};
