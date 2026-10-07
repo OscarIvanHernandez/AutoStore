@@ -63,21 +63,21 @@ export class SaleService {
     let params = new HttpParams();
     if (filtros.q) {
       params = params.set('q', filtros.q);
-    }
+    };
     if (filtros.clienteId) {
       params = params.set('clienteId', filtros.clienteId)
-    }
+    };
     if (filtros.mes) {
       params = params.set('mes', filtros.mes);
-    }
+    };
     if (filtros.anio) {
       params = params.set('anio', filtros.anio.trim());
-    }
+    };
     console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
     return this.http.get<Cliente[]>(`${this.apiURL}/search`, { params }).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
     );
-  }
-}
+  };
+};
