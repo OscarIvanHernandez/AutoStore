@@ -55,7 +55,6 @@ public class DetalleVenta {
     public void calcularSubtotal() {
         if (precioUnitario != null && cantidad != null) {
             this.subtotal = precioUnitario.multiply(BigDecimal.valueOf(cantidad));
-        }
-    }
-
-}
+        };
+    };
+};
