@@ -25,5 +25,5 @@ public class TopProductoDTO {
         this.cantidadVendida = cantidadVendida != null ? cantidadVendida : 0L;
         this.totalVentas = totalVentas != null ? totalVentas : BigDecimal.ZERO;
         this.gananciaGenerada = gananciaGenerada != null ? gananciaGenerada : BigDecimal.ZERO;
-    }
-}
+    };
+};
