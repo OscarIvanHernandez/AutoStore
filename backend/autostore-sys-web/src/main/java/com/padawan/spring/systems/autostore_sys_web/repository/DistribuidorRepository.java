@@ -9,7 +9,6 @@ import com.padawan.spring.systems.autostore_sys_web.model.Distribuidor;
 
 @Repository 
 public interface DistribuidorRepository extends JpaRepository<Distribuidor, Long> {
-
     List<Distribuidor> findByActivoTrue();
     List<Distribuidor> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
-}
+};
