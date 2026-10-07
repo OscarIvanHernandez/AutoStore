@@ -72,5 +72,4 @@ public class Producto {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime fechaActualizacion;
-
-}
+};
