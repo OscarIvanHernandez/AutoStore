@@ -28,33 +28,32 @@ public class DistribuidorController {
     @GetMapping
     public ResponseEntity<List<Distribuidor>> listar() {
         return ResponseEntity.ok(distribuidorService.listarTodos());
-    }
+    };
 
     @GetMapping("/{id}")
     public ResponseEntity<Distribuidor> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(distribuidorService.obtenerPorId(id));
-    }
+    };
 
     @PostMapping
     public ResponseEntity<Distribuidor> crear(@RequestBody Distribuidor distribuidor) {
         return ResponseEntity.status(HttpStatus.CREATED).body(distribuidorService.guardar(distribuidor));
-    }
+    };
 
     @PutMapping("/{id}")
     public ResponseEntity<Distribuidor> actualizar(@PathVariable Long id, @RequestBody Distribuidor distribuidor) {
         return ResponseEntity.ok(distribuidorService.actualizar(id, distribuidor));
-    }
+    };
 
     @PutMapping("activar/{id}")
     public ResponseEntity<Void> activar (@PathVariable Long id) {
         distribuidorService.activar(id);
         return ResponseEntity.noContent().build();
-    }
+    };
 
     @DeleteMapping("desactivar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         distribuidorService.desactivar(id);
         return ResponseEntity.noContent().build();
-    }
-
-}
+    };
+};
