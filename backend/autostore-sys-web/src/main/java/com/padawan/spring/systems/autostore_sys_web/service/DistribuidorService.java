@@ -18,18 +18,18 @@ public class DistribuidorService {
 
     public List<Distribuidor> listarTodos() {
         return distribuidorRepository.findAll();
-    }
+    };
 
     public Distribuidor obtenerPorId(Long id) {
         return distribuidorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Distribuidor no encontrado con ID: " + id));
-    }
+    };
 
     @Transactional 
     public Distribuidor guardar(Distribuidor distribuidor) {
         distribuidor.setActivo(true);
         return distribuidorRepository.save(distribuidor);
-    }
+    };
 
     @Transactional
     public Distribuidor actualizar(Long id, Distribuidor datos) {
@@ -38,19 +38,19 @@ public class DistribuidorService {
         d.setTelefono(datos.getTelefono());
         d.setContacto(datos.getContacto());
         return distribuidorRepository.save(d);
-    }
+    };
 
     @Transactional
     public void desactivar(Long id) {
         Distribuidor d = obtenerPorId(id);
         d.setActivo(false);
         distribuidorRepository.save(d);
-    }
+    };
 
     @Transactional 
     public void activar(Long id) {
         Distribuidor d = obtenerPorId(id);
         d.setActivo(true);
         distribuidorRepository.save(d);
-    }
-}
+    };
+};
