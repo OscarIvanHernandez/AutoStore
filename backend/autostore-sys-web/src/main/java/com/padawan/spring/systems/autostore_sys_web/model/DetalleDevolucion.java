@@ -39,5 +39,5 @@ public class DetalleDevolucion {
     @Column(nullable = false)
     private BigDecimal montoReembolso;
 
-    public DetalleDevolucion() {}
-}
+    public DetalleDevolucion() {};
+};
