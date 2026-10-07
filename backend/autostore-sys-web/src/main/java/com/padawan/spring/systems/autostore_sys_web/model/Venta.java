@@ -83,17 +83,17 @@ public class Venta {
     public boolean isClienteIdValido(){
         if (tipoVenta == TipoVenta.CREDITO) {
             return clienteId != null;
-        }
+        };
         return true;
-    }
+    };
 
     public void addDetalle(DetalleVenta detalle) {
         detalle.setVenta(this);
         detalles.add(detalle);
-    }
+    };
 
     public void removeDetalle(DetalleVenta detalle) {
         detalles.remove(detalle);
         detalle.setVenta(null);
-    }
-}
+    };
+};
