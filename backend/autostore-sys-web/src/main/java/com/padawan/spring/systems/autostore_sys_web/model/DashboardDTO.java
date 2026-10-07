@@ -25,7 +25,7 @@ public class DashboardDTO {
         this.ultimasVentas = ultimasVentas;
         this.ventasSemana = ventasSemana;
         this.topProductos = topProductos;
-    }
+    };
 
     // Inner Classes para estructurar la respuesta
     public static class GananciasHoy {
@@ -37,8 +37,8 @@ public class DashboardDTO {
             this.ventas = ventas != null ? ventas : BigDecimal.ZERO;
             this.ganancia = ganancia != null ? ganancia : BigDecimal.ZERO;
             this.cantidad = cantidad != null ? cantidad : 0;
-        }
-    }
+        };
+    };
 
     public static class ProductoStockBajo {
         public Long productoId;
@@ -51,8 +51,8 @@ public class DashboardDTO {
             this.nombre = nombre;
             this.stock = stock;
             this.stockMinimo = stockMinimo;
-        }
-    }
+        };
+    };
 
     public static class DeudoresResumen {
         public Long cantidad;
@@ -61,8 +61,8 @@ public class DashboardDTO {
         public DeudoresResumen(Long cantidad, BigDecimal sumaDeudas) {
             this.cantidad = cantidad != null ? cantidad : 0L;
             this.sumaDeudas = sumaDeudas != null ? sumaDeudas : BigDecimal.ZERO;
-        }
-    }
+        };
+    };
 
     public static class UltimaVenta {
         public Long id;
@@ -77,14 +77,14 @@ public class DashboardDTO {
             this.total = total;
             this.tipoVenta = tipoVenta != null ? tipoVenta.name() : null;
             this.cliente = cliente != null ? cliente : "Público general";
-        }
-    }
+        };
+    };
 
     // Getters
-    public GananciasHoy getGananciasHoy() { return gananciasHoy; }
-    public List<ProductoStockBajo> getStockBajo() { return stockBajo; }
-    public DeudoresResumen getDeudores() { return deudores; }
-    public List<UltimaVenta> getUltimasVentas() { return ultimasVentas; }
-    public ReporteGananciasDTO getVentasSemana() { return ventasSemana; }
-    public List<TopProductoDTO> getTopProductos() { return topProductos; }
-}
+    public GananciasHoy getGananciasHoy() { return gananciasHoy; };
+    public List<ProductoStockBajo> getStockBajo() { return stockBajo; };
+    public DeudoresResumen getDeudores() { return deudores; };
+    public List<UltimaVenta> getUltimasVentas() { return ultimasVentas; };
+    public ReporteGananciasDTO getVentasSemana() { return ventasSemana; };
+    public List<TopProductoDTO> getTopProductos() { return topProductos; };
+};

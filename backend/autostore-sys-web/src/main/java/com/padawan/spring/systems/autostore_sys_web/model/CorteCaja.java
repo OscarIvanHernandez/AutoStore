@@ -34,11 +34,11 @@ public class CorteCaja {
     @Column(nullable = false)
     private boolean activo = true;
 
-    public CorteCaja() {}
+    public CorteCaja() {};
 
     public CorteCaja(BigDecimal efectivoInicial) {
         this.fechaApertura = LocalDateTime.now();
         this.efectivoInicial = efectivoInicial;
         this.activo = true;
-    }
-}
+    };
+};
