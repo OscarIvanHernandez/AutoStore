@@ -32,21 +32,22 @@ public class CajaController {
     @PostMapping("/apertura")
     public ResponseEntity<CorteCaja> abrirCaja(@RequestBody AperturaCajaDTO dto) {
         return ResponseEntity.ok(cajaService.abrirCaja(dto.getEfectivoInicial()));
-    }
+    };
+
     @GetMapping("/estado-actual")
     public ResponseEntity<EstadoCajaDTO> obtenerEstadoActual() {
         return ResponseEntity.ok(cajaService.obtenerEstadoActual());
-    }
+    };
 
     @PostMapping("/cierre")
     public ResponseEntity<CorteCaja> cerrarCaja(@RequestBody CierreCajaDTO dto) {
         return ResponseEntity.ok(cajaService.cerrarCaja(dto.getEfectivoReal()));
-    }
+    };
 
     @GetMapping("/historial")
     public ResponseEntity<List<CorteCaja>> obtenerHistorial() {
         return ResponseEntity.ok(cajaService.obtenerHistorial());
-    }
+    };
 
     @GetMapping("/historial/filtrar")
     public ResponseEntity<List<CorteCaja>> buscarPorFechas(
@@ -60,5 +61,5 @@ public class CajaController {
                 && (fin == null || !corte.getFechaApertura().isAfter(fin)))
                 .toList();
         return ResponseEntity.ok(filtrado);
-    }
-}
+    };
+};
