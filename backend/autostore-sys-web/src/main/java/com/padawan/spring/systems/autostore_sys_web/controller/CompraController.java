@@ -30,12 +30,12 @@ public class CompraController {
     @PostMapping
     public ResponseEntity<CompraDistribuidor> registrarCompra(@RequestBody CompraDistribuidorDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(compraService.registrarCompra(request));
-    }
+    };
 
     @GetMapping
     public ResponseEntity<List<CompraDistribuidor>> listarCompras() {
         return ResponseEntity.ok(compraService.listarTodas());
-    }
+    };
 
     @GetMapping("/filtrar")
     public ResponseEntity<List<CompraDistribuidor>> filtrarCompras(
@@ -43,10 +43,10 @@ public class CompraController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin,
             @RequestParam(required = false) Long distribuidorId) {
         return ResponseEntity.ok(compraService.filtrar(inicio, fin, distribuidorId));
-    }
+    };
 
     @GetMapping("/{id}")
     public ResponseEntity<CompraDistribuidor> obtenerCompra(@PathVariable Long id) {
         return ResponseEntity.ok(compraService.obtenerPorId(id));
-    }
-}
+    };
+};
