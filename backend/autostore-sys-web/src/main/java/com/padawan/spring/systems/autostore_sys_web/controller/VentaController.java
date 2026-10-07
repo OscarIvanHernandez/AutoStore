@@ -38,20 +38,20 @@ public class VentaController {
     @PostMapping
     public ResponseEntity<Venta> crearVenta(@RequestBody VentaRequestDTO request) {
         return ResponseEntity.ok(ventaService.crearVenta(request));
-    }
+    };
 
     @org.springframework.web.bind.annotation.ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, String>> manejarReglaDeNegocio(IllegalStateException exception) {
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("mensaje", exception.getMessage());
         return ResponseEntity.badRequest().body(respuesta);
-    }
+    };
     
     // GET /api/ventas[cite: 1]
     @GetMapping
     public ResponseEntity<List<Venta>> listarVentas() {
         return ResponseEntity.ok(ventaService.obtenerTodas());
-    }
+    };
 
     // GET /api/ventas/{id}[cite: 1]
     @GetMapping("/{id}")
@@ -59,19 +59,19 @@ public class VentaController {
         return ventaService.obtenerPorId(id)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
-    }
+    };
 
     // GET /api/ventas/hoy[cite: 1]
     @GetMapping("/hoy")
     public ResponseEntity<List<Venta>> obtenerVentasDeHoy() {
         return ResponseEntity.ok(ventaService.obtenerVentasDelDia());
-    }
+    };
 
     // PUT /api/ventas/{id}/cancelar[cite: 1]
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Venta> cancelarVenta(@PathVariable Long id) {
         return ResponseEntity.ok(ventaService.cancelarVenta(id));
-    }
+    };
 
     // GET /api/ventas/search
     @GetMapping("/search")
@@ -80,17 +80,14 @@ public class VentaController {
             @RequestParam(required = false) Integer mes,
             @RequestParam(required = false) Integer anio,
             @RequestParam(required = false) String q) {
-
         Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
         List<Venta> resultados = ventaService.buscarConEspecificacion(spec);
         return ResponseEntity.ok(resultados);
-    }
+    };
 
     // GET /api/ventas/meses-disponibles
     @GetMapping("/meses-disponibles")
     public ResponseEntity<List<Map<String, Integer>>> obtenerMesesDisponibles() {
         return ResponseEntity.ok(ventaService.obtenerMesesDisponibles());
-    }
-    
-
-}
+    };
+};
