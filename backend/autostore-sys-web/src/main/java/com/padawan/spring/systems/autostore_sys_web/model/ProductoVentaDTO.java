@@ -11,29 +11,25 @@ public class ProductoVentaDTO {
 
     public Long getId() {
         return this.id;
-    }
+    };
 
     public void setId(Long value) {
         this.id = value;
-    }
-
-
+    };
 
     public Integer getCantidad() {
         return this.cantidad;
-    }
+    };
 
     public String getPrecioTipo() {
         return this.precioTipo;
-    }
-
+    };
 
     public void setCantidad(Integer value) {
         this.cantidad = value;
-    }
+    };
 
     public void setPrecioTipo(String value) {
         this.precioTipo = value;
-    }
-
-}
+    };
+};
