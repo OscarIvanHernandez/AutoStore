@@ -30,10 +30,10 @@ public class CajaService {
     public CorteCaja abrirCaja(BigDecimal efectivoInicial) {
         if (corteCajaRepository.existsByActivoTrue()) {
             throw new RuntimeException("Ya existe una caja abierta en el sistema.");
-        }
+        };
         CorteCaja nuevaCaja = new CorteCaja(efectivoInicial);
         return corteCajaRepository.save(nuevaCaja);
-    }
+    };
 
     public EstadoCajaDTO obtenerEstadoActual() {
         EstadoCajaDTO dto = new EstadoCajaDTO();
@@ -42,7 +42,7 @@ public class CajaService {
         if (cajaOpt.isEmpty()) {
             dto.setAbierta(false);
             return dto;
-        }
+        };
 
         CorteCaja caja = cajaOpt.get();
         BigDecimal ventasEfectivo = ventaRepository.sumarVentasContadoDesde(
@@ -67,7 +67,7 @@ public class CajaService {
         dto.setEfectivoEsperado(esperado);
         
         return dto;
-    }
+    };
 
     public CorteCaja cerrarCaja( BigDecimal efectivoReal) {
         CorteCaja caja = corteCajaRepository.findByActivoTrue().
@@ -94,9 +94,9 @@ public class CajaService {
         caja.setActivo(false);
 
         return corteCajaRepository.save(caja);
-    }
+    };
 
     public List<CorteCaja> obtenerHistorial() {
         return corteCajaRepository.findAllByOrderByFechaAperturaDesc();
-    }
-}
+    };
+};
