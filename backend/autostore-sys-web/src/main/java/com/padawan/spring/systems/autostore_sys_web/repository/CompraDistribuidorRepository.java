@@ -12,4 +12,4 @@ public interface CompraDistribuidorRepository extends JpaRepository<CompraDistri
 
     List<CompraDistribuidor> findByDistribuidorIdOrderByFechaDesc(Long distribuidorId);
     List<CompraDistribuidor> findAllByOrderByFechaDesc();
-}
+};
