@@ -40,13 +40,13 @@ public class Abono {
     @PrePersist
     protected void onCreate() {
         this.fecha = LocalDateTime.now();
-    }
+    };
 
-    public Abono() {}
+    public Abono() {};
 
     public Abono(Cliente cliente, BigDecimal monto, BigDecimal saldoRestante) {
         this.cliente = cliente;
         this.monto = monto;
         this.saldoRestante = saldoRestante;
-    }
-}
+    };
+};
