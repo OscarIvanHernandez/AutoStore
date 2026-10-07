@@ -34,7 +34,7 @@ export class Navbar implements OnInit {
     {
       id: 'clientes',
       nombre: '👥 Clientes',
-      ruta: '/clientes',
+      ruta: 'clientes',
       placeholder: 'Ej: Juan Pérez, RFC, 555-1234...'
     },
     {

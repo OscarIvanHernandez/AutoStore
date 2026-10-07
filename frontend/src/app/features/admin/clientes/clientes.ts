@@ -7,6 +7,7 @@ import { Editar } from './modal/editar/editar';
 import { ClienteService } from '../../../services/autostore.clientes-service';
 import { Abono, Cliente, DeudoresStats } from '../../../services/autostore.models';
 import { BaseComponent } from '../base-component/base-component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-clientes',
@@ -34,14 +35,41 @@ export class Clientes extends BaseComponent implements OnInit {
   montoAbono: number = 0;
   historialAbonos: Abono[] = [];
 
+  // Variables para los filtro de busqueda
+  textoBusqueda: string  = '';
+  estadoSeleccionado: string  = '';
+  private filtrosIniciales: { q?: string; telefono?: string; direccion?: string; activo?: boolean } | null = null;
+
   constructor(
     private clienteService: ClienteService,
-    cdr: ChangeDetectorRef
+    cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {super(cdr);};
 
   ngOnInit(): void {
-    this.cargarClientes();
     this.cargarEstadisticas();
+
+    this.route.queryParams.subscribe(params => {
+      const q = params['q'];
+      const telefono = params['telefono'];
+      const direccion = params['direccion'];
+      const estado = params['estado'];
+      const activoParam = params['activo'];
+      const activo = activoParam === undefined ? undefined : activoParam === 'true';
+      this.filtroBusqueda = typeof q === 'string' ? q : '';
+
+      if (q || telefono || direccion || estado || activoParam !== undefined) {
+        if (estado?.trim()) {
+          this.estadoSeleccionado = estado.trim();
+        }
+
+        this.filtrosIniciales = { q, telefono, direccion, activo };
+        this.buscarClientes(this.filtrosIniciales);
+      } else {
+        this.cargarClientes();
+        this.filtrosIniciales = null;
+      };
+    });
   };
 
   cargarClientes(): void {
@@ -98,6 +126,13 @@ export class Clientes extends BaseComponent implements OnInit {
         );
       });
     };
+  };
+
+  private buscarClientes(filtros: { q?: string; telefono?: string; direccion?: string; activo?: boolean }): void {
+    this.cargarRecurso('buscarClientes', this.clienteService.buscar(filtros), (data) => {
+      this.clientes = data;
+      this.hasLoadedClientes = true;
+    });
   };
 
   activarCliente(id: number): void {
