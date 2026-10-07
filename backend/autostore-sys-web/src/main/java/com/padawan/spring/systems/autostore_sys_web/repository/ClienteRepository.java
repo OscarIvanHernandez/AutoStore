@@ -31,4 +31,4 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long>, JpaSpec
 
     @Query("SELECT COUNT(c) FROM Cliente c WHERE c.activo = true AND c.deudaActual > 0")
     Long contarClientesDeudores();
-}
+};
