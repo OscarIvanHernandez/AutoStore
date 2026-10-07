@@ -29,4 +29,4 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSp
         " LOWER(p.marca) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
         " LOWER(p.categoria) LIKE LOWER(CONCAT('%', :q, '%')))")
     List<Producto> searchProductos(@Param("q") String query);
-}
+};
