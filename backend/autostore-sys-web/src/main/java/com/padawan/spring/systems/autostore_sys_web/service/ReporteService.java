@@ -43,15 +43,14 @@ public class ReporteService {
         Integer cantidadVentas = ventaRepository.contarVentasEnPeriodo(inicio, fin);
         Long productosVendidosTotal = detalleVentaRepository.sumarProductosVendidos(inicio, fin);
         Integer productosVendidos = productosVendidosTotal != null ? productosVendidosTotal.intValue() : 0;
-
         return new ReporteGananciasDTO(ventasTotales, gananciaNeta, costoTotal, cantidadVentas, productosVendidos);
-    }
+    };
 
     public List<TopProductoDTO> obtenerTopProductos(LocalDate desde, LocalDate hasta, int limite) {
         LocalDateTime inicio = desde.atStartOfDay();
         LocalDateTime fin = hasta.atTime(LocalTime.MAX);
         return detalleVentaRepository.obtenerTopProductos(inicio, fin, PageRequest.of(0, Math.max(1, limite)));
-    }
+    };
 
     public byte[] generarCsvGanancias(LocalDate desde, LocalDate hasta, int limite) {
         ReporteGananciasDTO reporte = obtenerGanancias(desde, hasta);
@@ -81,7 +80,7 @@ public class ReporteService {
         agregarProductos(sb, topProductos);
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
-    }
+    };
 
     private void agregarProductos(StringBuilder sb, List<TopProductoDTO> productos) {
         sb.append("ID,Producto,Marca,Categoría,Cantidad Vendida,Total Ventas,Ganancia Generada\n");
@@ -93,15 +92,15 @@ public class ReporteService {
                     .append(producto.getCantidadVendida()).append(',')
                     .append(moneda(producto.getTotalVentas())).append(',')
                     .append(moneda(producto.getGananciaGenerada())).append('\n');
-        }
-    }
+        };
+    };
 
     private String moneda(BigDecimal valor) {
         return String.format(Locale.US, "$%.2f", valor);
-    }
+    };
 
     private String csv(String valor) {
         if (valor == null) return "";
         return "\"" + valor.replace("\"", "\"\"") + "\"";
-    }
-}
+    };
+};
