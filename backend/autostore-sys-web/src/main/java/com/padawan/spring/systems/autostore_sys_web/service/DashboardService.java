@@ -58,5 +58,5 @@ public class DashboardService {
         List<DashboardDTO.UltimaVenta> ultimasVentas = ventaRepository.obtenerUltimas5Ventas(PageRequest.of(0, 5));
 
         return new DashboardDTO(gananciasHoy, stockBajo, deudores, ultimasVentas, ventasSemana, topProductos);
-    }
-}
+    };
+};
