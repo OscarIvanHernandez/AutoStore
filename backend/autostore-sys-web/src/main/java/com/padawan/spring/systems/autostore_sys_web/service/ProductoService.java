@@ -27,32 +27,27 @@ public class ProductoService {
     public ProductoService(ProductoRepository productoRepository, MovimientoInventarioRepository movimientoRepository) {
         this.productoRepository = productoRepository;
         this.movimientoRepository = movimientoRepository;
-    }
+    };
     
     // Listar todos los productos activos
     public List<Producto> listarActivos(){
         return productoRepository.findByActivoTrue();
-    }
+    };
 
     // Listar todos los productos
     public List<Producto> listarTodos(){
         return productoRepository.findAll();
-    }
+    };
 
     //Obtener un prodcuto por su ID
     public Optional<Producto> obtenerPorId(Long id){
         return productoRepository.findById(id);//.filter(Producto::getActivo);
-
-    }
+    };
 
     //Guardar o Actualizar
-    public Producto guardar(Producto producto){
-        
-        // VALIDACIONES -->
-
-
+    public Producto guardar(Producto producto){  
         return productoRepository.save(producto);
-    }
+    };
 
     // Eliminación lógica (ISSUE-02: activo = false)
     public boolean eliminarLogico(Long id) {
@@ -61,21 +56,21 @@ public class ProductoService {
             productoRepository.save(producto);
             return true;
         }).orElse(false);
-    }
+    };
 
     // Buscar por nombre, marca o categoría
     public List<Producto> buscar(String criterio) {
         return productoRepository.searchProductos(criterio);
-    }
+    };
 
     public List<Producto> buscarConEspecificacion(Specification<Producto> spec){
         return productoRepository.findAll(spec);
-    }
+    };
 
     // Verificar si un producto tiene stock bajo (Criterio de aceptación)
     public boolean esStockBajo(Producto producto) {
         return producto.getStockActual() <= producto.getStockMinimo();
-    }
+    };
 
     // Lógica para el ISSUE-07 (Ajuste de Stock)
     @Transactional // Asegura que si algo falla, no se guarde nada (Atomicidad)
@@ -89,9 +84,9 @@ public class ProductoService {
         } else if (tipo == TipoMovimiento.SALIDA) {
             if (producto.getStockActual() < cantidad) {
                 throw new IllegalArgumentException("No hay suficiente stock para realizar la salida");
-            }
+            };
             producto.setStockActual(producto.getStockActual() - cantidad);
-        }
+        };
 
         // Guardar el producto actualizado
         Producto productoActualizado = productoRepository.save(producto);
@@ -107,5 +102,5 @@ public class ProductoService {
         movimientoRepository.save(movimiento);
 
         return productoActualizado;
-    }
-}
+    };
+};
