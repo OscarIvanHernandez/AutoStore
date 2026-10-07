@@ -17,4 +17,4 @@ public interface CorteCajaRepository extends JpaRepository<CorteCaja, Long> {
     LocalDateTime inicio, 
     LocalDateTime fin
     );
-}
+};
