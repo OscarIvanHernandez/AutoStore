@@ -19,12 +19,12 @@ public class ProductoSpecification {
                 Predicate marcaMatch = cb.like(cb.lower(root.get("marca")), pattern);
                 Predicate categoriaMatch = cb.like(cb.lower(root.get("categoria")), pattern);
                 predicates.add(cb.or(nombreMatch, marcaMatch, categoriaMatch));
-            }
+            };
             // Filtro opcional por categoría
             if (categoria != null && !categoria.trim().isEmpty()) {
                 String categoriaPattern = "%" + categoria.toLowerCase().trim()+"%";
                 predicates.add(cb.like(cb.lower(root.get("categoria")), categoriaPattern));
-            }
+            };
             // Filtro por estado activo/inactivo
             if (estado != null && !estado.trim().isEmpty()) {
                 String estadoValor = estado.trim().toLowerCase();
@@ -32,10 +32,10 @@ public class ProductoSpecification {
                     predicates.add(cb.equal(root.get("activo"), true));
                 } else if (estadoValor.equals("inactivo") || estadoValor.equals("false") || estadoValor.equals("0")) {
                     predicates.add(cb.equal(root.get("activo"), false));
-                }
+                };
                 // Si mandan algo distinto (como "todos"), simplemente no agregamos filtro y traerá ambos
-            }
+            };
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-    }
-}
+    };
+};
