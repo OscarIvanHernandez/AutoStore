@@ -17,5 +17,5 @@ public class CompraDistribuidorDTO {
         private Long productoId;
         private Integer cantidad;
         private BigDecimal precioUnitarioCompra;
-    }
-}
+    };
+};
