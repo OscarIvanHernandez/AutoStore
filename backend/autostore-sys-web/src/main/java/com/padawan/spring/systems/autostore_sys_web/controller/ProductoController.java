@@ -33,19 +33,19 @@ public class ProductoController {
 
     public ProductoController(ProductoService productoService) {
         this.productoService = productoService;
-    }
+    };
 
     // GET /api/productos -> Listar todos
     @GetMapping
     public List<Producto> getAll(){
         return productoService.listarTodos();
-    }
+    };
 
     // GET /api/productos -> Listar todos los activos
     @GetMapping("/activos")
     public List<Producto> getAllActives(){
         return productoService.listarActivos();
-    }
+    };
 
     // GET /api/productos/{id} -> Obtener un producto por su ID
     @GetMapping("/{id}")
@@ -53,7 +53,7 @@ public class ProductoController {
         return productoService.obtenerPorId(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
-    }
+    };
 
     // GET /api/productos/search?q=xxx --> Buscar productos
     @GetMapping("/search")
@@ -67,14 +67,14 @@ public class ProductoController {
         Specification<Producto> spec = ProductoSpecification.conFiltros(q, marca, categoria, estadoFiltro);
         List<Producto> resultados = productoService.buscarConEspecificacion(spec);
         return ResponseEntity.ok(resultados);
-    }
+    };
 
     // GET /api/productos -> Crear un nuevo producto
     @PostMapping
     public ResponseEntity<Producto> create(@Valid @RequestBody Producto producto) {
         Producto createdProducto = productoService.guardar(producto);
         return ResponseEntity.ok(createdProducto);
-    }
+    };
 
     // PUT /api/productos/{id} -> Actualizar un producto existente
     @PutMapping("/{id}/editar")
@@ -94,7 +94,7 @@ public class ProductoController {
             Producto actualizado = productoService.guardar(productoExistente);
             return ResponseEntity.ok(actualizado);
         }).orElse(ResponseEntity.notFound().build());
-    }
+    };
 
     // PUT /api/productos/cambiar-estado/{id} -> Actualizar un el estado de un producto
     @PatchMapping("/{id}/estado")
@@ -106,7 +106,7 @@ public class ProductoController {
             Producto actualizado = productoService.guardar(productoExistente);
             return ResponseEntity.ok(actualizado);
         }).orElse(ResponseEntity.notFound().build());
-    }
+    };
 
     // DELETE /api/productos/{id} -> Eliminar un producto existente
     @DeleteMapping("/{id}")
@@ -116,7 +116,7 @@ public class ProductoController {
             return ResponseEntity.noContent().build(); // Código 204 (Todo bien, sin contenido)
         }
         return ResponseEntity.notFound().build(); // Código 404 si el ID no existía
-    }
+    };
 
     //POST /api/productos/{id}/ajustar-stock (ISSUE-07)
     @PostMapping("/{id}/ajustar-stock")
@@ -133,7 +133,7 @@ public class ProductoController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    }
+    };
 
     // Clase auxiliar (DTO) para mapear el JSON que llega del Frontend
     public static class AjusteRequest{
@@ -147,6 +147,5 @@ public class ProductoController {
         public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
         public String getMotivo() { return motivo; }
         public void setMotivo(String motivo) { this.motivo = motivo; }
-
-    }
-}
+    };
+};
