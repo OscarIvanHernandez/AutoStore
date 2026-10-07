@@ -1,8 +1,8 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { tap } from 'rxjs/operators';
-import { VentaInterface, VentaRequest } from "./autostore.models";
+import { Cliente, VentaInterface, VentaRequest } from "./autostore.models";
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +54,29 @@ export class SaleService {
     return this.http.get<any>(`${this.apiURL}/hoy`).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Venta-Service:', response);
+      })
+    );
+  }
+
+    // GET /api/productos/search?q=..
+  buscar(filtros: {clienteId?: number; mes?: number; anio?: string; q?: string}): Observable<Cliente[]> {
+    let params = new HttpParams();
+    if (filtros.q) {
+      params = params.set('q', filtros.q);
+    }
+    if (filtros.clienteId) {
+      params = params.set('clienteId', filtros.clienteId)
+    }
+    if (filtros.mes) {
+      params = params.set('mes', filtros.mes);
+    }
+    if (filtros.anio) {
+      params = params.set('anio', filtros.anio.trim());
+    }
+    console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
+    return this.http.get<Cliente[]>(`${this.apiURL}/search`, { params }).pipe(
+      tap(response => {
+        console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })
     );
   }
