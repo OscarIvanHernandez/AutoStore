@@ -29,4 +29,4 @@ public class MovimientoInventario {
 
     @Column(nullable = false)
     private LocalDateTime fecha = LocalDateTime.now();
-}
+};
