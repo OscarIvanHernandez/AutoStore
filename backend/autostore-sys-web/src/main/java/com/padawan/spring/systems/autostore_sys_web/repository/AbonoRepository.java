@@ -18,4 +18,4 @@ public interface AbonoRepository extends JpaRepository<Abono, Long> {
 
     @Query("SELECT COALESCE(SUM(a.monto), 0) FROM Abono a WHERE a.fecha >= :fechaApertura")
     BigDecimal sumarAbonosDesde(@Param("fechaApertura") LocalDateTime fechaApertura);
-}
+};
