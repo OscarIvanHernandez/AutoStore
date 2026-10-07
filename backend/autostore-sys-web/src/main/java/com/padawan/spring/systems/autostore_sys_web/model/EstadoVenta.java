@@ -5,4 +5,4 @@ public enum EstadoVenta {
     CANCELADA,
     DEVOLUCION_PARCIAL,
     DEVOLUCION_TOTAL
-}
+};
