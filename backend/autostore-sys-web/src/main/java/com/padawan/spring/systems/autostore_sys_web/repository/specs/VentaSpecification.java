@@ -25,7 +25,7 @@ public class VentaSpecification {
             // 1. Filtro por Cliente
             if (clienteId != null) {
                 predicates.add(cb.equal(root.get("clienteId"), clienteId));
-            }
+            };
 
             // 2. Filtro por Mes y Año (Manejo de fechas)
             if (mes != null && anio != null) {
@@ -36,7 +36,7 @@ public class VentaSpecification {
                         .atTime(23, 59, 59);
 
                 predicates.add(cb.between(root.get("fechaVenta"), inicioMes, finMes));
-            }
+            };
 
             // 3. Buscador general (por ID de venta o nombre de cliente)
             if (q != null && !q.isBlank()) {
@@ -54,8 +54,8 @@ public class VentaSpecification {
                     ));
                 } catch (NumberFormatException e) {
                     predicates.add(porNombreCliente);
-                }
-            }
+                };
+            };
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
