@@ -47,7 +47,7 @@ public class CompraDistribuidor {
     @PrePersist
     protected void onCreate() {
         this.fecha = LocalDateTime.now();
-    }
+    };
 
-    public CompraDistribuidor() {}
-}
+    public CompraDistribuidor() {};
+};
