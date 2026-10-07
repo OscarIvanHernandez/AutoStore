@@ -47,8 +47,7 @@ public class Devoluciones {
     @PrePersist
     protected void onCreate() {
         this.fecha = LocalDateTime.now();
-    }
+    };
 
-    public Devoluciones() {}
-
-}
+    public Devoluciones() {};
+};
