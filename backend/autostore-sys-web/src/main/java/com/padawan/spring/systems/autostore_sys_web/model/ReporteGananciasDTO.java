@@ -21,5 +21,5 @@ public class ReporteGananciasDTO {
         this.costoTotal = costoTotal != null ? costoTotal : BigDecimal.ZERO;
         this.cantidadVentas = cantidadVentas != null ? cantidadVentas : 0;
         this.productosVendidos = productosVendidos != null ? productosVendidos : 0;
-        }
-}
+    };
+};
