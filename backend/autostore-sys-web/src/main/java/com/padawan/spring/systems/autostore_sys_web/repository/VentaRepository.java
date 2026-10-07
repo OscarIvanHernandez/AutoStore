@@ -57,4 +57,4 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
         ORDER BY v.fechaVenta DESC
         """)
     List<DashboardDTO.UltimaVenta> obtenerUltimas5Ventas(Pageable pageable);
-}
+};
