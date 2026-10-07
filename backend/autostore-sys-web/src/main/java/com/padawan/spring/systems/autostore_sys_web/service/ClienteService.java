@@ -32,32 +32,32 @@ public class ClienteService {
     public List<Cliente> listarClientes(String filtro) {
         if (filtro != null && !filtro.trim().isEmpty()) {
             return clienteRepository.findByNombreContainingIgnoreCaseOrTelefonoContainingIgnoreCase(filtro.trim(), filtro.trim());
-        }
+        };
         return clienteRepository.findAll();
-    }
+    };
 
     public List<Cliente> listarClientesActivos(String filtro) {
         if (filtro != null && !filtro.trim().isEmpty()) {
             return clienteRepository.buscarActivos(filtro.trim());
-        }
+        };
         return clienteRepository.findByActivoTrue();
-    }
+    };
 
     public Cliente obtenerPorId(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
-    }
+    };
 
     public List<Cliente> buscarConEspecificacion(Specification<Cliente> spec){
         return clienteRepository.findAll(spec);
-    }
+    };
 
     @Transactional 
     public Cliente crearCliente(Cliente cliente) {
         cliente.setDeudaActual(BigDecimal.ZERO);
         cliente.setActivo(true);
         return clienteRepository.save(cliente);
-    }
+    };
 
     @Transactional
     public Cliente actualizarCliente(Long id, Cliente datosActualizados) {
@@ -68,14 +68,14 @@ public class ClienteService {
         cliente.setDireccion(datosActualizados.getDireccion());
         cliente.setLimiteCredito(datosActualizados.getLimiteCredito());
         return clienteRepository.save(cliente);
-    }
+    };
 
     @Transactional
     public void cambiarEstadoActivo(Long id, boolean activo) {
         Cliente cliente = obtenerPorId(id);
         cliente.setActivo(activo);
         clienteRepository.save(cliente);
-    }
+    };
 
     // --- ISSUE-17: Abonos y Liquidación de Deudas ---
 
@@ -85,11 +85,11 @@ public class ClienteService {
 
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El monto del abono debe ser mayor a cero.");
-        }
+        };
 
         if (monto.compareTo(cliente.getDeudaActual()) > 0) {
             throw new IllegalArgumentException("El abono ($" + monto + ") no puede ser mayor a la deuda actual ($" + cliente.getDeudaActual() + ").");
-        }
+        };
 
         BigDecimal nuevoSaldo = cliente.getDeudaActual().subtract(monto);
         cliente.setDeudaActual(nuevoSaldo);
@@ -97,17 +97,17 @@ public class ClienteService {
 
         Abono abono = new Abono(cliente, monto, nuevoSaldo);
         return abonoRepository.save(abono);
-    }
+    };
 
     public List<Abono> obtenerHistorialAbonos(Long clienteId) {
         return abonoRepository.findByClienteIdOrderByFechaDesc(clienteId);
-    }
+    };
 
     // --- ISSUE-18: Deudores y Estadísticas ---
 
     public List<Cliente> obtenerDeudores() {
         return clienteRepository.findByDeudaActualGreaterThanAndActivoTrueOrderByDeudaActualDesc(BigDecimal.ZERO);
-    }
+    };
 
     public Map<String, Object> obtenerEstadisticasDeudores() {
         Long totalDeudores = clienteRepository.contarClientesDeudores();
@@ -125,5 +125,5 @@ public class ClienteService {
         stats.put("sumaDeudas", sumaDeudas);
         stats.put("deudaPromedio", deudaPromedio);
         return stats;
-    }
-}
+    };
+};
