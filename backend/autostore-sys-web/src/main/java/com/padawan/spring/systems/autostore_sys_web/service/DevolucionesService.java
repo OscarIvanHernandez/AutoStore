@@ -42,7 +42,7 @@ public class DevolucionesService {
         // 1. Validar motivo obligatorio
         if (request.getMotivo() == null || request.getMotivo().trim().isEmpty()) {
             throw new IllegalArgumentException("El motivo de la devolución es obligatorio.");
-        }
+        };
 
         // 2. Validar que la venta existe
         Venta venta = ventaRepository.findById(request.getVentaId())
@@ -50,11 +50,11 @@ public class DevolucionesService {
 
         if (venta.getEstado() == EstadoVenta.CANCELADA) {
             throw new IllegalStateException("No se pueden realizar devoluciones de una venta cancelada.");
-        }
+        };
 
         if (venta.getEstado() == EstadoVenta.DEVOLUCION_TOTAL) {
             throw new IllegalStateException("La venta ya fue devuelta por completo.");
-        }
+        };
 
         Devoluciones devolucion = new Devoluciones();
         devolucion.setVenta(venta);
@@ -84,7 +84,7 @@ public class DevolucionesService {
             if (item.getCantidad() > disponibleParaDevolver) {
                 throw new IllegalArgumentException("No se puede devolver " + item.getCantidad() + " unidades del producto '" 
                         + detalleOriginal.getProducto().getNombre() + "'. Máximo disponible a devolver: " + disponibleParaDevolver);
-            }
+            };
 
             BigDecimal montoItem = detalleOriginal.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad()));
 
@@ -102,38 +102,35 @@ public class DevolucionesService {
             Producto producto = detalleOriginal.getProducto();
             producto.setStockActual(producto.getStockActual() + item.getCantidad());
             productoRepository.save(producto);
-        }
+        };
 
         if (devolucion.getDetalles().isEmpty()) {
             throw new IllegalArgumentException("Debe seleccionar al menos un producto con cantidad válida a devolver.");
-        }
-
+        };
         devolucion.setTotalReembolso(acumuladoReembolso);
-
         // 5. Ajustar saldo de cliente si fue venta a crédito
         if (venta.getTipoVenta() == TipoVenta.CREDITO && venta.getCliente() != null) {
             Cliente cliente = venta.getCliente();
             BigDecimal nuevaDeuda = cliente.getDeudaActual().subtract(acumuladoReembolso);
             cliente.setDeudaActual(nuevaDeuda.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : nuevaDeuda);
             clienteRepository.save(cliente);
-        }
+        };
 
-if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {
+        if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {
             venta.setEstado(EstadoVenta.DEVOLUCION_TOTAL);
         } else {
             venta.setEstado(EstadoVenta.DEVOLUCION_PARCIAL);
-        }
+        };
         ventaRepository.save(venta);
-
         return devolucionRepository.save(devolucion);
-    }
+    };
 
     public List<Devoluciones> listarDevoluciones() {
         return devolucionRepository.findAllByOrderByFechaDesc();
-    }
+    };
 
     public Devoluciones obtenerPorId(Long id) {
         return devolucionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Devolución no encontrada con ID: " + id));
-    }
-}
+    };
+};
