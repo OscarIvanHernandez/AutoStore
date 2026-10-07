@@ -17,4 +17,4 @@ public interface DevolucionesRepository extends JpaRepository<Devoluciones, Long
     @Query("SELECT COALESCE(SUM(dd.cantidad), 0) FROM DetalleDevolucion dd " +
         "WHERE dd.devolucion.venta.id = :ventaId AND dd.producto.id = :productoId")
     Integer obtenerCantidadYaDevuelta(@Param("ventaId") Long ventaId, @Param("productoId") Long productoId);
-}
+};
