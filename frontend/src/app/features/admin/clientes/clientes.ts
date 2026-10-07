@@ -7,7 +7,7 @@ import { Editar } from './modal/editar/editar';
 import { ClienteService } from '../../../services/autostore.clientes-service';
 import { Abono, Cliente, DeudoresStats } from '../../../services/autostore.models';
 import { BaseComponent } from '../base-component/base-component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-clientes',
@@ -43,7 +43,8 @@ export class Clientes extends BaseComponent implements OnInit {
   constructor(
     private clienteService: ClienteService,
     cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {super(cdr);};
 
   ngOnInit(): void {
@@ -102,7 +103,7 @@ export class Clientes extends BaseComponent implements OnInit {
     } else {
       this.ejecutarMutacion(this.clienteService.crearCliente(this.clienteForm), 'crear cliente', () => {
         console.log("Cliente creado correctamente")
-        this.cargarClientes();
+        this.limpiarFiltrosYRecargar();
         this.cerrarModalCliente();
         this.showSuccessMessage(
           "Cliente creado correctamente."
@@ -110,6 +111,23 @@ export class Clientes extends BaseComponent implements OnInit {
       });
     };
   };
+
+  private limpiarFiltrosYRecargar(): void {
+    this.filtroBusqueda = '';
+    this.estadoSeleccionado = '';
+    this.filtrosIniciales = null;
+
+    if (Object.keys(this.route.snapshot.queryParams).length) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true
+      });
+      return;
+    }
+
+    this.cargarClientes();
+  }
 
   guardarClienteDesdeModal(cliente: Partial<Cliente>): void {
     this.clienteForm = cliente;

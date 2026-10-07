@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 // Definicion de un modelo para "contexto de busqeda"
 interface ContextoBusqueda{
@@ -47,10 +47,17 @@ export class Navbar implements OnInit {
   // Por defecto la búsqueda está en "Productos"
   contextoSeleccionado: ContextoBusqueda = this.opcionesBusqueda[0];
 
-  constructor(private router: Router){}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ){}
 
   ngOnInit(): void {
     this.actualizarFecha();
+    this.route.queryParams.subscribe(params => {
+      const q = params['q'];
+      this.terminoBusqueda = typeof q === 'string' ? q : '';
+    });
   }
 
   private actualizarFecha(): void {
