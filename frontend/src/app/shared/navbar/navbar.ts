@@ -50,7 +50,7 @@ export class Navbar implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute
-  ){}
+  ){};
 
   ngOnInit(): void {
     this.actualizarFecha();
@@ -58,7 +58,7 @@ export class Navbar implements OnInit {
       const q = params['q'];
       this.terminoBusqueda = typeof q === 'string' ? q : '';
     });
-  }
+  };
 
   private actualizarFecha(): void {
     this.fechaActual = new Intl.DateTimeFormat('es-MX', {
@@ -67,7 +67,7 @@ export class Navbar implements OnInit {
       month: 'long',
       year: 'numeric'
     }).format(new Date());
-  }
+  };
 
   ejecutarBusqueda(): void {
     if (this.terminoBusqueda?.trim()) {
@@ -81,8 +81,8 @@ export class Navbar implements OnInit {
 
       // Opcional: Limpiar la barra después de buscar
       // this.terminoBusqueda = '';
-    }
-  }
+    };
+  };
 
   limpiarBusqueda() {
     this.terminoBusqueda='';
@@ -92,6 +92,6 @@ export class Navbar implements OnInit {
       : `/admin/${this.contextoSeleccionado.ruta}`;
 
     this.router.navigate([ruta]);
-  }
+  };
 
-}
+};
