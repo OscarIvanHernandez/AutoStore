@@ -33,4 +33,4 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
         "GROUP BY p.id, p.nombre, p.marca, p.categoria " +
         "ORDER BY SUM(dv.cantidad) DESC, SUM(dv.cantidad * dv.precioUnitario) DESC")
     List<TopProductoDTO> obtenerTopProductos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta, Pageable pageable);
-}
+};
