@@ -32,7 +32,7 @@ public class ReporteController {
         @RequestParam @DateTimeFormat (iso = DateTimeFormat.ISO.DATE) LocalDate desde,
         @RequestParam @DateTimeFormat (iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
         return ResponseEntity.ok(reporteService.obtenerGanancias(desde, hasta));
-    }
+    };
     
     @GetMapping("/top-productos")
     public ResponseEntity<List<TopProductoDTO>> obtenerTopProductos(
@@ -40,20 +40,17 @@ public class ReporteController {
         @RequestParam @DateTimeFormat (iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
         @RequestParam (defaultValue = "10") int limite) {
         return ResponseEntity.ok(reporteService.obtenerTopProductos(desde, hasta, limite));
-    }
+    };
     
     @GetMapping("/ganancias/csv")
     public ResponseEntity<byte[]> descargarCsvGanancias(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
-            @RequestParam(defaultValue = "10") int limite) {
-        
+            @RequestParam(defaultValue = "10") int limite) {  
         byte[] csvBytes = reporteService.generarCsvGanancias(desde, hasta, limite);
-        
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte-ganancias.csv")
                 .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
                 .body(csvBytes);
-    }
-    
-}
+    };
+};
