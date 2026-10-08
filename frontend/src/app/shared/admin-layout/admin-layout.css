@@ -13,13 +13,17 @@
   height: 100vh; /* Que ocupe el 100% de la altura de la pantalla */
   width: 100vw;
   overflow: hidden;
+  background: #e8eef5;
 }
 
 /* Le asignamos a cada etiqueta su lugar en el mapa */
 .layout-header {
   grid-area: header;
-  background-color: #ffffff; /* Color temporal para que lo distingas */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background: rgb(255 255 255 / 72%);
+  border-bottom: 1px solid rgb(148 163 184 / 22%);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 }
 
 .layout-sidebar {
@@ -30,7 +34,9 @@
 
 .layout-content {
   grid-area: main;
-  background-color: #f4f8fb; /* Fondo gris claro para el contenido */
+  background: rgba(244, 248, 251, 0.134);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
 }
 
