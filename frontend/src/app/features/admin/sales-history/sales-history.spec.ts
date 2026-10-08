@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { VentaInterface } from '../../../services/autostore.models';
 import { SalesHistory } from './sales-history';
@@ -8,6 +10,7 @@ describe('SalesHistory', () => {
   let component: SalesHistory;
   let fixture: ComponentFixture<SalesHistory>;
   let saleService: Pick<SaleService, 'obtenerVentas' | 'buscar' | 'cancelarVenta'>;
+  let queryParams: BehaviorSubject<Record<string, string>>;
 
   const venta: VentaInterface = {
     id: 12,
@@ -30,6 +33,7 @@ describe('SalesHistory', () => {
   const ventaCredito: VentaInterface = { ...venta, id: 13, tipoVenta: 'CREDITO' };
 
   beforeEach(async () => {
+    queryParams = new BehaviorSubject<Record<string, string>>({});
     saleService = {
       obtenerVentas: vi.fn(() => of([venta])),
       buscar: vi.fn(() => of([ventaCredito])),
@@ -38,7 +42,10 @@ describe('SalesHistory', () => {
 
     await TestBed.configureTestingModule({
       imports: [SalesHistory],
-      providers: [{ provide: SaleService, useValue: saleService }],
+      providers: [
+        { provide: SaleService, useValue: saleService },
+        { provide: ActivatedRoute, useValue: { queryParams } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SalesHistory);
@@ -77,6 +84,22 @@ describe('SalesHistory', () => {
     expect(saleService.buscar).toHaveBeenCalledWith({ tipoVenta: 'CREDITO' });
     expect(component.tipoVentaSeleccionada).toBe('CREDITO');
     expect(component.ventas).toEqual([ventaCredito]);
+  });
+
+  it('uses the navbar query parameter to search sales by folio or name', () => {
+    fixture.detectChanges();
+    queryParams.next({ q: 'V-0012' });
+
+    expect(saleService.buscar).toHaveBeenLastCalledWith({ q: 'V-0012' });
+    expect(component.ventas).toEqual([ventaCredito]);
+  });
+
+  it('interprets a navbar query for a sale type as an exact type filter', () => {
+    fixture.detectChanges();
+    queryParams.next({ q: 'crédito' });
+
+    expect(saleService.buscar).toHaveBeenLastCalledWith({ tipoVenta: 'CREDITO' });
+    expect(component.tipoVentaSeleccionada).toBe('CREDITO');
   });
 
   it('updates the selected sale when cancellation succeeds', () => {

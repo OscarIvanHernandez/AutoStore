@@ -41,7 +41,7 @@ export class Navbar implements OnInit {
       id: 'ventas',
       nombre: '💰 Ventas',
       ruta: 'ventas/historial',
-      placeholder: 'Ej: Folio V-0012, Fecha...'
+      placeholder: 'Ej: Folio V-0012, cliente, contado o crédito'
     }
   ];
   // Por defecto la búsqueda está en "Productos"

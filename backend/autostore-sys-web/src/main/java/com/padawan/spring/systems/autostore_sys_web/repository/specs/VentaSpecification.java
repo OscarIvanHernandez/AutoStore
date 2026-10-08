@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -36,26 +37,34 @@ public class VentaSpecification {
                 predicates.add(cb.between(root.get("fechaVenta"), inicioMes, finMes));
             };
 
-            // 3. Buscador general (por ID de venta o nombre de cliente)
+            // 3. Buscador general (por ID de venta, nombre de cliente o tipo)
             if (q != null && !q.isBlank()) {
-                try {
-                    Long idBuscado = Long.parseLong(q.trim());
-                    predicates.add(
-                            cb.equal(root.get("id"), idBuscado));
-                } catch (NumberFormatException e) {
-                };
+                String termino = q.trim();
+                String tipoNormalizado = termino.toUpperCase(Locale.ROOT)
+                        .replace("É", "E");
+
+                if (tipoNormalizado.equals("CONTADO") || tipoNormalizado.equals("CREDITO")) {
+                    predicates.add(cb.equal(
+                            root.get("tipoVenta"),
+                            TipoVenta.valueOf(tipoNormalizado)));
+                } else {
+                    List<Predicate> coincidencias = new ArrayList<>();
+                    String folio = termino.replaceFirst("(?i)^V\\s*[-#]?\\s*", "");
+
+                    try {
+                        Long idBuscado = Long.parseLong(folio);
+                        coincidencias.add(cb.equal(root.get("id"), idBuscado));
+                    } catch (NumberFormatException ignored) {
+                        // El término también puede coincidir con el nombre de un cliente.
+                    }
+
+                    String pattern = "%" + termino.toLowerCase(Locale.ROOT) + "%";
+                    Join<Venta, Cliente> clienteJoin = root.join("cliente", JoinType.LEFT);
+                    coincidencias.add(cb.like(cb.lower(clienteJoin.get("nombre")), pattern));
+                    predicates.add(cb.or(coincidencias.toArray(new Predicate[0])));
+                }
             };
 
-            //4. Busqueda general por texto nombre de cliente
-            if (q != null && !q.trim().isEmpty()) {
-                String pattern = "%" + q.trim().toLowerCase(Locale.ROOT) + "%";
-                Join<Venta, Cliente> clienteJoin = root.join("cliente");
-                
-                predicates.add(cb.like(cb.lower(clienteJoin.get("nombre")), pattern));
-                
-            };
-
-            // 5. Busqueda por tipo de venta
             if (tipoVenta != null) {
                 predicates.add(cb.equal(root.get("tipoVenta"), tipoVenta));
             }

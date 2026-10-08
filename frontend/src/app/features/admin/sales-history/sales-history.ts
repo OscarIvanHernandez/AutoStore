@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { SaleService } from '../../../services/autostore.sales-service';
 import { VentaInterface } from '../../../services/autostore.models';
 import { BaseComponent } from '../base-component/base-component';
@@ -16,16 +17,26 @@ export class SalesHistory extends BaseComponent implements OnInit {
   ventaSeleccionada: VentaInterface | null = null;
   hasLoadedVentas = false;
   tipoVentaSeleccionada: '' | VentaInterface['tipoVenta'] = '';
+  private busquedaActual = '';
 
   constructor(
     private saleService: SaleService,
+    private route: ActivatedRoute,
     cdr: ChangeDetectorRef
   ) {
     super(cdr);
   }
 
   ngOnInit(): void {
-    this.cargarVentas();
+    this.route.queryParams.subscribe((params) => {
+      const q = typeof params['q'] === 'string' ? params['q'].trim() : '';
+      const tipoVenta = this.tipoVentaDesdeBusqueda(q);
+
+      this.busquedaActual = tipoVenta ? '' : q;
+      this.tipoVentaSeleccionada = tipoVenta ?? '';
+      this.ventaSeleccionada = null;
+      this.cargarVentas();
+    });
   }
 
   esVentaDeHoy(fecha: string): boolean {
@@ -40,8 +51,12 @@ export class SalesHistory extends BaseComponent implements OnInit {
   }
 
   cargarVentas(): void {
-    const solicitud = this.tipoVentaSeleccionada
-      ? this.saleService.buscar({ tipoVenta: this.tipoVentaSeleccionada })
+    const filtros = {
+      ...(this.busquedaActual ? { q: this.busquedaActual } : {}),
+      ...(this.tipoVentaSeleccionada ? { tipoVenta: this.tipoVentaSeleccionada } : {}),
+    };
+    const solicitud = Object.keys(filtros).length > 0
+      ? this.saleService.buscar(filtros)
       : this.saleService.obtenerVentas();
 
     this.cargarRecurso(
@@ -68,6 +83,13 @@ export class SalesHistory extends BaseComponent implements OnInit {
     this.tipoVentaSeleccionada = tipoVenta;
     this.ventaSeleccionada = null;
     this.cargarVentas();
+  }
+
+  private tipoVentaDesdeBusqueda(q: string): VentaInterface['tipoVenta'] | null {
+    const tipo = q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    if (tipo === 'CONTADO') return 'CONTADO';
+    if (tipo === 'CREDITO') return 'CREDITO';
+    return null;
   }
 
   verDetallesVenta(venta: VentaInterface): void {
