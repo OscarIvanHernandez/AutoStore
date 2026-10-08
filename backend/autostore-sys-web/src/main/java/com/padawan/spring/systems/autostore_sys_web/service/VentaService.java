@@ -184,8 +184,8 @@ public class VentaService {
         return ventaRepository.findAll(spec);
     };
 
-    public List<Venta> buscarVentas(Long clienteId, Integer mes, Integer anio, String q) {
-        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
+    public List<Venta> buscarVentas(Long clienteId, Integer mes, Integer anio, TipoVenta tipoVenta, String q) {
+        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, tipoVenta, q);
         return ventaRepository.findAll(spec);
     };
 

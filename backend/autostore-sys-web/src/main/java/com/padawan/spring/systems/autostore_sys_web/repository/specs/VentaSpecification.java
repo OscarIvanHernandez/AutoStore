@@ -6,19 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 
 import org.springframework.data.jpa.domain.Specification;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 
 public class VentaSpecification {
 
-    public static Specification<Venta> filtrar(Long clienteId, Integer mes, Integer anio, String q) {
+    public static Specification<Venta> filtrar(Long clienteId, Integer mes, Integer anio, TipoVenta tipoVenta, String q) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -34,29 +33,32 @@ public class VentaSpecification {
                         .plusMonths(1)
                         .minusDays(1)
                         .atTime(23, 59, 59);
-
                 predicates.add(cb.between(root.get("fechaVenta"), inicioMes, finMes));
             };
 
             // 3. Buscador general (por ID de venta o nombre de cliente)
             if (q != null && !q.isBlank()) {
-                String pattern = "%" + q.trim().toLowerCase(Locale.ROOT) + "%";
-                Join<Venta, Cliente> clienteJoin = root.join("cliente");
-
-                Predicate porNombreCliente =
-                        cb.like(cb.lower(clienteJoin.get("nombre")), pattern);
-
                 try {
                     Long idBuscado = Long.parseLong(q.trim());
-                    predicates.add(cb.or(
-                            cb.equal(root.get("id"), idBuscado),
-                            porNombreCliente
-                    ));
+                    predicates.add(
+                            cb.equal(root.get("id"), idBuscado));
                 } catch (NumberFormatException e) {
-                    predicates.add(porNombreCliente);
                 };
             };
 
+            //4. Busqueda general por texto nombre de cliente
+            if (q != null && !q.trim().isEmpty()) {
+                String pattern = "%" + q.trim().toLowerCase(Locale.ROOT) + "%";
+                Join<Venta, Cliente> clienteJoin = root.join("cliente");
+                
+                predicates.add(cb.like(cb.lower(clienteJoin.get("nombre")), pattern));
+                
+            };
+
+            // 5. Busqueda por tipo de venta
+            if (tipoVenta != null) {
+                predicates.add(cb.equal(root.get("tipoVenta"), tipoVenta));
+            }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     };

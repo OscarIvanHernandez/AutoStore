@@ -40,7 +40,7 @@ export class Navbar implements OnInit {
     {
       id: 'ventas',
       nombre: '💰 Ventas',
-      ruta: 'ventas',
+      ruta: 'ventas/historial',
       placeholder: 'Ej: Folio V-0012, Fecha...'
     }
   ];

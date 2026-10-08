@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { tap } from 'rxjs/operators';
-import { Cliente, VentaInterface, VentaRequest } from "./autostore.models";
+import { VentaInterface, VentaRequest } from "./autostore.models";
 
 @Injectable({
   providedIn: 'root'
@@ -58,14 +58,19 @@ export class SaleService {
     );
   }
 
-    // GET /api/productos/search?q=..
-  buscar(filtros: {clienteId?: number; mes?: number; anio?: string; q?: string}): Observable<Cliente[]> {
+  buscar(filtros: {
+    clienteId?: number;
+    mes?: number;
+    anio?: string;
+    tipoVenta?: VentaInterface['tipoVenta'];
+    q?: string;
+  }): Observable<VentaInterface[]> {
     let params = new HttpParams();
     if (filtros.q) {
       params = params.set('q', filtros.q);
     };
     if (filtros.clienteId) {
-      params = params.set('clienteId', filtros.clienteId)
+      params = params.set('clienteId', filtros.clienteId);
     };
     if (filtros.mes) {
       params = params.set('mes', filtros.mes);
@@ -73,8 +78,11 @@ export class SaleService {
     if (filtros.anio) {
       params = params.set('anio', filtros.anio.trim());
     };
+    if (filtros.tipoVenta) {
+      params = params.set('tipoVenta', filtros.tipoVenta);
+    };
     console.log('📡 Petición GET a:', `${this.apiURL}/search`, { params });
-    return this.http.get<Cliente[]>(`${this.apiURL}/search`, { params }).pipe(
+    return this.http.get<VentaInterface[]>(`${this.apiURL}/search`, { params }).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Prodcutos-Service:', response);
       })

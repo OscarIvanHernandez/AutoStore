@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
 import com.padawan.spring.systems.autostore_sys_web.service.VentaService;
@@ -79,8 +80,9 @@ public class VentaController {
             @RequestParam(required = false) Long clienteId,
             @RequestParam(required = false) Integer mes,
             @RequestParam(required = false) Integer anio,
+            @RequestParam(required = false) TipoVenta tipoVenta,
             @RequestParam(required = false) String q) {
-        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, q);
+        Specification<Venta> spec = VentaSpecification.filtrar(clienteId, mes, anio, tipoVenta, q);
         List<Venta> resultados = ventaService.buscarConEspecificacion(spec);
         return ResponseEntity.ok(resultados);
     };
