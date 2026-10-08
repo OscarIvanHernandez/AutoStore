@@ -1,14 +1,12 @@
 .admin-grid {
+  position: relative;
   display: grid;
   /* Definimos 2 columnas: la primera de 260px (sidebar) y la segunda toma el resto (1fr) */
   grid-template-columns: 260px 1fr;
-  /* El navbar contiene la marca, la fecha y la búsqueda */
-  grid-template-rows: 96px 1fr;
+  grid-template-rows: minmax(0, 1fr);
 
   /* Dibujamos el mapa de la pantalla: */
-  grid-template-areas:
-    "sidebar header"
-    "sidebar main";
+  grid-template-areas: "sidebar main";
 
   height: 100vh; /* Que ocupe el 100% de la altura de la pantalla */
   width: 100vw;
@@ -18,8 +16,13 @@
 
 /* Le asignamos a cada etiqueta su lugar en el mapa */
 .layout-header {
-  grid-area: header;
-  background: rgb(255 255 255 / 72%);
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 260px;
+  min-height: 96px;
+  background: rgba(255, 255, 255, 0.215);
   border-bottom: 1px solid rgb(148 163 184 / 22%);
   box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
@@ -34,14 +37,10 @@
 
 .layout-content {
   grid-area: main;
+  min-height: 0;
+  padding-top: 96px;
   background: rgba(244, 248, 251, 0.134);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   overflow-y: auto; /* Si el contenido es largo, solo esta parte tendrá scroll */
-}
-
-@media (max-width: 760px) {
-  .admin-grid {
-    grid-template-rows: auto 1fr;
-  }
 }
