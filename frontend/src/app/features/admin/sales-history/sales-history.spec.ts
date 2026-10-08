@@ -7,7 +7,7 @@ import { SalesHistory } from './sales-history';
 describe('SalesHistory', () => {
   let component: SalesHistory;
   let fixture: ComponentFixture<SalesHistory>;
-  let saleService: Pick<SaleService, 'obtenerVentas' | 'cancelarVenta'>;
+  let saleService: Pick<SaleService, 'obtenerVentas' | 'buscar' | 'cancelarVenta'>;
 
   const venta: VentaInterface = {
     id: 12,
@@ -27,10 +27,12 @@ describe('SalesHistory', () => {
     }],
   };
   const ventaCancelada: VentaInterface = { ...venta, estado: 'CANCELADA' };
+  const ventaCredito: VentaInterface = { ...venta, id: 13, tipoVenta: 'CREDITO' };
 
   beforeEach(async () => {
     saleService = {
       obtenerVentas: vi.fn(() => of([venta])),
+      buscar: vi.fn(() => of([ventaCredito])),
       cancelarVenta: vi.fn(() => of(ventaCancelada)),
     };
 
@@ -65,6 +67,16 @@ describe('SalesHistory', () => {
 
     expect(component.hasLoadedVentas).toBe(true);
     expect(fixture.nativeElement.textContent).toContain('#12');
+  });
+
+  it('filters sales by the selected sale type', () => {
+    fixture.detectChanges();
+    component.filtrarPorTipoVenta('CREDITO');
+    fixture.detectChanges();
+
+    expect(saleService.buscar).toHaveBeenCalledWith({ tipoVenta: 'CREDITO' });
+    expect(component.tipoVentaSeleccionada).toBe('CREDITO');
+    expect(component.ventas).toEqual([ventaCredito]);
   });
 
   it('updates the selected sale when cancellation succeeds', () => {

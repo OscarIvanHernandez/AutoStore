@@ -40,14 +40,28 @@
           <h2>Ventas registradas</h2>
           <p>Selecciona una venta para consultar sus detalles.</p>
         </div>
-        <button
-          type="button"
-          class="btn-secondary"
-          (click)="cargarVentas()"
-          [disabled]="loadingStates['cargarVentas'] || isSaving"
-        >
-          {{ loadingStates['cargarVentas'] ? 'Actualizando...' : 'Actualizar' }}
-        </button>
+        <div class="history-controls">
+          <label>
+            Tipo de venta
+            <select
+              [value]="tipoVentaSeleccionada"
+              (change)="actualizarFiltroTipoVenta($event)"
+              [disabled]="loadingStates['cargarVentas'] || isSaving"
+            >
+              <option value="">Todas</option>
+              <option value="CONTADO">Contado</option>
+              <option value="CREDITO">Crédito</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="cargarVentas()"
+            [disabled]="loadingStates['cargarVentas'] || isSaving"
+          >
+            {{ loadingStates['cargarVentas'] ? 'Actualizando...' : 'Actualizar' }}
+          </button>
+        </div>
       </div>
 
       <div class="table-wrapper">

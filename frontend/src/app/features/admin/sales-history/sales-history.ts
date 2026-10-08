@@ -15,6 +15,7 @@ export class SalesHistory extends BaseComponent implements OnInit {
   ventas: VentaInterface[] = [];
   ventaSeleccionada: VentaInterface | null = null;
   hasLoadedVentas = false;
+  tipoVentaSeleccionada: '' | VentaInterface['tipoVenta'] = '';
 
   constructor(
     private saleService: SaleService,
@@ -39,9 +40,13 @@ export class SalesHistory extends BaseComponent implements OnInit {
   }
 
   cargarVentas(): void {
+    const solicitud = this.tipoVentaSeleccionada
+      ? this.saleService.buscar({ tipoVenta: this.tipoVentaSeleccionada })
+      : this.saleService.obtenerVentas();
+
     this.cargarRecurso(
       'cargarVentas',
-      this.saleService.obtenerVentas(),
+      solicitud,
       (data) => {
         this.ventas = data;
         if (this.ventaSeleccionada) {
@@ -51,6 +56,18 @@ export class SalesHistory extends BaseComponent implements OnInit {
       },
       'las ventas'
     );
+  }
+
+  actualizarFiltroTipoVenta(event: Event): void {
+    this.filtrarPorTipoVenta((event.target as HTMLSelectElement).value);
+  }
+
+  filtrarPorTipoVenta(tipoVenta: string): void {
+    if (tipoVenta !== '' && tipoVenta !== 'CONTADO' && tipoVenta !== 'CREDITO') return;
+
+    this.tipoVentaSeleccionada = tipoVenta;
+    this.ventaSeleccionada = null;
+    this.cargarVentas();
   }
 
   verDetallesVenta(venta: VentaInterface): void {
