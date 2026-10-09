@@ -1,0 +1,23 @@
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.li {
+  margin-bottom: 8px;
+  margin-left: 8px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.item a {
+  text-decoration: none;
+
+}
+.item a:hover {
+  background-color: #f0f0f0;
+  color: #007bff;
+}
