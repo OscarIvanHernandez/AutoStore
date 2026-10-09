@@ -1,4 +1,7 @@
 /* 1. Quitar los márgenes por defecto del navegador */
+html {
+  scroll-padding-top: 96px;
+}
 html, body {
   margin: 0;
   padding: 0;
@@ -7,6 +10,7 @@ html, body {
 }
 body{
   font-family: 'Inter', sans-serif;
+  overflow: hidden;
 }
 
 /* Para que los bordes y paddings no rompan tus tamaños */
