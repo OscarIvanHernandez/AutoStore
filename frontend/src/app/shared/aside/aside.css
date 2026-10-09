@@ -4,20 +4,35 @@ ul {
   margin: 0;
 }
 
-.li {
+.menu-item {
   margin-bottom: 8px;
   margin-left: 8px;
 }
 .item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.item a {
-  text-decoration: none;
 
 }
-.item a:hover {
-  background-color: #f0f0f0;
-  color: #007bff;
+.item a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: rgb(153, 162, 178);
+  padding: 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
+.item a:hover {
+  background: linear-gradient(to right, rgba(153, 162, 178, 0.403), rgba(85, 89, 98, 0.294));
+  color: rgb(254, 254, 254);
+}
+
+.item a.active-link  {
+  background: linear-gradient(to right, rgb(27, 98, 240), rgba(23, 84, 207, 0.774));
+  color: white;
+}
+
+.item a:hover:not(.active-link) {
+  background: linear-gradient(to right, rgba(153, 162, 178, 0.403), rgba(85, 89, 98, 0.294));
+  color: rgb(254, 254, 254);
+}
+
