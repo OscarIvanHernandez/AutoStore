@@ -21,6 +21,29 @@
         </div>
       </div>
       <div class="modal-actions">
+        <div class="form-help">
+          <button
+            type="button"
+            class="form-help__toggle"
+            (click)="alternarAyuda()"
+            [attr.aria-expanded]="mostrarAyuda"
+            aria-controls="product-form-help"
+            [attr.aria-label]="mostrarAyuda ? 'Ocultar ayuda del formulario' : 'Mostrar ayuda del formulario'">
+            ?
+          </button>
+          <section
+            *ngIf="mostrarAyuda"
+            class="form-help__panel"
+            id="product-form-help"
+            role="region"
+            aria-labelledby="product-form-help-title">
+            <h3 id="product-form-help-title">Guía rápida</h3>
+            <p>Campo obligatorio para abrir caja:</p>
+            <ul>
+              <li><strong>Efectivo para abrir:</strong> efectivo inicial para abrir la caja.</li>
+            </ul>
+          </section>
+        </div>
         <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
         <button type="button" (click)="confirmarApertura()" [disabled]="efectivoInicial < 0">
           Abrir Caja
@@ -49,6 +72,29 @@
         </div>
       </div>
       <div class="modal-actions">
+        <div class="form-help">
+          <button
+            type="button"
+            class="form-help__toggle"
+            (click)="alternarAyuda()"
+            [attr.aria-expanded]="mostrarAyuda"
+            aria-controls="product-form-help"
+            [attr.aria-label]="mostrarAyuda ? 'Ocultar ayuda del formulario' : 'Mostrar ayuda del formulario'">
+            ?
+          </button>
+          <section
+            *ngIf="mostrarAyuda"
+            class="form-help__panel"
+            id="product-form-help"
+            role="region"
+            aria-labelledby="product-form-help-title">
+            <h3 id="product-form-help-title">Guía rápida</h3>
+            <p>Campo obligatorio para cerrar caja:</p>
+            <ul>
+              <li><strong>Efectivo real:</strong> efectivo real en caja al realizar corte.</li>
+            </ul>
+          </section>
+        </div>
         <button type="button" (click)="cerrar()" class="btn-secondary">Cancelar</button>
         <button type="button" (click)="confirmarCierre()" [disabled]="efectivoReal < 0">
           Confirmar cierre

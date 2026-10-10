@@ -12,6 +12,7 @@ import { ClienteService } from '../../../services/autostore.clientes-service';
 import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
 import { MatIcon } from '@angular/material/icon';
+import { BaseModalComponent } from '../base-component/base-modal-component';
 
 @Component({
   selector: 'app-sales',

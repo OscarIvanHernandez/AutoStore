@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
   selector: 'app-caja',
@@ -10,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './caja.html',
   styleUrl: './caja.css',
 })
-export class Caja {
+export class Caja extends BaseModalComponent {
   @Input() visible = false;
   @Input() tipo: 'apertura' | 'cierre' = 'apertura';
   @Input() efectivoInicial = 0;
@@ -29,6 +30,7 @@ export class Caja {
   }
 
   cerrar(): void {
+    this.mostrarAyuda = false;
     this.close.emit();
   }
 }
