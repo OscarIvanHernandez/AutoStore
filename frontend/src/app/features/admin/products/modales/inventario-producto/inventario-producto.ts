@@ -3,6 +3,7 @@ import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { AjusteRequestInterface, ProductoInterface } from '../../../../../services/autostore.models';
+import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
   selector: 'app-inventario-producto',
@@ -11,7 +12,7 @@ import { AjusteRequestInterface, ProductoInterface } from '../../../../../servic
   templateUrl: './inventario-producto.html',
   styleUrl: './inventario-producto.css',
 })
-export class InventarioProducto implements OnChanges{
+export class InventarioProducto extends BaseModalComponent implements OnChanges{
   @Input() visible = false;
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
@@ -23,23 +24,22 @@ export class InventarioProducto implements OnChanges{
 
   productoAjustar: ProductoInterface | null = null;
   nuevoAjuste: AjusteRequestInterface = this.resetearAjuste();
-  mostrarAyuda: boolean = false;
 
   ngOnChanges(){
     if(this.producto) {
       this.productoAjustar = {...this.producto};
     } else {
       this.productoAjustar = null;
-    }
-  }
+    };
+  };
 
   private resetearAjuste(): AjusteRequestInterface{
-      return{
-      tipo: 'ENTRADA',
-      cantidad: 0,
-      motivo: ''
-      }
-    }
+    return{
+    tipo: 'ENTRADA',
+    cantidad: 0,
+    motivo: ''
+    };
+  };
 
   guardarCambios() {
     if (this.productoAjustar && !this.isSaving) {
@@ -47,15 +47,11 @@ export class InventarioProducto implements OnChanges{
         producto: this.productoAjustar,
         ajuste: this.nuevoAjuste
       });
-    }
-  }
-
-  alternarAyuda() {
-    this.mostrarAyuda = !this.mostrarAyuda;
+    };
   };
 
   cerrar() {
     this.mostrarAyuda = false;
     this.close.emit();
-  }
-}
+  };
+};
