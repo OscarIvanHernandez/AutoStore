@@ -19,6 +19,11 @@ export class AgregarProducto {
   @Output() save = new EventEmitter<ProductoInterface>();
 
   nuevoProducto: ProductoInterface = this.resetearFormulario();
+  mostrarAyuda = false;
+
+  alternarAyuda() {
+    this.mostrarAyuda = !this.mostrarAyuda;
+  }
 
   guardar() {
     if (this.isSaving) return;
@@ -26,6 +31,7 @@ export class AgregarProducto {
   }
 
   cerrar() {
+    this.mostrarAyuda = false;
     this.resetearFormulario();
     this.close.emit();
   }

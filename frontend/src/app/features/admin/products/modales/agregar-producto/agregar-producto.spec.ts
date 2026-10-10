@@ -19,4 +19,24 @@ describe('AgregarProducto', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('toggles the required-fields help panel', () => {
+    component.visible = true;
+    fixture.detectChanges();
+
+    const helpButton: HTMLButtonElement = fixture.nativeElement.querySelector('.form-help__toggle');
+    expect(fixture.nativeElement.querySelector('.form-help__panel')).toBeNull();
+
+    helpButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.form-help__panel')).not.toBeNull();
+    expect(helpButton.getAttribute('aria-expanded')).toBe('true');
+
+    helpButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.form-help__panel')).toBeNull();
+    expect(helpButton.getAttribute('aria-expanded')).toBe('false');
+  });
 });
