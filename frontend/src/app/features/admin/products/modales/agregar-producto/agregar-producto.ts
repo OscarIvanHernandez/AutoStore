@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ProductoInterface } from '../../../../../services/autostore.models';
+import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
   selector: 'app-agregar-producto',
@@ -11,7 +12,7 @@ import { ProductoInterface } from '../../../../../services/autostore.models';
   templateUrl: './agregar-producto.html',
   styleUrls: ['./agregar-producto.css'],
 })
-export class AgregarProducto {
+export class AgregarProducto extends BaseModalComponent {
   @Input() visible = false;
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
@@ -19,11 +20,6 @@ export class AgregarProducto {
   @Output() save = new EventEmitter<ProductoInterface>();
 
   nuevoProducto: ProductoInterface = this.resetearFormulario();
-  mostrarAyuda = false;
-
-  alternarAyuda() {
-    this.mostrarAyuda = !this.mostrarAyuda;
-  }
 
   guardar() {
     if (this.isSaving) return;
