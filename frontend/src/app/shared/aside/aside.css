@@ -1,3 +1,14 @@
+section.aside-header {
+text-align: start;
+margin-left: 12px;
+}
+
+section h1.aside-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 ul {
   list-style: none;
   padding: 0;
@@ -19,7 +30,7 @@ ul {
   color: rgb(153, 162, 178);
   padding: 10px;
   border-radius: 4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 .item a:hover {
   background: linear-gradient(to right, rgba(153, 162, 178, 0.403), rgba(85, 89, 98, 0.294));
@@ -34,5 +45,6 @@ ul {
 .item a:hover:not(.active-link) {
   background: linear-gradient(to right, rgba(153, 162, 178, 0.403), rgba(85, 89, 98, 0.294));
   color: rgb(254, 254, 254);
+  transition: all 0.2s ease;
 }
 
