@@ -14,27 +14,27 @@ export abstract class BaseComponent {
   // Estado global de carga por recurso (ej: loadingStates['productos'] = true)
   loadingStates: Record<string, boolean> = {};
 
-  constructor(protected cdr: ChangeDetectorRef) {}
+  constructor(protected cdr: ChangeDetectorRef) {};
 
   // --- Manejo de Errores por Recurso/Módulo ---
 
   setResourceError(recurso: string, message: string): void {
     this.loadErrors[recurso] = message;
     this.cdr.detectChanges();
-  }
+  };
 
   clearResourceError(recurso: string): void {
     this.loadErrors[recurso] = null;
     this.cdr.detectChanges();
-  }
+  };
 
   hasResourceError(recurso: string): boolean {
     return !!this.loadErrors[recurso];
-  }
+  };
 
   getResourceError(recurso: string): string | null {
     return this.loadErrors[recurso] || null;
-  }
+  };
 
   showErrorMessage(message: string, duration = 3500): void {
     this.errorMessage = message;
@@ -45,7 +45,7 @@ export abstract class BaseComponent {
       this.errorMessage = null;
       this.cdr.detectChanges();
     }, duration);
-  }
+  };
 
   showSuccessMessage(message: string, duration = 3500): void {
     this.successMessage = message;
@@ -56,19 +56,9 @@ export abstract class BaseComponent {
       this.successMessage = null;
       this.cdr.detectChanges();
     }, duration);
-  }
-
-  /*protected registrarErrorCarga(error: { status?: number }, accion: string): void {
-    const message = this.mensajeError(error, accion);
-    if (this.hasLoadedData) {
-      this.showErrorMessage(message);
-    } else {
-      this.initialLoadError = message;
-    }
-  }*/
+  };
 
   // --- Helper genérico para peticiones de carga (GET) ---
-
   cargarRecurso<T>(
     recurso: string,
     request: Observable<T>,
@@ -92,7 +82,7 @@ export abstract class BaseComponent {
         this.cdr.detectChanges();
       })
     ).subscribe(onSuccess);
-  }
+  };
 
   // --- Helper genérico para mutaciones (POST, PUT, DELETE) ---
   protected ejecutarMutacion<T>(
@@ -114,10 +104,10 @@ export abstract class BaseComponent {
         this.cdr.detectChanges();
       })
     ).subscribe(onSuccess);
-  }
+  };
 
   protected mensajeError(error: { status?: number }, accion: string): string {
     if (error.status === 0) return 'No se pudo conectar con el servidor.';
     return `Ocurrió un error al ${accion}. (${error.status ?? 'desconocido'})`;
-  }
-}
+  };
+};
