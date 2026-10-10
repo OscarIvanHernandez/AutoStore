@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, Output, EventEmitter, SimpleChanges } from
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { EstadoProductoInterface } from '../../../../../services/autostore.models';
+import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
   selector: 'app-estado-producto',
@@ -11,7 +12,7 @@ import { EstadoProductoInterface } from '../../../../../services/autostore.model
   templateUrl: './estado-producto.html',
   styleUrl: './estado-producto.css',
 })
-export class EstadoProducto implements OnChanges {
+export class EstadoProducto extends BaseModalComponent implements OnChanges {
   @Input() visible = false;
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
@@ -22,7 +23,6 @@ export class EstadoProducto implements OnChanges {
 
   productoActualEstado: EstadoProductoInterface | null = null;
   productoNuevoEstado: EstadoProductoInterface | null = null;
-  mostrarAyuda = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productoEstado'] && this.productoEstado) {
@@ -51,10 +51,6 @@ export class EstadoProducto implements OnChanges {
       };
       this.update.emit(productoActualizado);
     };
-  };
-
-  alternarAyuda() {
-    this.mostrarAyuda = !this.mostrarAyuda;
   };
 
   cerrar() {

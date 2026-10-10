@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ProductoInterface } from '../../../../../services/autostore.models';
+import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
   selector: 'app-editar-producto',
@@ -11,7 +12,7 @@ import { ProductoInterface } from '../../../../../services/autostore.models';
   templateUrl: './editar-producto.html',
   styleUrls: ['./editar-producto.css'],
 })
-export class EditarProducto implements OnChanges{
+export class EditarProducto extends BaseModalComponent implements OnChanges{
   @Input() visible = false;
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
@@ -21,7 +22,6 @@ export class EditarProducto implements OnChanges{
   @Output() update = new EventEmitter<ProductoInterface>();
 
   productoEditar: ProductoInterface | null = null;
-  mostrarAyuda = false;
 
   ngOnChanges(){
     if(this.producto) {
@@ -29,10 +29,6 @@ export class EditarProducto implements OnChanges{
     } else {
       this.productoEditar = null;
     };
-  };
-
-  alternarAyuda() {
-    this.mostrarAyuda = !this.mostrarAyuda;
   };
 
   guardarCambios() {
