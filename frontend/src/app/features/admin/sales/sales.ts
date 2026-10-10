@@ -11,11 +11,12 @@ import { SaleTicket } from './modal/sale-ticket/sale-ticket';
 import { ClienteService } from '../../../services/autostore.clientes-service';
 import { catchError, EMPTY, of } from 'rxjs';
 import { BaseComponent } from '../base-component/base-component';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, Caja, SaleTicket],
+  imports: [CommonModule, FormsModule, RouterLink, Caja, SaleTicket, MatIcon],
   templateUrl: './sales.html',
   styleUrls: ['./sales.css'],
 })
