@@ -129,7 +129,9 @@
                   (change)="actualizarSubtotal(item)"
                   min="1"
                   [max]="item.stockMaximo"
-                  class="cart-quantity">
+                  class="cart-quantity"
+                  #cantidadModel = "ngModel"
+                />
               </td>
               <td>${{ item.subTotal }}</td>
               <td>
@@ -140,6 +142,10 @@
                   (click)="eliminarDelCarrito(i)"
                 >❌</button>
               </td>
+              <span class="span-text" *ngIf="cantidadModel.invalid">
+                <span class="error-text" *ngIf="cantidadModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+                  cantidad negativa.</span>
+              </span>
             </tr>
           </tbody>
         </table>
@@ -166,7 +172,15 @@
 
         <div class="mb-4">
           <label>Descuento ($):</label>
-          <input type="number" [(ngModel)]="descuento" min="0">
+          <input type="number"
+          [(ngModel)]="descuento"
+          min="0"
+          #descuentoModel = "ngModel"
+          />
+          <span class="span-text" *ngIf="descuentoModel.invalid">
+            <span class="error-text" *ngIf="descuentoModel.errors?.['min']"><mat-icon fontIcon="info"></mat-icon>
+              El descuento no puede ser negativo.</span>
+          </span>
         </div>
 
         <div class="border-t">
@@ -183,7 +197,7 @@
 
         <button
           class="btn-procesar"
-          [disabled]="carrito.length === 0 || creditoExcedeLimite"
+          [disabled]="carrito.length === 0 || creditoExcedeLimite || descuentoModel.invalid"
           (click)="procesarVenta()"
         >
           Procesar cobro
