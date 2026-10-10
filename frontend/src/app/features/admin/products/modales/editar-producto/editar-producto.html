@@ -125,6 +125,33 @@
         </div>
       </div>
       <div class="modal-actions">
+        <div class="form-help">
+          <button
+            type="button"
+            class="form-help__toggle"
+            (click)="alternarAyuda()"
+            [attr.aria-expanded]="mostrarAyuda"
+            aria-controls="product-form-help"
+            [attr.aria-label]="mostrarAyuda ? 'Ocultar ayuda del formulario' : 'Mostrar ayuda del formulario'">
+            ?
+          </button>
+          <section
+            *ngIf="mostrarAyuda"
+            class="form-help__panel"
+            id="product-form-help"
+            role="region"
+            aria-labelledby="product-form-help-title">
+            <h3 id="product-form-help-title">Guía rápida</h3>
+            <p>Completa los campos obligatorios para editar el producto:</p>
+            <ul>
+              <li><strong>Nombre:</strong> al menos 3 caracteres.</li>
+              <li><strong>Marca y categoría:</strong> identifica el producto.</li>
+              <li><strong>Precio de compra y venta en mostrador:</strong> mayor que $0.</li>
+              <li><strong>Stock minimo:</strong> Cantidad mínima antes de marcar bajo inventario.</li>
+            </ul>
+            <p class="form-help__note">Proveedor y precio para taller son opcionales.</p>
+          </section>
+        </div>
         <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cancelar</button>
         <button type="submit" class="btn-primary" [disabled]="productoForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Guardar en Inventario' }}</button>
       </div>

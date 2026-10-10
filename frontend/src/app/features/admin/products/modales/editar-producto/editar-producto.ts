@@ -21,23 +21,28 @@ export class EditarProducto implements OnChanges{
   @Output() update = new EventEmitter<ProductoInterface>();
 
   productoEditar: ProductoInterface | null = null;
+  mostrarAyuda = false;
 
   ngOnChanges(){
     if(this.producto) {
       this.productoEditar = { ...this.producto };
     } else {
       this.productoEditar = null;
-    }
-  }
+    };
+  };
+
+  alternarAyuda() {
+    this.mostrarAyuda = !this.mostrarAyuda;
+  };
 
   guardarCambios() {
     if (this.productoEditar && !this.isSaving) {
       this.update.emit({ ...this.productoEditar });
-    }
-  }
+    };
+  };
 
   cerrar() {
+    this.mostrarAyuda = false;
     this.close.emit();
-  }
-
-}
+  };
+};
