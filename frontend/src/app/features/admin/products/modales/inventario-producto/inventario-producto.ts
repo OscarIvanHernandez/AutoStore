@@ -23,6 +23,7 @@ export class InventarioProducto implements OnChanges{
 
   productoAjustar: ProductoInterface | null = null;
   nuevoAjuste: AjusteRequestInterface = this.resetearAjuste();
+  mostrarAyuda: boolean = false;
 
   ngOnChanges(){
     if(this.producto) {
@@ -49,7 +50,12 @@ export class InventarioProducto implements OnChanges{
     }
   }
 
+  alternarAyuda() {
+    this.mostrarAyuda = !this.mostrarAyuda;
+  };
+
   cerrar() {
+    this.mostrarAyuda = false;
     this.close.emit();
   }
 }

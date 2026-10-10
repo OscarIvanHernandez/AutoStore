@@ -11,7 +11,7 @@
       <div class="form-grid">
 
         <div class="form-group">
-          <label>Tipo de Ajuste</label>
+          <label>Tipo de ajuste</label>
           <select name="tipoMovimiento" [(ngModel)]="nuevoAjuste.tipo" required>
             <option value="ENTRADA">➕ Entrada (Suma al inventario)</option>
             <option value="SALIDA">➖ Salida (Resta del inventario)</option>
@@ -53,6 +53,31 @@
       </div>
 
       <div class="modal-actions">
+        <div class="form-help">
+          <button
+            type="button"
+            class="form-help__toggle"
+            (click)="alternarAyuda()"
+            [attr.aria-expanded]="mostrarAyuda"
+            aria-controls="product-form-help"
+            [attr.aria-label]="mostrarAyuda ? 'Ocultar ayuda del formulario' : 'Mostrar ayuda del formulario'">
+            ?
+          </button>
+          <section
+            *ngIf="mostrarAyuda"
+            class="form-help__panel"
+            id="product-form-help"
+            role="region"
+            aria-labelledby="product-form-help-title">
+            <h3 id="product-form-help-title">Guía rápida</h3>
+            <p>Campos obligatorios para el ajutse de inventario en un producto:</p>
+            <ul>
+              <li><strong>Tipo de ajuste:</strong> entrada o salida del inventario.</li>
+              <li><strong>Cantidad de piezas:</strong> cantidad que entra o se retira del inventario.</li>
+              <li><strong>Motivo del ajuste:</strong> razón por la cual se realiza el ajuste.</li>
+            </ul>
+          </section>
+        </div>
         <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cancelar</button>
         <button type="submit" class="btn-primary" [disabled]="ajusteForm.invalid || isSaving">{{ isSaving ? 'Guardando...' : 'Aplicar Ajuste' }}</button>
       </div>

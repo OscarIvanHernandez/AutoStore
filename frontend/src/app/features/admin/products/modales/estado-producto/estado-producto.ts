@@ -22,6 +22,7 @@ export class EstadoProducto implements OnChanges {
 
   productoActualEstado: EstadoProductoInterface | null = null;
   productoNuevoEstado: EstadoProductoInterface | null = null;
+  mostrarAyuda = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productoEstado'] && this.productoEstado) {
@@ -30,8 +31,8 @@ export class EstadoProducto implements OnChanges {
     } else if (!this.productoEstado) {
       this.productoActualEstado = null;
       this.productoNuevoEstado = null;
-    }
-  }
+    };
+  };
 
   private crearVistaEstado(productoEstado: EstadoProductoInterface): EstadoProductoInterface {
     return {
@@ -39,7 +40,7 @@ export class EstadoProducto implements OnChanges {
       nombre: productoEstado.nombre,
       activo: productoEstado.activo ?? true,
     };
-  }
+  };
 
   guardarCambios() {
     if (this.productoEstado && this.productoNuevoEstado && !this.isSaving) {
@@ -48,12 +49,16 @@ export class EstadoProducto implements OnChanges {
         nombre: this.productoEstado.nombre,
         activo: this.productoNuevoEstado.activo,
       };
-
       this.update.emit(productoActualizado);
-    }
-  }
+    };
+  };
+
+  alternarAyuda() {
+    this.mostrarAyuda = !this.mostrarAyuda;
+  };
 
   cerrar() {
+    this.mostrarAyuda = false
     this.close.emit();
-  }
-}
+  };
+};

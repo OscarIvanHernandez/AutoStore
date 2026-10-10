@@ -23,6 +23,30 @@
       </div>
 
       <div class="modal-actions">
+        <div class="form-help">
+          <button
+            type="button"
+            class="form-help__toggle"
+            (click)="alternarAyuda()"
+            [attr.aria-expanded]="mostrarAyuda"
+            aria-controls="product-form-help"
+            [attr.aria-label]="mostrarAyuda ? 'Ocultar ayuda del formulario' : 'Mostrar ayuda del formulario'">
+            ?
+          </button>
+          <section
+            *ngIf="mostrarAyuda"
+            class="form-help__panel"
+            id="product-form-help"
+            role="region"
+            aria-labelledby="product-form-help-title">
+            <h3 id="product-form-help-title">Guía rápida</h3>
+            <p>Campos de estado para el producto:</p>
+            <ul>
+              <li><strong>Activo:</strong> se muestra en inventario y ventas.</li>
+              <li><strong>Inactivo:</strong> oculto o no disponible.</li>
+            </ul>
+          </section>
+        </div>
         <button type="button" class="btn-secondary" (click)="cerrar()" [disabled]="isSaving">Cerrar</button>
         <button type="submit" class="btn-primary" [disabled]="isSaving">{{ isSaving ? 'Guardando...' : 'Aplicar Cambio' }}</button>
       </div>
