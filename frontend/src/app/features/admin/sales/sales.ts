@@ -79,37 +79,38 @@ export class Sales extends BaseComponent implements OnInit {
     private clientesService: ClienteService,
     cdr: ChangeDetectorRef
 
-  ) { super (cdr)}
+  ) { super (cdr)};
 
   ngOnInit(): void {
     this.verificarEstadoCaja();
     this.cargarDatosIniciales();
-  }
+  };
 
   abrirModalCobro(): void {
     this.successMessage = null;
     this.errorMessage = null;
     this.mostrarModalCobro = true;
-  }
+  };
 
   cerrarModalCobro(): void {
     this.mostrarModalCobro = false;
-  }
+  };
 
   cambiarTipoVenta(tipo: 'CONTADO' | 'CREDITO'): void {
     if (tipo === 'CREDITO') {
       this.cargarClientes();
       return;
-    }
-
+    };
     this.clienteIdSeleccionado = null;
-  }
+  };
+
   cargarDatosIniciales(): void {
     //Productos
     this.cargarProductos();
     // Clientes
     this.cargarClientes();
-  }
+  };
+
   cargarClientes(): void {
     this.isLoading = true;
     this.hasLoadedClientes = false
@@ -118,7 +119,7 @@ export class Sales extends BaseComponent implements OnInit {
       this.isLoading = false;
       this.hasLoadedClientes = true;
     });
-  }
+  };
 
   cargarProductos(): void {
     this.isLoading = true;
@@ -128,7 +129,7 @@ export class Sales extends BaseComponent implements OnInit {
       this.isLoading = false;
       this.hasLoadedProductos = true;
     });
-  }
+  };
 
   verificarEstadoCaja(): void {
     this.isLoading = true;
@@ -142,19 +143,19 @@ export class Sales extends BaseComponent implements OnInit {
       };
       this.hasLoadedCaja = true;
     });
-  }
+  };
 
   confirmarApertura(): void {
     this.onAbrirCaja(this.efectivoInicialInput);
-  }
+  };
 
   abrirModalApertura(): void {
     this.mostrarModalApertura = true;
-  }
+  };
 
   confirmarCierre(): void {
     this.onCerrarCaja(this.efectivoRealInput);
-  }
+  };
 
   onAbrirCaja(efectivoInicial: number): void {
     this.hasLoadedCaja = false;
@@ -162,14 +163,14 @@ export class Sales extends BaseComponent implements OnInit {
         this.mostrarModalApertura = false;
         this.verificarEstadoCaja();
     });
-  }
+  };
 
   onCerrarCaja(efectivoReal: number): void {
     this.ejecutarMutacion(this.cajaService.cerrarCaja(efectivoReal), 'cerrar caja', () => {
       this.mostrarModalCierre = false;
       this.verificarEstadoCaja();
     });
-  }
+  };
 
   // Buscar productos en tiempo real
   BuscarProducto(): void {
@@ -181,15 +182,13 @@ export class Sales extends BaseComponent implements OnInit {
       }), (data) => {
           this.productosEncontrados = data
           this.isLoading = false;
-
       });
     };
-  }
+  };
 
   // Agrega producto a carrito
   agregarAlCarrito(producto: any): void {
     const existe = this.carrito.find(item => item.productoId === producto.id);
-
     if (existe) {
       if (existe.cantidad < producto.stockActual) {
         existe.cantidad++;
@@ -197,7 +196,7 @@ export class Sales extends BaseComponent implements OnInit {
       } else {
         // Agregar mensaje de error
         alert('Stock máximo alcanzado para este producto.');
-      }
+      };
     } else {
       const nuevoItem: ItemCarrito = {
         productoId: producto.id,
@@ -209,30 +208,30 @@ export class Sales extends BaseComponent implements OnInit {
         stockMaximo: producto.stockActual
       };
       this.carrito.push(nuevoItem);
-    }
+    };
 
     // Vaciar el buscador
     this.busquedaTexto = '';
     this.productosEncontrados = [];
     this.recalcularTotales();
-  }
+  };
 
   cambiarTipoPrecio(item: ItemCarrito, productoOriginal: any): void {
     item.precioUnitario = item.precioTipo == 'TALLER'
       ? productoOriginal.precioVentaTaller
       : productoOriginal.precioVentaMostrador;
     this.actualizarSubtotal(item);
-  }
+  };
 
   actualizarSubtotal(item: ItemCarrito): void {
     item.subTotal = item.precioUnitario * item.cantidad;
     this.recalcularTotales();
-  }
+  };
 
   eliminarDelCarrito(index: number): void {
     this.carrito.splice(index, 1);
     this.recalcularTotales();
-  }
+  };
 
   // Calculos totales
   // Método centralizado para calcular
@@ -240,15 +239,15 @@ export class Sales extends BaseComponent implements OnInit {
     this.subtotalGeneral = this.carrito.reduce((acc, item) => acc + item.subTotal, 0);
     const total = this.subtotalGeneral - this.descuento;
     this.totalFinal = total > 0 ? total : 0;
-  }
+  };
   // 1. Abre el modal y valida requerimientos previos
   get cambio() {
     return this.efectivoRecibido - this.totalFinal;
-  }
+  };
 
   get clienteSeleccionado(): Cliente | undefined {
     return this.clientes.find(cliente => cliente.id === this.clienteIdSeleccionado);
-  }
+  };
 
   get deudaProyectada(): number {
     const cliente = this.clienteSeleccionado;
@@ -257,7 +256,7 @@ export class Sales extends BaseComponent implements OnInit {
     const pagoInicial = Math.max(0, Number(this.efectivoRecibido) || 0);
     const deudaVenta = Math.max(0, this.totalFinal - pagoInicial);
     return cliente.deudaActual + deudaVenta;
-  }
+  };
 
   get creditoExcedeLimite(): boolean {
     const cliente = this.clienteSeleccionado;
@@ -267,7 +266,7 @@ export class Sales extends BaseComponent implements OnInit {
       cliente.limiteCredito > 0 &&
       this.deudaProyectada > cliente.limiteCredito
     );
-  }
+  };
 
   get creditoCercaDelLimite(): boolean {
     const cliente = this.clienteSeleccionado;
@@ -278,13 +277,11 @@ export class Sales extends BaseComponent implements OnInit {
       cliente.limiteCredito > 0 &&
       this.deudaProyectada >= cliente.limiteCredito * this.limiteCreditoAdvertencia
     );
-  }
+  };
 
   procesarVenta(): void {
     if (this.carrito.length === 0) return;
-
     this.efectivoRecibido = this.tipoVenta === 'CONTADO' ? this.totalFinal : 0;
-
     if (this.tipoVenta === 'CREDITO' && !this.clienteIdSeleccionado) {
       alert("Debe seleccionar un cliente para ventas a crédito.");
       return;
@@ -297,7 +294,7 @@ export class Sales extends BaseComponent implements OnInit {
 
     this.ventaRealizada = null;
     this.mostrarModalCobro = true;
-  }
+  };
 
   confirmarVenta(): void {
     if (this.tipoVenta === 'CONTADO' && this.efectivoRecibido < this.totalFinal) {
@@ -331,14 +328,13 @@ export class Sales extends BaseComponent implements OnInit {
       this.mostrarModalTicket = true;
       this.verificarEstadoCaja();
       this.isLoading = false;
-
     });
-  }
+  };
 
   cerrarModalTicket(): void {
     this.mostrarModalTicket = false;
     this.ventaRealizada = null;
-  }
+  };
 
   limpiarYReiniciarPOS(): void {
     this.carrito = [];
@@ -351,5 +347,5 @@ export class Sales extends BaseComponent implements OnInit {
     this.mostrarModalTicket = false;
     this.verificarEstadoCaja();
     this.recalcularTotales();
-  }
-}
+  };
+};
