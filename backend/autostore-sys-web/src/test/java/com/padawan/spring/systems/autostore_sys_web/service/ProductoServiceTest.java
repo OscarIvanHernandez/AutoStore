@@ -5,7 +5,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,5 +56,17 @@ public class ProductoServiceTest {
         assertThat(respuesta).isNotNull();
         assertThat(respuesta.getId()).isEqualTo(1L);
         verify(productoRepository, times(1)).findById(1L);
+    };
+
+    @Test 
+    @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
+    void obtenerPorId_NoEncontrado(){
+        when(productoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            productoService.obtenerPorId(99L);
+        });
+        assertThat(exception.getMessage()).contains("no encontrado");
+        verify(productoRepository, times(1)).findById(99L);
     };
 };
