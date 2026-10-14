@@ -21,4 +21,7 @@ public class ProductoMarca {
     @Column (nullable = false, unique = true, length = 100)
     @NotBlank(message = "La marca es obligatoria")
     private String nombre;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 };

@@ -21,4 +21,7 @@ public class ProductoCategoria {
     @Column (nullable = false, unique = true, length = 100)
     @NotBlank(message = "La categoría es obligatoria")
     private String nombre;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 };
