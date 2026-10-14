@@ -82,28 +82,76 @@ public class ProductoServiceTest {
     };
 
     @Test
-@DisplayName("Debe fallar al guardar producto sin marca")
-void guardarProducto_SinMarca_Falla() {
-    // Crear producto sin marca
-    Producto productoSinMarca = new Producto();
-    productoSinMarca.setId(2L);
-    productoSinMarca.setNombre("Filtro de Aire");
-    productoSinMarca.setCategoria("Filtros");
-    productoSinMarca.setPrecioCompra(new BigDecimal("100.00"));
-    productoSinMarca.setPrecioVentaMostrador(new BigDecimal("150.00"));
-    productoSinMarca.setStockActual(10);
-    productoSinMarca.setStockMinimo(3);
-    productoSinMarca.setActivo(true);
-    productoSinMarca.setMarca(null); // campo obligatorio
+    @DisplayName("Debe fallar al guardar producto sin marca")
+    void guardarProducto_SinMarca_Falla() {
+        // Crear producto sin marca
+        Producto productoSinMarca = new Producto();
+        productoSinMarca.setId(2L);
+        productoSinMarca.setNombre("Filtro de Aire");
+        productoSinMarca.setCategoria("Filtros");
+        productoSinMarca.setPrecioCompra(new BigDecimal("100.00"));
+        productoSinMarca.setPrecioVentaMostrador(new BigDecimal("150.00"));
+        productoSinMarca.setPrecioVentaTaller(new BigDecimal("0"));
+        productoSinMarca.setStockActual(10);
+        productoSinMarca.setStockMinimo(3);
+        productoSinMarca.setActivo(true);
+        productoSinMarca.setMarca(null); // campo obligatorio
 
-    // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
-    assertThrows(ConstraintViolationException.class, 
-        () -> productoService.guardar(productoSinMarca));
-    
-    // También puedes verificar que nunca se llamó al repositorio
-    verify(productoRepository, never()).save(any(Producto.class));
-}
+        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        assertThrows(ConstraintViolationException.class, 
+            () -> productoService.guardar(productoSinMarca));
+        
+        // También puedes verificar que nunca se llamó al repositorio
+        verify(productoRepository, never()).save(any(Producto.class));
+    };
 
+    @Test
+    @DisplayName("Debe fallar al guardar producto sin categoria")
+    void guardarProducto_SinCategoria_Falla() {
+        // Crear producto sin marca
+        Producto productoSinCategoria = new Producto();
+        productoSinCategoria.setId(2L);
+        productoSinCategoria.setNombre("Filtro de Aire");
+        productoSinCategoria.setMarca("Motorcraft");
+        productoSinCategoria.setPrecioCompra(new BigDecimal("100.00"));
+        productoSinCategoria.setPrecioVentaMostrador(new BigDecimal("150.00"));
+        productoSinCategoria.setPrecioVentaTaller(new BigDecimal("0"));
+        productoSinCategoria.setStockActual(10);
+        productoSinCategoria.setStockMinimo(3);
+        productoSinCategoria.setActivo(true);
+        productoSinCategoria.setCategoria(null); // campo obligatorio
+
+        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        assertThrows(ConstraintViolationException.class, 
+            () -> productoService.guardar(productoSinCategoria));
+        
+        // También puedes verificar que nunca se llamó al repositorio
+        verify(productoRepository, never()).save(any(Producto.class));
+    };
+
+    @Test
+    @DisplayName("Debe fallar al guardar producto sin precio de venta en mostrador")
+    void guardarProducto_SinPrecioVentaMostrador_Falla() {
+        // Crear producto sin marca
+        Producto productoSinCategoria = new Producto();
+        productoSinCategoria.setId(2L);
+        productoSinCategoria.setNombre("Filtro de Aire");
+        productoSinCategoria.setMarca("Motorcraft");
+        productoSinCategoria.setPrecioCompra(new BigDecimal("100.00"));
+        productoSinCategoria.setPrecioVentaMostrador(null);
+        productoSinCategoria.setPrecioVentaTaller(new BigDecimal("0"));
+        productoSinCategoria.setStockActual(10);
+        productoSinCategoria.setStockMinimo(3);
+        productoSinCategoria.setActivo(true);
+        productoSinCategoria.setCategoria("Filtros");
+
+        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        assertThrows(ConstraintViolationException.class, 
+            () -> productoService.guardar(productoSinCategoria));
+        
+        // También puedes verificar que nunca se llamó al repositorio
+        verify(productoRepository, never()).save(any(Producto.class));
+    };
 
     @Test 
     @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
