@@ -1,6 +1,7 @@
 package com.padawan.spring.systems.autostore_sys_web.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento;
+import com.padawan.spring.systems.autostore_sys_web.repository.MovimientoInventarioRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 
 @ExtendWith (MockitoExtension.class)
@@ -26,6 +29,9 @@ public class ProductoServiceTest {
 
     @Mock 
     private ProductoRepository productoRepository;
+
+    @Mock 
+    private MovimientoInventarioRepository movimientoInventarioRepository;
 
     @InjectMocks 
     private ProductoService productoService;
@@ -41,6 +47,7 @@ public class ProductoServiceTest {
         productoBase.setCategoria("Filtros");
         productoBase.setPrecioCompra(new BigDecimal("80.00"));
         productoBase.setPrecioVentaMostrador(new BigDecimal("120.00"));
+        productoBase.setPrecioVentaTaller(new BigDecimal("0"));
         productoBase.setStockActual(15);
         productoBase.setStockMinimo(5);
         productoBase.setActivo(true);
@@ -55,7 +62,7 @@ public class ProductoServiceTest {
         
         assertThat(respuesta).isNotNull();
         assertThat(respuesta.getId()).isEqualTo(1L);
-        verify(productoRepository, times(1)).findById(1L);
+        verify(productoRepository, times(1)).save(productoBase);
     };
 
     @Test 
@@ -63,10 +70,45 @@ public class ProductoServiceTest {
     void obtenerPorId_NoEncontrado(){
         when(productoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            productoService.obtenerPorId(99L);
-        });
-        assertThat(exception.getMessage()).contains("no encontrado");
+        assertThat(productoService.obtenerPorId(99L)).isEmpty();
         verify(productoRepository, times(1)).findById(99L);
+    };
+
+    @Test 
+    @DisplayName ("Debes actualizar correctamente el stock de un producto")
+    void actualizarStockEntrada_Exito(){
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Sumar 5 unidades al stock actual (15 + 5 = 20)
+        Producto resultado = productoService.ajustarStock(1L, TipoMovimiento.ENTRADA, 5, "testing");
+
+        assertThat(resultado.getStockActual()).isEqualTo(20);
+        verify(productoRepository, times(1)).save(productoBase);
+    };
+
+    @Test 
+    @DisplayName ("Debe lanzar excepción si el ajuste deja el stock en valores negativos")
+    void actualizarStockSalida_StockInsuficiente(){
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+
+        // Intentar restar 20 unidades cuando solo hay 15 disponibles
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            productoService.ajustarStock(1L, TipoMovimiento.SALIDA, 20, "testing");
+        });
+
+        assertThat(exception.getMessage()).contains("suficiente");
+        verify(productoRepository, never()).save(any());
+    };
+
+    @Test 
+    @DisplayName ("Debes realizar la baja lógica (desactivar) de un producto")
+    void desactivarProducto_exito(){
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        productoService.eliminarLogico(1L);
+        assertThat(productoBase.getActivo()).isFalse();
+        verify(productoRepository, times(1)).save(productoBase);
     };
 };
