@@ -15,25 +15,25 @@ private final ProductoCategoriaRepository productoCategoriaRepository;
 
     public ProductoCategoriaService(ProductoCategoriaRepository productoCategoriaRepository) {
         this.productoCategoriaRepository = productoCategoriaRepository;
-    }
+    };
 
     public List<ProductoCategoria> obtenerTodas() {
         return productoCategoriaRepository.findAll();
-    }
+    };
 
     public List<ProductoCategoria> obtenerActivas() {
         return productoCategoriaRepository.findByActivo(true);
-    }
+    };
 
     public ProductoCategoria obtenerPorId(Long id) {
         return productoCategoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
-    }
+    };
 
     @Transactional 
     public ProductoCategoria guardar(ProductoCategoria categoria) {
         return productoCategoriaRepository.save(categoria);
-    }
+    };
 
     @Transactional
     public ProductoCategoria actualizar(Long id, ProductoCategoria categoriaDetalles) {
@@ -41,14 +41,14 @@ private final ProductoCategoriaRepository productoCategoriaRepository;
         categoria.setNombre(categoriaDetalles.getNombre());
         if (categoriaDetalles.getActivo() != null) {
             categoria.setActivo(categoriaDetalles.getActivo());
-        }
+        };
         return productoCategoriaRepository.save(categoria);
-    }
+    };
 
     @Transactional
     public void desactivar(Long id) {
         ProductoCategoria categoria = obtenerPorId(id);
         categoria.setActivo(false);
         productoCategoriaRepository.save(categoria);
-    }
-}
+    };
+};
