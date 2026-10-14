@@ -6,12 +6,17 @@ import com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import com.padawan.spring.systems.autostore_sys_web.repository.MovimientoInventarioRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import jakarta.validation.Validator;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,11 +27,16 @@ public class ProductoService {
 
     private final ProductoRepository productoRepository;
     private final MovimientoInventarioRepository movimientoRepository;
+    private final Validator validator;
 
     // Constructor para inyectar el repositorio de productos
-    public ProductoService(ProductoRepository productoRepository, MovimientoInventarioRepository movimientoRepository) {
+    public ProductoService(
+        ProductoRepository productoRepository, 
+        MovimientoInventarioRepository movimientoRepository, 
+        Validator va) {
         this.productoRepository = productoRepository;
         this.movimientoRepository = movimientoRepository;
+        this.validator = va;
     };
     
     // Listar todos los productos activos
@@ -45,7 +55,11 @@ public class ProductoService {
     };
 
     //Guardar o Actualizar
-    public Producto guardar(Producto producto){  
+    public Producto guardar(Producto producto){
+        Set<ConstraintViolation<Producto>> violaciones = validator.validate(producto);
+        if (!violaciones.isEmpty()) {
+            throw new ConstraintViolationException(violaciones);
+        };
         return productoRepository.save(producto);
     };
 

@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,22 +24,33 @@ import com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento;
 import com.padawan.spring.systems.autostore_sys_web.repository.MovimientoInventarioRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
 @ExtendWith (MockitoExtension.class)
 public class ProductoServiceTest {
 
-    @Mock 
+    @Mock
     private ProductoRepository productoRepository;
 
     @Mock 
     private MovimientoInventarioRepository movimientoInventarioRepository;
 
-    @InjectMocks 
     private ProductoService productoService;
 
     private Producto productoBase;
+    private ValidatorFactory validatorFactory;
 
     @BeforeEach 
     void setUp() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        productoService = new ProductoService(
+                productoRepository,
+                movimientoInventarioRepository,
+                validatorFactory.getValidator());
+
         productoBase = new Producto();
         productoBase.setId(1L);
         productoBase.setNombre("Filtro de Aceite");
@@ -53,6 +64,11 @@ public class ProductoServiceTest {
         productoBase.setActivo(true);
     };
 
+    @AfterEach
+    void tearDown() {
+        validatorFactory.close();
+    };
+
     @Test 
     @DisplayName ("Debes guardar un producto nuevo correctamente")
     void guardarProducto_Exito(){
@@ -64,6 +80,30 @@ public class ProductoServiceTest {
         assertThat(respuesta.getId()).isEqualTo(1L);
         verify(productoRepository, times(1)).save(productoBase);
     };
+
+    @Test
+@DisplayName("Debe fallar al guardar producto sin marca")
+void guardarProducto_SinMarca_Falla() {
+    // Crear producto sin marca
+    Producto productoSinMarca = new Producto();
+    productoSinMarca.setId(2L);
+    productoSinMarca.setNombre("Filtro de Aire");
+    productoSinMarca.setCategoria("Filtros");
+    productoSinMarca.setPrecioCompra(new BigDecimal("100.00"));
+    productoSinMarca.setPrecioVentaMostrador(new BigDecimal("150.00"));
+    productoSinMarca.setStockActual(10);
+    productoSinMarca.setStockMinimo(3);
+    productoSinMarca.setActivo(true);
+    productoSinMarca.setMarca(null); // campo obligatorio
+
+    // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+    assertThrows(ConstraintViolationException.class, 
+        () -> productoService.guardar(productoSinMarca));
+    
+    // También puedes verificar que nunca se llamó al repositorio
+    verify(productoRepository, never()).save(any(Producto.class));
+}
+
 
     @Test 
     @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
