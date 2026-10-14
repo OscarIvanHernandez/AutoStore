@@ -29,13 +29,13 @@ public class Producto {
     @NotBlank(message = "El nombre del producto no puede estar vacío")
     private String nombre;
 
-    @Column(nullable = false, length = 100)
-    @NotBlank(message = "La marca es obligatoria")
-    private String marca;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private ProductoCategoria categoria;
 
-    @Column(nullable = false, length = 100)
-    @NotBlank(message = "La categoría es obligatoria")
-    private String categoria;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "marca_id", nullable = false)
+    private ProductoMarca marca;
 
     private String proveedor;
 
