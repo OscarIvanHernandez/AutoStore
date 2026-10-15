@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.padawan.spring.systems.autostore_sys_web.controller.ProductoController;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
@@ -41,6 +42,7 @@ public class ProductoServiceTest {
     private MovimientoInventarioRepository movimientoInventarioRepository;
 
     private ProductoService productoService;
+    private  ProductoController productoController;
 
     private Producto productoBase;
     private ProductoCategoria categoriaBase;
@@ -114,18 +116,18 @@ public class ProductoServiceTest {
         productoSinMarca.setActivo(true);
         productoSinMarca.setMarca(null); // campo obligatorio
 
-        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        // puede lanzar ConstraintViolationException o RuntimeException
         assertThrows(ConstraintViolationException.class, 
             () -> productoService.guardar(productoSinMarca));
         
-        // También puedes verificar que nunca se llamó al repositorio
+        // verificar que nunca se llamó al repositorio
         verify(productoRepository, never()).save(any(Producto.class));
     };
 
     @Test
     @DisplayName("Debe fallar al guardar producto sin categoria")
     void guardarProducto_SinCategoria_Falla() {
-        // Crear producto sin marca
+        // Crear producto sin categoria
         Producto productoSinCategoria = new Producto();
         productoSinCategoria.setId(2L);
         productoSinCategoria.setNombre("Filtro de Aire");
@@ -138,18 +140,18 @@ public class ProductoServiceTest {
         productoSinCategoria.setActivo(true);
         productoSinCategoria.setCategoria(null); // campo obligatorio
 
-        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        // puede lanzar ConstraintViolationException o RuntimeException
         assertThrows(ConstraintViolationException.class, 
             () -> productoService.guardar(productoSinCategoria));
         
-        // También puedes verificar que nunca se llamó al repositorio
+        // verificar que nunca se llamó al repositorio
         verify(productoRepository, never()).save(any(Producto.class));
     };
 
     @Test
     @DisplayName("Debe fallar al guardar producto sin precio de venta en mostrador")
     void guardarProducto_SinPrecioVentaMostrador_Falla() {
-        // Crear producto sin marca
+        // Crear producto sin precio de venta mostrador
         Producto productoSinCategoria = new Producto();
         productoSinCategoria.setId(2L);
         productoSinCategoria.setNombre("Filtro de Aire");
@@ -162,17 +164,18 @@ public class ProductoServiceTest {
         productoSinCategoria.setStockMinimo(3);
         productoSinCategoria.setActivo(true);
 
-        // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
+        // puede lanzar ConstraintViolationException o RuntimeException
         assertThrows(ConstraintViolationException.class, 
             () -> productoService.guardar(productoSinCategoria));
         
-        // También puedes verificar que nunca se llamó al repositorio
+        // verificar que nunca se llamó al repositorio
         verify(productoRepository, never()).save(any(Producto.class));
     };
 
     @Test 
     @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
     void obtenerPorId_NoEncontrado(){
+        // Buscar por id no existente
         when(productoRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThat(productoService.obtenerPorId(99L)).isEmpty();
@@ -182,6 +185,7 @@ public class ProductoServiceTest {
     @Test 
     @DisplayName ("Debes actualizar correctamente el stock de un producto")
     void actualizarStockEntrada_Exito(){
+        // actualizar stock de entrada
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
         when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
 
@@ -195,6 +199,7 @@ public class ProductoServiceTest {
     @Test 
     @DisplayName ("Debe lanzar excepción si el ajuste deja el stock en valores negativos")
     void actualizarStockSalida_StockInsuficiente(){
+        // actualizar la salida de stock que es insuficiente
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
 
         // Intentar restar 20 unidades cuando solo hay 15 disponibles
@@ -209,6 +214,7 @@ public class ProductoServiceTest {
     @Test 
     @DisplayName ("Debes realizar la baja lógica (desactivar) de un producto")
     void desactivarProducto_exito(){
+        // desactivar un producto correctamente
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
         when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
 
