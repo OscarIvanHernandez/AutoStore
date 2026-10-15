@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { ProductoInterface } from '../../../../../services/autostore.models';
+import { CatalogoProductoInterface, ProductoInterface } from '../../../../../services/autostore.models';
 import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
@@ -17,6 +17,8 @@ export class EditarProducto extends BaseModalComponent implements OnChanges{
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
   @Input() producto: ProductoInterface | null = null;
+  @Input() marcas: CatalogoProductoInterface[] = [];
+  @Input() categorias: CatalogoProductoInterface[] = [];
 
   @Output() close = new EventEmitter<void>();
   @Output() update = new EventEmitter<ProductoInterface>();

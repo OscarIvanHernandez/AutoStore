@@ -20,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
+import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento;
 import com.padawan.spring.systems.autostore_sys_web.repository.MovimientoInventarioRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
@@ -41,6 +43,8 @@ public class ProductoServiceTest {
     private ProductoService productoService;
 
     private Producto productoBase;
+    private ProductoCategoria categoriaBase;
+    private ProductoMarca marcaBase;
     private ValidatorFactory validatorFactory;
 
     @BeforeEach 
@@ -51,11 +55,20 @@ public class ProductoServiceTest {
                 movimientoInventarioRepository,
                 validatorFactory.getValidator());
 
+        // Instanciar objetos de catálogo
+        categoriaBase = new ProductoCategoria();
+        categoriaBase.setId(1L);
+        categoriaBase.setNombre("Filtros");
+
+        marcaBase = new ProductoMarca();
+        marcaBase.setId(1L);
+        marcaBase.setNombre("Gonher");
+
         productoBase = new Producto();
         productoBase.setId(1L);
         productoBase.setNombre("Filtro de Aceite");
-        productoBase.setMarca("Gonher");
-        productoBase.setCategoria("Filtros");
+        productoBase.setMarca(marcaBase);
+        productoBase.setCategoria(categoriaBase);
         productoBase.setPrecioCompra(new BigDecimal("80.00"));
         productoBase.setPrecioVentaMostrador(new BigDecimal("120.00"));
         productoBase.setPrecioVentaTaller(new BigDecimal("0"));
@@ -88,7 +101,7 @@ public class ProductoServiceTest {
         Producto productoSinMarca = new Producto();
         productoSinMarca.setId(2L);
         productoSinMarca.setNombre("Filtro de Aire");
-        productoSinMarca.setCategoria("Filtros");
+        productoSinMarca.setCategoria(categoriaBase);
         productoSinMarca.setPrecioCompra(new BigDecimal("100.00"));
         productoSinMarca.setPrecioVentaMostrador(new BigDecimal("150.00"));
         productoSinMarca.setPrecioVentaTaller(new BigDecimal("0"));
@@ -112,7 +125,7 @@ public class ProductoServiceTest {
         Producto productoSinCategoria = new Producto();
         productoSinCategoria.setId(2L);
         productoSinCategoria.setNombre("Filtro de Aire");
-        productoSinCategoria.setMarca("Motorcraft");
+        productoSinCategoria.setMarca(marcaBase);
         productoSinCategoria.setPrecioCompra(new BigDecimal("100.00"));
         productoSinCategoria.setPrecioVentaMostrador(new BigDecimal("150.00"));
         productoSinCategoria.setPrecioVentaTaller(new BigDecimal("0"));
@@ -136,14 +149,14 @@ public class ProductoServiceTest {
         Producto productoSinCategoria = new Producto();
         productoSinCategoria.setId(2L);
         productoSinCategoria.setNombre("Filtro de Aire");
-        productoSinCategoria.setMarca("Motorcraft");
+        productoSinCategoria.setMarca(marcaBase);
+        productoSinCategoria.setCategoria(categoriaBase);
         productoSinCategoria.setPrecioCompra(new BigDecimal("100.00"));
         productoSinCategoria.setPrecioVentaMostrador(null);
         productoSinCategoria.setPrecioVentaTaller(new BigDecimal("0"));
         productoSinCategoria.setStockActual(10);
         productoSinCategoria.setStockMinimo(3);
         productoSinCategoria.setActivo(true);
-        productoSinCategoria.setCategoria("Filtros");
 
         // Dependiendo de tu implementación, puede lanzar ConstraintViolationException o RuntimeException
         assertThrows(ConstraintViolationException.class, 

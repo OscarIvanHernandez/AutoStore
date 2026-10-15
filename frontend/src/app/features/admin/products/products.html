@@ -15,7 +15,7 @@
         class="btn-primary"
         type="button"
         (click)="abrirModalCrearProducto()"
-        [disabled]="cargandoProductos || isSaving"
+        [disabled]="cargandoProductos || isSaving || loadingStates['marcas'] || loadingStates['categorias'] || !catalogosActivosDisponibles"
       >
         Agregar producto
       </button>
@@ -30,6 +30,142 @@
   >
     {{ errorMessage }}
   </div>
+
+  <section class="catalog-admin" aria-labelledby="catalog-admin-title">
+    <div class="catalog-admin__heading">
+      <div>
+        <h2 id="catalog-admin-title">Marcas y categorías</h2>
+        <p>Administra los catálogos que se utilizan para clasificar los productos.</p>
+      </div>
+    </div>
+
+    <div class="catalog-admin__cards">
+      <article class="catalog-card">
+        <header class="catalog-card__header">
+          <div>
+            <h3>Marcas</h3>
+            <span>{{ marcas.length }} {{ marcas.length === 1 ? 'registro' : 'registros' }}</span>
+          </div>
+        </header>
+        <div *ngIf="loadErrors['marcas']" class="catalog-error" role="alert">
+          <span>{{ loadErrors['marcas'] }}</span>
+          <button class="text-button" type="button" (click)="reintentarCargaCatalogo('marcas')" [disabled]="loadingStates['marcas']">
+            Reintentar
+          </button>
+        </div>
+        <div *ngIf="loadingStates['marcas'] && !marcas.length" class="catalog-empty" role="status">Cargando marcas...</div>
+        <form class="catalog-form" (ngSubmit)="guardarMarca()">
+          <label for="nombre-marca">{{ marcaEditandoId ? 'Editar marca' : 'Nueva marca' }}</label>
+          <div class="catalog-form__controls">
+            <input
+              id="nombre-marca"
+              type="text"
+              name="nombreMarca"
+              [(ngModel)]="nombreMarca"
+              maxlength="100"
+              required
+              placeholder="Nombre de la marca"
+              [disabled]="isSaving"
+            />
+            <button class="btn-primary" type="submit" [disabled]="isSaving || !nombreMarca.trim()">
+              {{ marcaEditandoId ? 'Guardar' : 'Agregar' }}
+            </button>
+            <button
+              *ngIf="marcaEditandoId"
+              class="btn-secondary"
+              type="button"
+              (click)="cancelarEdicionMarca()"
+              [disabled]="isSaving"
+            >Cancelar</button>
+          </div>
+        </form>
+        <ul class="catalog-list" *ngIf="marcas.length; else emptyMarcas">
+          <li *ngFor="let marca of marcas">
+            <span class="catalog-list__name">{{ marca.nombre }}</span>
+            <span class="catalog-status" [class.catalog-status--inactive]="!marca.activo">
+              {{ marca.activo ? 'Activa' : 'Inactiva' }}
+            </span>
+            <div class="catalog-list__actions">
+              <button type="button" class="text-button" (click)="editarMarca(marca)" [disabled]="isSaving">
+                Editar
+              </button>
+              <button
+                type="button"
+                class="text-button"
+                (click)="alternarEstadoMarca(marca)"
+                [disabled]="isSaving"
+              >{{ marca.activo ? 'Desactivar' : 'Activar' }}</button>
+            </div>
+          </li>
+        </ul>
+        <ng-template #emptyMarcas><p class="catalog-empty">Aún no hay marcas registradas.</p></ng-template>
+      </article>
+
+      <article class="catalog-card">
+        <header class="catalog-card__header">
+          <div>
+            <h3>Categorías</h3>
+            <span>{{ categorias.length }} {{ categorias.length === 1 ? 'registro' : 'registros' }}</span>
+          </div>
+        </header>
+        <div *ngIf="loadErrors['categorias']" class="catalog-error" role="alert">
+          <span>{{ loadErrors['categorias'] }}</span>
+          <button class="text-button" type="button" (click)="reintentarCargaCatalogo('categorias')" [disabled]="loadingStates['categorias']">
+            Reintentar
+          </button>
+        </div>
+        <div *ngIf="loadingStates['categorias'] && !categorias.length" class="catalog-empty" role="status">Cargando categorías...</div>
+        <form class="catalog-form" (ngSubmit)="guardarCategoria()">
+          <label for="nombre-categoria">{{ categoriaEditandoId ? 'Editar categoría' : 'Nueva categoría' }}</label>
+          <div class="catalog-form__controls">
+            <input
+              id="nombre-categoria"
+              type="text"
+              name="nombreCategoria"
+              [(ngModel)]="nombreCategoria"
+              maxlength="100"
+              required
+              placeholder="Nombre de la categoría"
+              [disabled]="isSaving"
+            />
+            <button class="btn-primary" type="submit" [disabled]="isSaving || !nombreCategoria.trim()">
+              {{ categoriaEditandoId ? 'Guardar' : 'Agregar' }}
+            </button>
+            <button
+              *ngIf="categoriaEditandoId"
+              class="btn-secondary"
+              type="button"
+              (click)="cancelarEdicionCategoria()"
+              [disabled]="isSaving"
+            >Cancelar</button>
+          </div>
+        </form>
+        <ul class="catalog-list" *ngIf="categorias.length; else emptyCategorias">
+          <li *ngFor="let categoria of categorias">
+            <span class="catalog-list__name">{{ categoria.nombre }}</span>
+            <span class="catalog-status" [class.catalog-status--inactive]="!categoria.activo">
+              {{ categoria.activo ? 'Activa' : 'Inactiva' }}
+            </span>
+            <div class="catalog-list__actions">
+              <button type="button" class="text-button" (click)="editarCategoria(categoria)" [disabled]="isSaving">
+                Editar
+              </button>
+              <button
+                type="button"
+                class="text-button"
+                (click)="alternarEstadoCategoria(categoria)"
+                [disabled]="isSaving"
+              >{{ categoria.activo ? 'Desactivar' : 'Activar' }}</button>
+            </div>
+          </li>
+        </ul>
+        <ng-template #emptyCategorias><p class="catalog-empty">Aún no hay categorías registradas.</p></ng-template>
+      </article>
+    </div>
+    <p *ngIf="!catalogosActivosDisponibles && !loadingStates['marcas'] && !loadingStates['categorias']" class="catalog-hint">
+      Agrega o activa al menos una marca y una categoría para registrar productos.
+    </p>
+  </section>
 
   <section class="products-toolbar" aria-label="Filtros del inventario">
     <div class="field-group">
@@ -151,6 +287,8 @@
     [visible]="mostrarModal"
     [isSaving]="isSaving"
     [errorMessage]="errorMessage"
+    [marcas]="marcas"
+    [categorias]="categorias"
     (close)="cerrarModal()"
     (save)="guardarProducto($event)"
   />
@@ -161,6 +299,8 @@
     [isSaving]="isSaving"
     [errorMessage]="errorMessage"
     [producto]="productoEditar"
+    [marcas]="marcas"
+    [categorias]="categorias"
     (close)="cerrarModalEditar()"
     (update)="editarProducto($event)"
   />

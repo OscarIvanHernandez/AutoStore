@@ -16,14 +16,19 @@ public class ProductoSpecification {
             if (q != null && !q.trim().isEmpty()) {
                 String pattern = "%" + q.toLowerCase().trim() + "%";
                 Predicate nombreMatch = cb.like(cb.lower(root.get("nombre")), pattern);
-                Predicate marcaMatch = cb.like(cb.lower(root.get("marca")), pattern);
-                Predicate categoriaMatch = cb.like(cb.lower(root.get("categoria")), pattern);
+                Predicate marcaMatch = cb.like(cb.lower(root.get("marca").get("nombre")), pattern);
+                Predicate categoriaMatch = cb.like(cb.lower(root.get("categoria").get("nombre")), pattern);
                 predicates.add(cb.or(nombreMatch, marcaMatch, categoriaMatch));
+            };
+            // Filtro opcional por marca
+            if (marca != null && !marca.trim().isEmpty()) {
+                String marcaPattern = "%" + marca.toLowerCase().trim() + "%";
+                predicates.add(cb.like(cb.lower(root.get("marca").get("nombre")), marcaPattern));
             };
             // Filtro opcional por categoría
             if (categoria != null && !categoria.trim().isEmpty()) {
                 String categoriaPattern = "%" + categoria.toLowerCase().trim()+"%";
-                predicates.add(cb.like(cb.lower(root.get("categoria")), categoriaPattern));
+                predicates.add(cb.like(cb.lower(root.get("categoria").get("nombre")), categoriaPattern));
             };
             // Filtro por estado activo/inactivo
             if (estado != null && !estado.trim().isEmpty()) {

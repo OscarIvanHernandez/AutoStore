@@ -26,7 +26,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSp
     // Query personalizada para buscar por término ignorando mayúsculas/minúsculas (ISSUE-02)
     @Query("SELECT p FROM Producto p WHERE p.activo = true AND " +
         "(LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
-        " LOWER(p.marca) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
-        " LOWER(p.categoria) LIKE LOWER(CONCAT('%', :q, '%')))")
+        " LOWER(p.marca.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
+        " LOWER(p.categoria.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     List<Producto> searchProductos(@Param("q") String query);
 };

@@ -26,11 +26,11 @@ public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long
     Long sumarProductosVendidos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
     @Query("SELECT new com.padawan.spring.systems.autostore_sys_web.model.TopProductoDTO(" +
-        "p.id, p.nombre, p.marca, p.categoria, SUM(dv.cantidad), SUM(dv.cantidad * dv.precioUnitario), " +
+        "p.id, p.nombre, p.marca.nombre, p.categoria.nombre, SUM(dv.cantidad), SUM(dv.cantidad * dv.precioUnitario), " +
         "SUM(dv.cantidad * (dv.precioUnitario - COALESCE(dv.precioCompraHistorico, p.precioCompra)))) " +
         "FROM DetalleVenta dv JOIN dv.producto p " +
         "WHERE dv.venta.fechaVenta BETWEEN :desde AND :hasta " +
-        "GROUP BY p.id, p.nombre, p.marca, p.categoria " +
+        "GROUP BY p.id, p.nombre, p.marca.nombre, p.categoria.nombre " +
         "ORDER BY SUM(dv.cantidad) DESC, SUM(dv.cantidad * dv.precioUnitario) DESC")
     List<TopProductoDTO> obtenerTopProductos(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta, Pageable pageable);
 };

@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ProductoInterface } from '../../../../../services/autostore.models';
+import { CatalogoProductoInterface, ProductoInterface } from '../../../../../services/autostore.models';
 import { BaseModalComponent } from '../../../base-component/base-modal-component';
 
 @Component({
@@ -16,6 +16,8 @@ export class AgregarProducto extends BaseModalComponent {
   @Input() visible = false;
   @Input() isSaving = false;
   @Input() errorMessage: string | null = null;
+  @Input() marcas: CatalogoProductoInterface[] = [];
+  @Input() categorias: CatalogoProductoInterface[] = [];
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<ProductoInterface>();
 
@@ -28,7 +30,7 @@ export class AgregarProducto extends BaseModalComponent {
 
   cerrar() {
     this.mostrarAyuda = false;
-    this.resetearFormulario();
+    this.nuevoProducto = this.resetearFormulario();
     this.close.emit();
   }
 

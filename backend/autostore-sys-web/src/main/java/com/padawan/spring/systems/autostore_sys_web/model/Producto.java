@@ -31,10 +31,12 @@ public class Producto {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id", nullable = false)
+    @NotNull(message = "La categoría del producto es obligatoria")
     private ProductoCategoria categoria;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "marca_id", nullable = false)
+    @NotNull(message = "La marca del producto es obligatoria")
     private ProductoMarca marca;
 
     private String proveedor;

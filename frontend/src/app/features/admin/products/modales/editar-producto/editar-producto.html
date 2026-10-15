@@ -24,29 +24,43 @@
 
         <div class="form-input">
           <label>Marca:</label>
-          <input
-          type="text"
-          name="marca"
-          [(ngModel)]="productoEditar.marca"
-          required
-          #marcaModel = "ngModel">
+          <select
+            name="marca"
+            [(ngModel)]="productoEditar.marcaId"
+            required
+            #marcaModel="ngModel">
+            <option [ngValue]="undefined">Selecciona una marca</option>
+            <option
+              *ngFor="let marca of marcas"
+              [ngValue]="marca.id"
+              [disabled]="!marca.activo && productoEditar.marcaId !== marca.id">
+              {{ marca.nombre }}{{ marca.activo ? '' : ' (inactiva)' }}
+            </option>
+          </select>
           <span class="span-text" *ngIf="marcaModel.invalid && (marcaModel.touched || productoForm.submitted) ">
             <span class="error-text" *ngIf="marcaModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
-              Este campos es obligatorio.</span>
+              Selecciona una marca.</span>
           </span>
         </div>
 
         <div class="form-input">
           <label>Categoría:</label>
-          <input
-          type="text"
-          name="categoria"
-          [(ngModel)]="productoEditar.categoria"
-          required
-          #categoriaModel = "ngModel">
+          <select
+            name="categoria"
+            [(ngModel)]="productoEditar.categoriaId"
+            required
+            #categoriaModel="ngModel">
+            <option [ngValue]="undefined">Selecciona una categoría</option>
+            <option
+              *ngFor="let categoria of categorias"
+              [ngValue]="categoria.id"
+              [disabled]="!categoria.activo && productoEditar.categoriaId !== categoria.id">
+              {{ categoria.nombre }}{{ categoria.activo ? '' : ' (inactiva)' }}
+            </option>
+          </select>
           <span clas="span-text" *ngIf="categoriaModel.invalid && (categoriaModel.touched || productoForm.submitted) ">
             <span class="error-text" *ngIf="categoriaModel.errors?.['required']"><mat-icon fontIcon="info"></mat-icon>
-              Este campo es obligatorio.</span>
+              Selecciona una categoría.</span>
           </span>
         </div>
 

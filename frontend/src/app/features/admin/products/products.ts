@@ -1,8 +1,14 @@
-import { AjusteRequestInterface, EstadoProductoInterface, ProductoInterface } from './../../../services/autostore.models';
+import {
+  AjusteRequestInterface,
+  CatalogoProductoInterface,
+  EstadoProductoInterface,
+  ProductoInterface
+} from './../../../services/autostore.models';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import {ProductoService } from '../../../services/autostore.product-service';
+import { CatalogoProductoService } from '../../../services/autostore.product-catalog-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgregarProducto } from './modales/agregar-producto/agregar-producto';
@@ -31,6 +37,8 @@ import { BaseComponent } from '../base-component/base-component';
 export class Products extends BaseComponent implements OnInit{
   // Varaibles Producto
   productos: ProductoInterface[] = [];
+  marcas: CatalogoProductoInterface[] = [];
+  categorias: CatalogoProductoInterface[] = [];
   productoSeleccionado: ProductoInterface | null = null;
   productoEstadoSeleccionado: EstadoProductoInterface | null = null;
   productoEditar: ProductoInterface = this.resetearFormulario();
@@ -50,6 +58,10 @@ export class Products extends BaseComponent implements OnInit{
   mostrarModalEditar: boolean = false;
   // Alternar estado
   mostrarModalAlternar: boolean = false;
+  marcaEditandoId: number | null = null;
+  categoriaEditandoId: number | null = null;
+  nombreMarca = '';
+  nombreCategoria = '';
 
   // Variables para los filtro de busqueda
   textoBusqueda: string  = '';
@@ -59,6 +71,7 @@ export class Products extends BaseComponent implements OnInit{
 
   constructor(
     private productoService: ProductoService,
+    private catalogoService: CatalogoProductoService,
     cdr: ChangeDetectorRef,
     private route: ActivatedRoute
   ){ super(cdr)}
@@ -84,13 +97,25 @@ export class Products extends BaseComponent implements OnInit{
         this.cargarProductos();
       }
     });
+    this.cargarCatalogos();
+  }
+
+  private cargarCatalogos(): void {
+    this.cargarRecurso('marcas', this.catalogoService.obtenerMarcas(), (marcas) => {
+      this.marcas = marcas;
+    }, 'marcas');
+    this.cargarRecurso('categorias', this.catalogoService.obtenerCategorias(), (categorias) => {
+      this.categorias = categorias;
+    }, 'categorías');
   }
 
   private resetearFormulario(): ProductoInterface{
     return{
       nombre:'',
       marca: '',
+      marcaId: undefined,
       categoria: '',
+      categoriaId: undefined,
       proveedor: '',
       precioCompra: 0,
       precioVentaMostrador: 0,
@@ -112,6 +137,158 @@ export class Products extends BaseComponent implements OnInit{
     this.successMessage = null;
     this.errorMessage = null;
     this.mostrarModal = true;
+  }
+
+  guardarMarca(): void {
+    const nombre = this.nombreMarca.trim();
+    if (!nombre) return;
+
+    const marca = this.marcas.find(item => item.id === this.marcaEditandoId);
+    if (marca?.id !== undefined) {
+      this.ejecutarMutacion(
+        this.catalogoService.actualizarMarca({ ...marca, nombre }),
+        'actualizar la marca',
+        (actualizada) => {
+          this.actualizarCatalogo(this.marcas, actualizada, 'marcas');
+          this.productos = this.productos.map(producto => producto.marcaId === actualizada.id
+            ? { ...producto, marca: actualizada.nombre }
+            : producto);
+          this.cancelarEdicionMarca();
+          this.showSuccessMessage('Marca actualizada correctamente.');
+        }
+      );
+      return;
+    }
+
+    this.ejecutarMutacion(
+      this.catalogoService.crearMarca({ nombre, activo: true }),
+      'crear la marca',
+      (nueva) => {
+        this.marcas = [...this.marcas, nueva].sort((a, b) => a.nombre.localeCompare(b.nombre));
+        this.nombreMarca = '';
+        this.showSuccessMessage('Marca creada correctamente.');
+      }
+    );
+  }
+
+  editarMarca(marca: CatalogoProductoInterface): void {
+    if (marca.id === undefined) return;
+    this.marcaEditandoId = marca.id;
+    this.nombreMarca = marca.nombre;
+  }
+
+  cancelarEdicionMarca(): void {
+    this.marcaEditandoId = null;
+    this.nombreMarca = '';
+  }
+
+  alternarEstadoMarca(marca: CatalogoProductoInterface): void {
+    if (marca.id === undefined) return;
+    if (marca.activo) {
+      this.ejecutarMutacion(this.catalogoService.desactivarMarca(marca.id), 'desactivar la marca', () => {
+        this.actualizarCatalogo(this.marcas, { ...marca, activo: false }, 'marcas');
+        this.showSuccessMessage('Marca desactivada. Los productos asociados se conservan.');
+      });
+      return;
+    }
+
+    this.ejecutarMutacion(
+      this.catalogoService.actualizarMarca({ ...marca, activo: true }),
+      'activar la marca',
+      (actualizada) => {
+        this.actualizarCatalogo(this.marcas, actualizada, 'marcas');
+        this.showSuccessMessage('Marca activada correctamente.');
+      }
+    );
+  }
+
+  guardarCategoria(): void {
+    const nombre = this.nombreCategoria.trim();
+    if (!nombre) return;
+
+    const categoria = this.categorias.find(item => item.id === this.categoriaEditandoId);
+    if (categoria?.id !== undefined) {
+      this.ejecutarMutacion(
+        this.catalogoService.actualizarCategoria({ ...categoria, nombre }),
+        'actualizar la categoría',
+        (actualizada) => {
+          this.actualizarCatalogo(this.categorias, actualizada, 'categorias');
+          this.productos = this.productos.map(producto => producto.categoriaId === actualizada.id
+            ? { ...producto, categoria: actualizada.nombre }
+            : producto);
+          this.cancelarEdicionCategoria();
+          this.showSuccessMessage('Categoría actualizada correctamente.');
+        }
+      );
+      return;
+    }
+
+    this.ejecutarMutacion(
+      this.catalogoService.crearCategoria({ nombre, activo: true }),
+      'crear la categoría',
+      (nueva) => {
+        this.categorias = [...this.categorias, nueva].sort((a, b) => a.nombre.localeCompare(b.nombre));
+        this.nombreCategoria = '';
+        this.showSuccessMessage('Categoría creada correctamente.');
+      }
+    );
+  }
+
+  editarCategoria(categoria: CatalogoProductoInterface): void {
+    if (categoria.id === undefined) return;
+    this.categoriaEditandoId = categoria.id;
+    this.nombreCategoria = categoria.nombre;
+  }
+
+  cancelarEdicionCategoria(): void {
+    this.categoriaEditandoId = null;
+    this.nombreCategoria = '';
+  }
+
+  alternarEstadoCategoria(categoria: CatalogoProductoInterface): void {
+    if (categoria.id === undefined) return;
+    if (categoria.activo) {
+      this.ejecutarMutacion(this.catalogoService.desactivarCategoria(categoria.id), 'desactivar la categoría', () => {
+        this.actualizarCatalogo(this.categorias, { ...categoria, activo: false }, 'categorias');
+        this.showSuccessMessage('Categoría desactivada. Los productos asociados se conservan.');
+      });
+      return;
+    }
+
+    this.ejecutarMutacion(
+      this.catalogoService.actualizarCategoria({ ...categoria, activo: true }),
+      'activar la categoría',
+      (actualizada) => {
+        this.actualizarCatalogo(this.categorias, actualizada, 'categorias');
+        this.showSuccessMessage('Categoría activada correctamente.');
+      }
+    );
+  }
+
+  private actualizarCatalogo(
+    catalogo: CatalogoProductoInterface[],
+    actualizada: CatalogoProductoInterface,
+    propiedad: 'marcas' | 'categorias'
+  ): void {
+    const actualizado = catalogo.map(item => item.id === actualizada.id ? actualizada : item)
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+    if (propiedad === 'marcas') {
+      this.marcas = actualizado;
+    } else {
+      this.categorias = actualizado;
+    }
+  }
+
+  reintentarCargaCatalogo(tipo: 'marcas' | 'categorias'): void {
+    if (tipo === 'marcas') {
+      this.cargarRecurso('marcas', this.catalogoService.obtenerMarcas(), (marcas) => {
+        this.marcas = marcas;
+      }, 'marcas');
+    } else {
+      this.cargarRecurso('categorias', this.catalogoService.obtenerCategorias(), (categorias) => {
+        this.categorias = categorias;
+      }, 'categorías');
+    }
   }
 
   cerrarModal() {
@@ -180,6 +357,11 @@ export class Products extends BaseComponent implements OnInit{
     return this.loadingStates['productos']
       || this.loadingStates['filtroProductos']
       || this.loadingStates['buscarProductos'];
+  }
+
+  get catalogosActivosDisponibles(): boolean {
+    return this.marcas.some(marca => marca.activo)
+      && this.categorias.some(categoria => categoria.activo);
   }
 
   reintentarBusquedaInicial(): void {

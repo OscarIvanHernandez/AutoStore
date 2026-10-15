@@ -2,7 +2,9 @@ export interface ProductoInterface {
   id?: number;
   nombre: string;
   marca: string;
+  marcaId?: number;
   categoria: string;
+  categoriaId?: number;
   proveedor?: string;
   precioCompra: number;
   precioVentaMostrador: number;
@@ -11,6 +13,25 @@ export interface ProductoInterface {
   stockMinimo: number;
   foto?: string;
   activo?: boolean;
+}
+
+export interface CatalogoProductoInterface {
+  id?: number;
+  nombre: string;
+  activo: boolean;
+}
+
+export interface ProductoApiInterface extends Omit<ProductoInterface, 'marca' | 'categoria'> {
+  marca: CatalogoProductoInterface;
+  categoria: CatalogoProductoInterface;
+}
+
+export interface ProductoRequestInterface extends Omit<
+  ProductoInterface,
+  'id' | 'marca' | 'marcaId' | 'categoria' | 'categoriaId'
+> {
+  marca: { id: number };
+  categoria: { id: number };
 }
 
 export interface AjusteRequestInterface {
