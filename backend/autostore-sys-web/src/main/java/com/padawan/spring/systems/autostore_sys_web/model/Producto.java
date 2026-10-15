@@ -1,6 +1,7 @@
 package com.padawan.spring.systems.autostore_sys_web.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,11 +33,13 @@ public class Producto {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id", nullable = false)
     @NotNull(message = "La categoría del producto es obligatoria")
+    @Valid 
     private ProductoCategoria categoria;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "marca_id", nullable = false)
     @NotNull(message = "La marca del producto es obligatoria")
+    @Valid 
     private ProductoMarca marca;
 
     private String proveedor;
