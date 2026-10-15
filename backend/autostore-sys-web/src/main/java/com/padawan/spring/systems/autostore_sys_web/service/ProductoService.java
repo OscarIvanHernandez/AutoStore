@@ -60,7 +60,9 @@ public class ProductoService {
         if (!violaciones.isEmpty()) {
             throw new ConstraintViolationException(violaciones);
         };
-        return productoRepository.save(producto);
+        Producto guardado = productoRepository.save(producto);
+        return productoRepository.findById(guardado.getId())
+                .orElseThrow(() -> new IllegalStateException("No se pudo recuperar el producto guardado"));
     };
 
     // Eliminación lógica (ISSUE-02: activo = false)

@@ -86,12 +86,16 @@ public class ProductoServiceTest {
     @DisplayName ("Debes guardar un producto nuevo correctamente")
     void guardarProducto_Exito(){
         when(productoRepository.save(any(Producto.class))).thenReturn(productoBase);
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
 
         Producto respuesta = productoService.guardar(productoBase);
         
         assertThat(respuesta).isNotNull();
         assertThat(respuesta.getId()).isEqualTo(1L);
+        assertThat(respuesta.getMarca().getNombre()).isEqualTo("Gonher");
+        assertThat(respuesta.getCategoria().getNombre()).isEqualTo("Filtros");
         verify(productoRepository, times(1)).save(productoBase);
+        verify(productoRepository, times(1)).findById(1L);
     };
 
     @Test
