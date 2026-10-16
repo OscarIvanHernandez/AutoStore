@@ -49,6 +49,9 @@ public class ProductoServiceTest {
     private ProductoMarca marcaBase;
     private ValidatorFactory validatorFactory;
 
+    // ==========================
+    // 🔧 Setup y configuración
+    // ==========================
     @BeforeEach 
     void setUp() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -79,11 +82,17 @@ public class ProductoServiceTest {
         productoBase.setActivo(true);
     };
 
+    // ==========================
+    // 🧹 Limpieza
+    // ==========================
     @AfterEach
     void tearDown() {
         validatorFactory.close();
     };
 
+    // ==========================
+    // 🧹 Guardar Producto
+    // ==========================
     @Test 
     @DisplayName ("Debes guardar un producto nuevo correctamente")
     void guardarProducto_Exito(){
@@ -172,6 +181,13 @@ public class ProductoServiceTest {
         verify(productoRepository, never()).save(any(Producto.class));
     };
 
+    // ==========================
+    // 🧹 Editar Producto
+    // ==========================
+
+    // ==========================
+    // 🧹 Filtrar Productos
+    // ==========================
     @Test 
     @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
     void obtenerPorId_NoEncontrado(){
@@ -182,6 +198,9 @@ public class ProductoServiceTest {
         verify(productoRepository, times(1)).findById(99L);
     };
 
+    // ==========================
+    // 🧹 Actualizar Stock
+    // ==========================
     @Test 
     @DisplayName ("Debes actualizar correctamente el stock de un producto")
     void actualizarStockEntrada_Exito(){
@@ -239,6 +258,10 @@ public class ProductoServiceTest {
         assertThat(resultado.getStockActual()).isEqualTo(14);
         verify(productoRepository, times(1)).save(productoBase);
     };
+
+    // ==========================
+    // 🧹 Desactivar Producto
+    // ==========================
 
     @Test 
     @DisplayName ("Debes realizar la baja lógica (desactivar) de un producto")
