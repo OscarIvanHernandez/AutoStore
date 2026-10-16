@@ -274,4 +274,30 @@ public class ProductoServiceTest {
         assertThat(productoBase.getActivo()).isFalse();
         verify(productoRepository, times(1)).save(productoBase);
     };
+
+    @Test 
+    @DisplayName ("Debes no realizar la baja lógica (desactivar) de un producto ya desactivado")
+    void desactivarProducto_DesactivadoFalla(){
+        // desactivar un producto ya desactivado falla
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        productoService.eliminarLogico(1L);
+        boolean resultado = productoService.eliminarLogico(1L);
+        assertThat(resultado).isFalse();
+        assertThat(productoBase.getActivo()).isFalse();
+        verify(productoRepository, times(1)).save(productoBase);
+    };
+
+    @Test 
+    @DisplayName ("Debes regresar falso al realizar la baja lógica (desactivar) de un producto inexistente")
+    void desactivarProducto_Inexistente(){
+        when(productoRepository.findById(33L)).thenReturn(Optional.empty());
+
+        boolean resultado = productoService.eliminarLogico(33L);
+
+        assertThat(resultado).isFalse();
+        assertThat(productoBase.getActivo()).isTrue();
+        verify(productoRepository, never()).save(any(Producto.class));
+    };
 };

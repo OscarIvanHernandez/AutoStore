@@ -68,6 +68,9 @@ public class ProductoService {
     // Eliminación lógica (ISSUE-02: activo = false)
     public boolean eliminarLogico(Long id) {
         return productoRepository.findById(id).map(producto -> {
+            if (!producto.getActivo()) {
+                return false;
+            };
             producto.setActivo(false);
             productoRepository.save(producto);
             return true;
