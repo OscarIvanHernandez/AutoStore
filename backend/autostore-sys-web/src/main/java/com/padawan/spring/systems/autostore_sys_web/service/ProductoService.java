@@ -98,10 +98,11 @@ public class ProductoService {
         if (tipo == TipoMovimiento.ENTRADA) {
             producto.setStockActual(producto.getStockActual() + cantidad);
         } else if (tipo == TipoMovimiento.SALIDA) {
-            if (producto.getStockActual() < cantidad) {
+            long cantidadSalida = Math.abs((long) cantidad);
+            if (producto.getStockActual() < cantidadSalida) {
                 throw new IllegalArgumentException("No hay suficiente stock para realizar la salida");
             };
-            producto.setStockActual(producto.getStockActual() - cantidad);
+            producto.setStockActual((int) (producto.getStockActual() - cantidadSalida));
         };
 
         // Guardar el producto actualizado

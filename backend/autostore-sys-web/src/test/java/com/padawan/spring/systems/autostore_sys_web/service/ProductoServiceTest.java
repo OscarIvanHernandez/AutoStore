@@ -226,18 +226,18 @@ public class ProductoServiceTest {
     };
 
     @Test 
-    @DisplayName ("Debe lanzar excepción si el ajuste deja el stock en valores negativos")
-    void actualizarStockSalida_ValorNegativo(){
-        // actualizar la salida de stock que es insuficiente
+    @DisplayName ("Debes aceptar si el ajuste de stock esta en valores negativos")
+    void actualizarStockSalida_AceptaValorNegativo(){
+        // actualizar la salida de stock que es suficiente
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        // Intentar restar 20 unidades cuando solo hay 15 disponibles
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            productoService.ajustarStock(1L, TipoMovimiento.SALIDA, -1, "testing");
-        });
 
-        assertThat(exception.getMessage()).contains("suficiente");
-        verify(productoRepository, never()).save(any());
+        // Intentar restar una unidad con 15 disponibles
+        Producto resultado = productoService.ajustarStock(1L, TipoMovimiento.SALIDA, -1, "testing");
+
+        assertThat(resultado.getStockActual()).isEqualTo(14);
+        verify(productoRepository, times(1)).save(productoBase);
     };
 
     @Test 
