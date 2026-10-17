@@ -35,8 +35,34 @@ class ProductoControllerTest {
     @BeforeEach
     void setUp() {
         productoController = new ProductoController(productoService);
-    }
+    };
 
+    private Producto crearProducto(Long id, String nombre) {
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setId(1L);
+        categoria.setNombre("Filtros");
+
+        ProductoMarca marca = new ProductoMarca();
+        marca.setId(1L);
+        marca.setNombre("Gonher");
+
+        Producto producto = new Producto();
+        producto.setId(id);
+        producto.setNombre(nombre);
+        producto.setCategoria(categoria);
+        producto.setMarca(marca);
+        producto.setPrecioCompra(new BigDecimal("80.00"));
+        producto.setPrecioVentaMostrador(new BigDecimal("120.00"));
+        producto.setPrecioVentaTaller(BigDecimal.ZERO);
+        producto.setStockActual(15);
+        producto.setStockMinimo(5);
+        producto.setActivo(true);
+        return producto;
+    };
+
+    // ==========================
+    // 🧹 Editar Producto
+    // ==========================
     @Test
     @DisplayName("Debe actualizar un producto existente")
     void update_ProductoExistente() {
@@ -81,7 +107,7 @@ class ProductoControllerTest {
         ArgumentCaptor<Producto> productoCaptor = ArgumentCaptor.forClass(Producto.class);
         verify(productoService).guardar(productoCaptor.capture());
         assertThat(productoCaptor.getValue()).isSameAs(productoExistente);
-    }
+    };
 
     @Test
     @DisplayName("Debe responder 404 al actualizar un producto inexistente")
@@ -94,28 +120,39 @@ class ProductoControllerTest {
         assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(respuesta.getBody()).isNull();
         verify(productoService, never()).guardar(any(Producto.class));
-    }
+    };
 
-    private Producto crearProducto(Long id, String nombre) {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setId(1L);
-        categoria.setNombre("Filtros");
+    // ==========================
+    // 🧹 Consultar / Buscar ID
+    // ==========================
+    @Test 
+    @DisplayName("Debe responder con 200 al consultar por ID valido")
+    void consultar_ProductoExistente() {
+        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        productoExistente.setStockActual(15);
+        productoExistente.setActivo(true);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setId(1L);
-        marca.setNombre("Gonher");
+        when(productoService.obtenerPorId(1L)).thenReturn(Optional.of(productoExistente));
 
-        Producto producto = new Producto();
-        producto.setId(id);
-        producto.setNombre(nombre);
-        producto.setCategoria(categoria);
-        producto.setMarca(marca);
-        producto.setPrecioCompra(new BigDecimal("80.00"));
-        producto.setPrecioVentaMostrador(new BigDecimal("120.00"));
-        producto.setPrecioVentaTaller(BigDecimal.ZERO);
-        producto.setStockActual(15);
-        producto.setStockMinimo(5);
-        producto.setActivo(true);
-        return producto;
-    }
-}
+        ResponseEntity<Producto> respuesta = productoController.getById(1L);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respuesta.getBody()).isSameAs(productoExistente);
+        assertThat(productoExistente.getId()).isEqualTo(1L);
+    };
+
+    @Test 
+    @DisplayName("Debe responder con 400 al consultar por ID invalido")
+    void consultar_ProductoInxistente() {
+        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        productoExistente.setStockActual(15);
+        productoExistente.setActivo(true);
+
+        when(productoService.obtenerPorId(10L)).thenReturn(Optional.empty());
+
+        ResponseEntity<Producto> respuesta = productoController.getById(10L);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(respuesta.getBody()).isNull();
+    };
+};
