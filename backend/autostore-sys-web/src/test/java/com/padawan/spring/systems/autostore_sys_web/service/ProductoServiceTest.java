@@ -190,6 +190,18 @@ public class ProductoServiceTest {
     // 🧹 Editar Producto
     // ==========================
 
+    @Test
+    @DisplayName("Debe fallar si no se puede recuperar el producto después de guardarlo")
+    void guardarProducto_NoSePuedeRecuperarDespuesDeGuardar() {
+        when(productoRepository.save(productoBase)).thenReturn(productoBase);
+        when(productoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalStateException.class, () -> productoService.guardar(productoBase));
+
+        verify(productoRepository).save(productoBase);
+        verify(productoRepository).findById(1L);
+    };
+
     // ==========================
     // 🧹 Filtrar Productos
     // ==========================
@@ -260,18 +272,6 @@ public class ProductoServiceTest {
 
         assertThat(resultado).containsExactly(productoBase);
         verify(productoRepository).findAll(spec);
-    };
-
-    @Test
-    @DisplayName("Debe fallar si no se puede recuperar el producto después de guardarlo")
-    void guardarProducto_NoSePuedeRecuperarDespuesDeGuardar() {
-        when(productoRepository.save(productoBase)).thenReturn(productoBase);
-        when(productoRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(IllegalStateException.class, () -> productoService.guardar(productoBase));
-
-        verify(productoRepository).save(productoBase);
-        verify(productoRepository).findById(1L);
     };
 
     // ==========================
