@@ -4,11 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +18,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.padawan.spring.systems.autostore_sys_web.controller.ProductoController;
+import com.padawan.spring.systems.autostore_sys_web.model.MovimientoInventario;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
@@ -188,6 +193,30 @@ public class ProductoServiceTest {
     // ==========================
     // 🧹 Filtrar Productos
     // ==========================
+    @Test
+    @DisplayName("Debe listar los productos activos")
+    void listarActivos_Exito() {
+        when(productoRepository.findByActivoTrue()).thenReturn(List.of(productoBase));
+
+        List<Producto> resultado = productoService.listarActivos();
+
+        assertThat(resultado).containsExactly(productoBase);
+        verify(productoRepository).findByActivoTrue();
+    };
+
+    @Test
+    @DisplayName("Debe listar todos los productos")
+    void listarTodos_Exito() {
+        Producto otroProducto = new Producto();
+        otroProducto.setId(2L);
+        when(productoRepository.findAll()).thenReturn(List.of(productoBase, otroProducto));
+
+        List<Producto> resultado = productoService.listarTodos();
+
+        assertThat(resultado).containsExactly(productoBase, otroProducto);
+        verify(productoRepository).findAll();
+    };
+
     @Test 
     @DisplayName ("Debes lanzar excepcion si el producto no existe por ID")
     void obtenerPorId_NoEncontrado(){
@@ -196,6 +225,53 @@ public class ProductoServiceTest {
 
         assertThat(productoService.obtenerPorId(99L)).isEmpty();
         verify(productoRepository, times(1)).findById(99L);
+    };
+
+    @Test
+    @DisplayName("Debe obtener un producto existente por ID")
+    void obtenerPorId_Encontrado() {
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+
+        assertThat(productoService.obtenerPorId(1L)).contains(productoBase);
+        verify(productoRepository).findById(1L);
+    };
+
+    @Test
+    @DisplayName("Debe buscar productos por criterio")
+    void buscar_PorCriterio() {
+        when(productoRepository.searchProductos("filtro")).thenReturn(List.of(productoBase));
+
+        List<Producto> resultado = productoService.buscar("filtro");
+
+        assertThat(resultado).containsExactly(productoBase);
+        verify(productoRepository).searchProductos("filtro");
+    };
+
+    @Test
+    @DisplayName("Debe buscar productos por especificación")
+    void obtenerProductos_PorEspecificacion_Activo() {
+        Specification<Producto> spec =
+                (root, query, cb) -> cb.isTrue(root.get("activo"));
+
+        when(productoRepository.findAll(spec))
+                .thenReturn(List.of(productoBase));
+
+        var resultado = productoService.buscarConEspecificacion(spec);
+
+        assertThat(resultado).containsExactly(productoBase);
+        verify(productoRepository).findAll(spec);
+    };
+
+    @Test
+    @DisplayName("Debe fallar si no se puede recuperar el producto después de guardarlo")
+    void guardarProducto_NoSePuedeRecuperarDespuesDeGuardar() {
+        when(productoRepository.save(productoBase)).thenReturn(productoBase);
+        when(productoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalStateException.class, () -> productoService.guardar(productoBase));
+
+        verify(productoRepository).save(productoBase);
+        verify(productoRepository).findById(1L);
     };
 
     // ==========================
@@ -213,6 +289,16 @@ public class ProductoServiceTest {
 
         assertThat(resultado.getStockActual()).isEqualTo(20);
         verify(productoRepository, times(1)).save(productoBase);
+
+        ArgumentCaptor<MovimientoInventario> movimientoCaptor =
+                ArgumentCaptor.forClass(MovimientoInventario.class);
+        verify(movimientoInventarioRepository).save(movimientoCaptor.capture());
+        MovimientoInventario movimiento = movimientoCaptor.getValue();
+        assertThat(movimiento.getProducto()).isSameAs(productoBase);
+        assertThat(movimiento.getTipoMovimiento()).isEqualTo(TipoMovimiento.ENTRADA);
+        assertThat(movimiento.getCantidad()).isEqualTo(5);
+        assertThat(movimiento.getMotivo()).isEqualTo("testing");
+        assertThat(movimiento.getFecha()).isNotNull();
     };
 
     @Test 
@@ -242,6 +328,21 @@ public class ProductoServiceTest {
 
         assertThat(exception.getMessage()).contains("suficiente");
         verify(productoRepository, never()).save(any());
+        verifyNoInteractions(movimientoInventarioRepository);
+    };
+
+    @Test
+    @DisplayName("Debe fallar si el producto no existe al ajustar el stock")
+    void ajustarStock_ProductoInexistente() {
+        when(productoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> productoService.ajustarStock(99L, TipoMovimiento.ENTRADA, 5, "testing"));
+
+        assertThat(exception.getMessage()).contains("no encontrado");
+        verify(productoRepository).findById(99L);
+        verify(productoRepository, never()).save(any());
+        verifyNoInteractions(movimientoInventarioRepository);
     };
 
     @Test 
@@ -270,7 +371,8 @@ public class ProductoServiceTest {
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
         when(productoRepository.save(any(Producto.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        productoService.eliminarLogico(1L);
+        boolean resultado = productoService.eliminarLogico(1L);
+        assertThat(resultado).isTrue();
         assertThat(productoBase.getActivo()).isFalse();
         verify(productoRepository, times(1)).save(productoBase);
     };
@@ -300,4 +402,29 @@ public class ProductoServiceTest {
         assertThat(productoBase.getActivo()).isTrue();
         verify(productoRepository, never()).save(any(Producto.class));
     };
+
+    // ==========================
+    // 🧹 Verificar Stock bajo
+    // ==========================
+
+    @Test 
+    @DisplayName ("Debe detectar cuando el stock actual es menor al mínimo")
+    void stockBajo_EsBajo(){
+        productoBase.setStockActual(2);
+
+        boolean resultado = productoService.esStockBajo(productoBase);
+
+        assertThat(resultado).isTrue();
+        verifyNoInteractions(productoRepository);
+    };
+
+    @Test 
+    @DisplayName ("Debe detectar cuando el stock actual supera el mínimo")
+    void stockBajo_NoEsBajo(){
+        boolean resultado = productoService.esStockBajo(productoBase);
+
+        assertThat(resultado).isFalse();
+        verifyNoInteractions(productoRepository);
+    };
+
 };
