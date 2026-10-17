@@ -3,10 +3,12 @@ package com.padawan.spring.systems.autostore_sys_web.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -154,5 +157,113 @@ class ProductoControllerTest {
 
         assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(respuesta.getBody()).isNull();
+    };
+
+    // ==========================
+    // 🧹 Eliminar
+    // ==========================
+    @Test 
+    @DisplayName ("Debe responder con un 204 al eliminar (lógico) un producto")
+    void eliminar_productoExitoso() {
+        // El servicio elimino el producto
+        when(productoService.eliminarLogico(1L)).thenReturn(true);
+        ResponseEntity<Void> respuesta = productoController.delete(1L);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(respuesta.getBody()).isNull();
+    };
+
+    @Test
+    @DisplayName("Debe responder con un 404 si el producto no existe")
+    void eliminar_productoNoExistente() {
+        // El servicio no encontró el producto
+        when(productoService.eliminarLogico(1L)).thenReturn(false);
+
+        ResponseEntity<Void> respuesta = productoController.delete(1L);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    };
+
+    // ==========================
+    // 🧹 Busqueda
+    // ==========================
+    @Test 
+    @DisplayName ("Debe responder con 200 y delegar la búsqueda con filtros")
+    void buscar_Productos() {
+        String q = "filtro";
+        String marca = "Gonher";
+        String categoria = "filtros";
+        String estadoFiltro = "activo";
+        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        Producto productoExistenteDif = crearProducto(2L, "Aceite");
+        ProductoCategoria categoriaDif = new ProductoCategoria();
+        categoriaDif.setId(2L);
+        categoriaDif.setNombre("Motor a gasolina");
+        productoExistente.setCategoria(categoriaDif);
+        when(productoService.buscarConEspecificacion(any()))
+                .thenReturn(List.of(productoExistente));
+
+        ResponseEntity<List<Producto>> respuesta =
+                productoController.search(q, marca, categoria, estadoFiltro, null);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respuesta.getBody()).containsExactly(productoExistente);
+        verify(productoService).buscarConEspecificacion(any());
+    };
+
+    // ==========================
+    // 🧹 Crear / Cambiar
+    // ==========================
+
+    @Test
+    @DisplayName ("Debe realizar una peticion POST ante la creacion de producto correctamente")
+    void crear_Producto() {
+        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+
+        when(productoService.guardar(any(Producto.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+    
+        ResponseEntity<Producto> respuesta = productoController.create(productoExistente);
+
+        // Verificar que el body no sea nulo y tenga los datos correctos
+        assertThat(respuesta.getBody()).isNotNull();
+        assertThat(respuesta.getBody().getId()).isEqualTo(1L);
+        assertThat(respuesta.getBody().getNombre()).isEqualTo("Filtro viejo");
+
+        // Opcional: verificar que se llamó al servicio
+        verify(productoService, times(1)).guardar(productoExistente);
+    };
+
+    @Test
+    @DisplayName ("Debe realizar un cambio de estado de producto correctamente")
+    void editarEstado_Producto() {
+        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        productoExistente.setActivo(true);
+
+        when(productoService.obtenerPorId(1L)).thenReturn(Optional.of(productoExistente));
+        when(productoService.guardar(any(Producto.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<Producto> respuesta = productoController.updateState(1L, false);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respuesta.getBody()).isSameAs(productoExistente);
+        assertThat(respuesta.getBody().getId()).isEqualTo(1L);
+        assertThat(respuesta.getBody().getActivo()).isFalse();
+        verify(productoService).obtenerPorId(1L);
+        verify(productoService).guardar(productoExistente);
+    };
+
+    @Test
+    @DisplayName("Debe responder 404 al cambiar el estado de un producto inexistente")
+    void editarEstado_ProductoInexistente() {
+        when(productoService.obtenerPorId(99L)).thenReturn(Optional.empty());
+
+        ResponseEntity<Producto> respuesta = productoController.updateState(99L, false);
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(respuesta.getBody()).isNull();
+        verify(productoService).obtenerPorId(99L);
+        verify(productoService, never()).guardar(any(Producto.class));
     };
 };
