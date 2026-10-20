@@ -539,4 +539,47 @@ public class ProductoRepositoryTest {
         .containsExactlyInAnyOrder("15w - 30", "20w - 40");
     assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
   };
+  // ==========================
+  // 🧹 Stock bajo
+  // ==========================
+
+  @Test
+  @DisplayName("Debe encontrar productos activos con stock igual o menor al mínimo")
+  void encontrar_ProductosConStockBajo() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    Producto stockBajo = crearProducto("Filtro bajo", categoria, marca);
+    stockBajo.setStockActual(2);
+    entityManager.persist(stockBajo);
+
+    Producto stockEnMinimo = crearProducto("Filtro al mínimo", categoria, marca);
+    stockEnMinimo.setStockActual(5);
+    entityManager.persist(stockEnMinimo);
+
+    Producto stockSuficiente = crearProducto("Filtro suficiente", categoria, marca);
+    stockSuficiente.setStockActual(6);
+    entityManager.persist(stockSuficiente);
+
+    Producto inactivo = crearProducto("Filtro inactivo", categoria, marca);
+    inactivo.setStockActual(1);
+    inactivo.setActivo(false);
+    entityManager.persist(inactivo);
+    entityManager.flush();
+
+    List<com.padawan.spring.systems.autostore_sys_web.model.DashboardDTO.ProductoStockBajo> resultado =
+        productoRepository.findProductosConStockBajo();
+
+    assertThat(resultado)
+        .extracting(producto -> producto.nombre)
+        .containsExactly("Filtro bajo", "Filtro al mínimo");
+    assertThat(resultado)
+        .extracting(producto -> producto.stock)
+        .containsExactly(2, 5);
+    assertThat(resultado)
+        .extracting(producto -> producto.stockMinimo)
+        .containsExactly(5, 5);
+  };
 };
