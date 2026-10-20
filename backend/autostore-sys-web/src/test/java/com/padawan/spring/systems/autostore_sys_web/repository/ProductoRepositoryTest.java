@@ -435,7 +435,6 @@ public class ProductoRepositoryTest {
     entityManager.flush();
 
     String q = "automatica";
-    String specMarca = "Motorcraft";
 
     List<Producto> resultado = productoRepository.findAll(
             ProductoSpecification.conFiltros(q, null, null, null)
