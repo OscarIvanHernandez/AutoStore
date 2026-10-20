@@ -21,224 +21,523 @@ import com.padawan.spring.systems.autostore_sys_web.repository.specs.ProductoSpe
 @DataJpaTest 
 public class ProductoRepositoryTest {
 
-    @Autowired 
-    private ProductoRepository productoRepository;
+  @Autowired 
+  private ProductoRepository productoRepository;
 
-    @Autowired 
-    private TestEntityManager entityManager;
+  @Autowired 
+  private TestEntityManager entityManager;
 
-    private ProductoCategoria crearCategoria(String nombre) {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre(nombre);
-        categoria.setActivo(true);
-        return categoria;
-    };
+  private ProductoCategoria crearCategoria(String nombre) {
+      ProductoCategoria categoria = new ProductoCategoria();
+      categoria.setNombre(nombre);
+      categoria.setActivo(true);
+      return categoria;
+  };
 
-    private ProductoMarca crearMarca(String nombre) {
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre(nombre);
-        marca.setActivo(true);
-        return marca;
-    };
+  private ProductoMarca crearMarca(String nombre) {
+      ProductoMarca marca = new ProductoMarca();
+      marca.setNombre(nombre);
+      marca.setActivo(true);
+      return marca;
+  };
 
-    private Producto crearProducto(String nombre, ProductoCategoria categoria, ProductoMarca marca) {
-        Producto producto = new Producto();
-        producto.setNombre(nombre);
-        producto.setCategoria(categoria);
-        producto.setMarca(marca);
-        producto.setPrecioCompra(new BigDecimal("80.00"));
-        producto.setPrecioVentaMostrador(new BigDecimal("120.00"));
-        producto.setPrecioVentaTaller(BigDecimal.ZERO);
-        producto.setStockActual(15);
-        producto.setStockMinimo(5);
-        producto.setActivo(true);
-        return producto;
-    };
+  private Producto crearProducto(String nombre, ProductoCategoria categoria, ProductoMarca marca) {
+    Producto producto = new Producto();
+    producto.setNombre(nombre);
+    producto.setCategoria(categoria);
+    producto.setMarca(marca);
+    producto.setPrecioCompra(new BigDecimal("80.00"));
+    producto.setPrecioVentaMostrador(new BigDecimal("120.00"));
+    producto.setPrecioVentaTaller(BigDecimal.ZERO);
+    producto.setStockActual(15);
+    producto.setStockMinimo(5);
+    producto.setActivo(true);
+    return producto;
+  };
 
-    // ==========================
-    // 🧹 Obtener
-    // ==========================
-    @Test 
-    @DisplayName ("Debe retornar todos los productos")
-    void obtener_TodosProductos() {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre("Filtros");
-        entityManager.persist(categoria);
+  // ==========================
+  // 🧹 Obtener
+  // ==========================
+  @Test 
+  @DisplayName ("Debe retornar todos los productos")
+  void obtener_TodosProductos() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre("Gonher");
-        entityManager.persist(marca);
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
 
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        Producto prod2 = crearProducto("GP-11", categoria, marca);
-        entityManager.persist(prod2);
-        Producto prod3 = crearProducto("GP-3645", categoria, marca);
-        entityManager.persist(prod3);
-        entityManager.flush();
-        
-        List<Producto> resultado = productoRepository.findAll();
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("GP-3645", categoria, marca);
+    entityManager.persist(prod3);
+    entityManager.flush();
+    
+    List<Producto> resultado = productoRepository.findAll();
 
-        assertThat(resultado).hasSize(3)
-            .extracting(Producto::getNombre)
-            .containsExactlyInAnyOrder("GP-01", "GP-11", "GP-3645");
-        assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
-    };
+    assertThat(resultado).hasSize(3)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11", "GP-3645");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 
-    @Test 
-    @DisplayName ("Debe retornar todos los productos activos")
-    void obtener_TodosProductosActivos() {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre("Filtros");
-        entityManager.persist(categoria);
+  @Test 
+  @DisplayName ("Debe retornar todos los productos activos")
+  void obtener_TodosProductosActivos() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre("Gonher");
-        entityManager.persist(marca);
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
 
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        Producto prod2 = crearProducto("GP-11", categoria, marca);
-        entityManager.persist(prod2);
-        Producto prod3 = crearProducto("GP-3645", categoria, marca);
-        prod3.setActivo(false);
-        entityManager.persist(prod3);
-        entityManager.flush();
-        
-        List<Producto> resultado = productoRepository.findByActivoTrue();
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("GP-3645", categoria, marca);
+    prod3.setActivo(false);
+    entityManager.persist(prod3);
+    entityManager.flush();
+    
+    List<Producto> resultado = productoRepository.findByActivoTrue();
 
-        assertThat(resultado).hasSize(2)
-            .extracting(Producto::getNombre)
-            .containsExactlyInAnyOrder("GP-01", "GP-11");
-        assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
-    };
+    assertThat(resultado).hasSize(2)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 
-        @Test 
-    @DisplayName ("Debe retornar el producto por su ID")
-    void obtener_ProductoPorId() {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre("Filtros");
-        entityManager.persist(categoria);
+      @Test 
+  @DisplayName ("Debe retornar el producto por su ID")
+  void obtener_ProductoPorId() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre("Gonher");
-        entityManager.persist(marca);
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
 
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        entityManager.flush();
-        
-        Optional<Producto> resultado = productoRepository.findById(prod1.getId());
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    entityManager.flush();
+    
+    Optional<Producto> resultado = productoRepository.findById(prod1.getId());
 
-        assertThat(resultado).isPresent();
-        assertThat(resultado.get().getNombre()).isEqualTo("GP-01");
-        assertThat(resultado.get().getCategoria().getNombre()).isEqualTo("Filtros");
-        assertThat(resultado.get().getMarca().getNombre()).isEqualTo("Gonher");
-    };
+    assertThat(resultado).isPresent();
+    assertThat(resultado.get().getNombre()).isEqualTo("GP-01");
+    assertThat(resultado.get().getCategoria().getNombre()).isEqualTo("Filtros");
+    assertThat(resultado.get().getMarca().getNombre()).isEqualTo("Gonher");
+  };
 
-    @Test
-    @DisplayName("Debe retornar vacío cuando el ID no existe")
-    void findById_NoEncontrado() {
-        Optional<Producto> resultado = productoRepository.findById(999L);
+  @Test
+  @DisplayName("Debe retornar vacío cuando el ID no existe")
+  void findById_NoEncontrado() {
+    Optional<Producto> resultado = productoRepository.findById(999L);
 
-        assertThat(resultado).isEmpty();
-    };
-    // ==========================
-    // 🧹 Buscar Productos
-    // ==========================
-    @Test 
-    @DisplayName ("Debe buscar productos por especificación")
-    void buscar_ProductosEspecificacionNombre() {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre("Filtros");
-        entityManager.persist(categoria);
+    assertThat(resultado).isEmpty();
+  };
+  // ==========================
+  // 🧹 Buscar Productos
+  // ==========================
+  @Test 
+  @DisplayName ("Debe buscar productos por especificación")
+  void buscar_ProductosEspecificacionNombre() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre("Gonher");
-        entityManager.persist(marca);
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
 
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        Producto prod2 = crearProducto("GP-11", categoria, marca);
-        entityManager.persist(prod2);
-        Producto prod3 = crearProducto("GP-3645", categoria, marca);
-        entityManager.persist(prod3);
-        entityManager.flush();
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("GP-3645", categoria, marca);
+    entityManager.persist(prod3);
+    entityManager.flush();
 
-        String q = "gp-01";
+    String q = "gp-01";
 
-        List<Producto> resultado = productoRepository.findAll(
-                ProductoSpecification.conFiltros(q, null, null, null)
-        );
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(q, null, null, null)
+    );
 
-        assertThat(resultado).hasSize(1)
-            .extracting(Producto::getNombre)
-            .containsExactlyInAnyOrder("GP-01");
-        assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
-    };
+    assertThat(resultado).hasSize(1)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 
-    @Test 
-    @DisplayName ("Debe buscar productos por especificación")
-    void buscar_ProductosEspecificacionNombreGeneral() {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setNombre("Filtros");
-        entityManager.persist(categoria);
+  @Test 
+  @DisplayName ("Debe buscar productos por especificación")
+  void buscar_ProductosEspecificacionNombreGeneral() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setNombre("Gonher");
-        entityManager.persist(marca);
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
 
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        Producto prod2 = crearProducto("GP-11", categoria, marca);
-        entityManager.persist(prod2);
-        Producto prod3 = crearProducto("GP-3645", categoria, marca);
-        entityManager.persist(prod3);
-        entityManager.flush();
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("GP-3645", categoria, marca);
+    entityManager.persist(prod3);
+    entityManager.flush();
 
-        String q = "gp";
+    String q = "gp";
 
-        List<Producto> resultado = productoRepository.findAll(
-                ProductoSpecification.conFiltros(q, null, null, null)
-        );
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(q, null, null, null)
+    );
 
-        assertThat(resultado).hasSize(3)
-            .extracting(Producto::getNombre)
-            .containsExactlyInAnyOrder("GP-01", "GP-11", "GP-3645");
-        assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
-    };
+    assertThat(resultado).hasSize(3)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11", "GP-3645");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 
-    @Test 
-    @DisplayName ("Debe buscar productos por especificación")
-    void buscar_ProductosEspecificacionMarca() {
+  @Test 
+  @DisplayName ("Debe buscar productos por marca")
+  void buscar_ProductosEspecificacionMarca() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
 
-        ProductoCategoria categoria = crearCategoria("Filtros");
-        entityManager.persist(categoria);
-        ProductoMarca marca = crearMarca("Gonher");
-        entityManager.persist(marca);
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
 
-        ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
-        entityManager.persist(categoria2);
-        ProductoMarca marca2 = crearMarca("Motorcraft");
-        entityManager.persist(marca2);
-        
-        Producto prod1 = crearProducto("GP-01", categoria, marca);
-        entityManager.persist(prod1);
-        Producto prod2 = crearProducto("GP-11", categoria, marca);
-        entityManager.persist(prod2);
-        Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
-        entityManager.persist(prod3);
-        entityManager.flush();
+    String sepMarca = "Gonher";
 
-        String sepMarca = "Gonher";
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, sepMarca, null, null)
+    );
 
-        List<Producto> resultado = productoRepository.findAll(
-                ProductoSpecification.conFiltros(null, sepMarca, null, null)
-        );
+    assertThat(resultado).hasSize(2)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 
-        assertThat(resultado).hasSize(2)
-            .extracting(Producto::getNombre)
-            .containsExactlyInAnyOrder("GP-01", "GP-11");
-        assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
-    };
+  @Test 
+  @DisplayName ("Debe buscar productos por marca general")
+  void buscar_ProductosEspecificacionMarcaGeneral() {
+    ProductoCategoria categoria = new ProductoCategoria();
+    categoria.setNombre("Filtros");
+    entityManager.persist(categoria);
+
+    ProductoMarca marca = new ProductoMarca();
+    marca.setNombre("Gonher");
+    entityManager.persist(marca);
+
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("GP-3645", categoria, marca);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String specMarca = "Gonher";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, specMarca, null, null)
+    );
+
+    assertThat(resultado).hasSize(3)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11", "GP-3645");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar productos por categoria")
+  void buscar_ProductosEspecificacionCategoria() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String sepCategoria = "motor a gasolina";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, sepCategoria, null)
+    );
+
+    assertThat(resultado).hasSize(1)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("15w - 30");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar productos por estado activo")
+  void buscar_ProductosEspecificacionActivo() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    prod1.setActivo(false);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    prod2.setActivo(false);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String estado = "activo";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, null, estado)
+    );
+
+    assertThat(resultado).hasSize(1)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("15w - 30");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar productos por estado inactivo")
+  void buscar_ProductosEspecificacionInactivo() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    prod1.setActivo(false);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    prod2.setActivo(false);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String estado = "inactivo";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, null, estado)
+    );
+
+    assertThat(resultado).hasSize(2)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isFalse());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar un producto por varias especificaciones")
+  void buscar_UnProductoEspecificaciones() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    prod1.setActivo(false);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    prod2.setActivo(false);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String q = "15w - 30";
+    String specMarca = "Motorcraft";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(q, specMarca, null, null)
+    );
+
+    assertThat(resultado).hasSize(1)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("15w - 30");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe regresar una lista vacia de productos cuando no existen al buscar")
+  void buscar_ProductosInexistentesEspecificaciones() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    prod1.setActivo(false);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    prod2.setActivo(false);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String q = "automatica";
+    String specMarca = "Motorcraft";
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(q, null, null, null)
+    );
+
+    assertThat(resultado).hasSize(0);
+    assertThat(resultado).isEmpty();
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar un producto para la venta")
+  void buscar_UnProductoSearchEnVenta() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    prod2.setActivo(false);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String q = "gp";
+
+    List<Producto> resultado = productoRepository.searchProductos(q);
+
+    assertThat(resultado).hasSize(1)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar productos para la venta")
+  void buscar_ProductosSearchEnVenta() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    entityManager.flush();
+
+    String q = "gp";
+
+    List<Producto> resultado = productoRepository.searchProductos(q);
+
+    assertThat(resultado).hasSize(2)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("GP-01", "GP-11");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
+
+  @Test 
+  @DisplayName ("Debe buscar productos para la venta")
+  void buscar_OtrosProductosSearchEnVenta() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    ProductoCategoria categoria2 = crearCategoria("Motor a gasolina");
+    entityManager.persist(categoria2);
+    ProductoMarca marca2 = crearMarca("Motorcraft");
+    entityManager.persist(marca2);
+    
+    Producto prod1 = crearProducto("GP-01", categoria, marca);
+    entityManager.persist(prod1);
+    Producto prod2 = crearProducto("GP-11", categoria, marca);
+    entityManager.persist(prod2);
+    Producto prod3 = crearProducto("15w - 30", categoria2, marca2);
+    entityManager.persist(prod3);
+    Producto prod4 = crearProducto("20w - 40", categoria2, marca2);
+    entityManager.persist(prod4);
+    entityManager.flush();
+
+    String q = "w";
+
+    List<Producto> resultado = productoRepository.searchProductos(q);
+
+    assertThat(resultado).hasSize(2)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("15w - 30", "20w - 40");
+    assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isTrue());
+  };
 };
