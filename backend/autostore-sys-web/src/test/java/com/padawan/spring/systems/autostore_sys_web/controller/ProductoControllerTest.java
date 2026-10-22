@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.h2.command.dml.MergeUsing.When;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.padawan.spring.systems.autostore_sys_web.model.AjusteRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
@@ -380,11 +382,16 @@ class ProductoControllerTest {
     };
 
     // ==========================
-    // 🧹 Crear / Cambiar
+    // 🧹 Ajustar stock
     // ==========================
     @Test 
     @DisplayName ("Debe realizar un ajuste exitoso de stock")
     void ajusteStock_exitoso() {
+        AjusteRequestDTO request = new AjusteRequestDTO();
+        request.setTipo("ENTRADA");
+        request.setCantidad(10);
+        request.setMotivo("testing");
+
         ProductoCategoria categoria = new ProductoCategoria();
         categoria.setNombre("Filtros");
         ProductoMarca marca = new ProductoMarca();
@@ -393,6 +400,42 @@ class ProductoControllerTest {
         
         when(productoService.ajustarStock(1L, TipoMovimiento.ENTRADA, 5, "testing")).thenReturn(prod);
 
-        ResponseEntity<?> respuesta = productoController.ajustarStock(null, null)
+        ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
+
+        assertEquals(HttpStatus.OK, respuesta.getStatusCode());
+        assertEquals(prod, respuesta.getBody());
+        verify(productoService).ajustarStock(
+            1L, TipoMovimiento.ENTRADA, 5, "testing");
+    };
+
+    @Test 
+    @DisplayName ("Debe regresar 400 ante un ajuste cuando tipo es invalido")
+    void ajusteStock_InvalidoBadRequest() {
+        AjusteRequestDTO request = new AjusteRequestDTO();
+        request.setTipo("ALGO");
+        request.setCantidad(10);
+        request.setMotivo("testing");
+
+        ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, respuesta.getStatusCode());
+        verify(productoService, never()).ajustarStock(
+            1L, TipoMovimiento.ENTRADA, 5, "testing");
+    };
+
+    @Test 
+    @DisplayName ("Debe regresar un 404 cuando el producto no es encontrado en un ajuste valido")
+    void productoNotFound_AjusteStock() {
+        AjusteRequestDTO request = new AjusteRequestDTO();
+        request.setTipo("SALIDA");
+        request.setCantidad(10);
+        request.setMotivo("testing");
+
+        when(productoService.ajustarStock(1L, TipoMovimiento.SALIDA, 2, "testing"))
+        .thenThrow(new RuntimeException());
+
+        ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
+        
+        assertEquals(HttpStatus.NOT_FOUND, respuesta.getStatusCode());
     };
 };
