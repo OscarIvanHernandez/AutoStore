@@ -46,20 +46,6 @@ class ProductoControllerTest {
         productoController = new ProductoController(productoService);
     };
 
-    private ProductoCategoria crearCategoria(String nombre) {
-      ProductoCategoria categoria = new ProductoCategoria();
-      categoria.setNombre(nombre);
-      categoria.setActivo(true);
-      return categoria;
-  };
-
-  private ProductoMarca crearMarca(String nombre) {
-      ProductoMarca marca = new ProductoMarca();
-      marca.setNombre(nombre);
-      marca.setActivo(true);
-      return marca;
-  };
-
     private Producto crearProducto(
         Long id, 
         ProductoCategoria categoria, 
