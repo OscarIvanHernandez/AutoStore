@@ -1,6 +1,8 @@
 package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -8,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento;
 import com.padawan.spring.systems.autostore_sys_web.service.ProductoService;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,14 +44,25 @@ class ProductoControllerTest {
         productoController = new ProductoController(productoService);
     };
 
-    private Producto crearProducto(Long id, String nombre) {
-        ProductoCategoria categoria = new ProductoCategoria();
-        categoria.setId(1L);
-        categoria.setNombre("Filtros");
+    private ProductoCategoria crearCategoria(String nombre) {
+      ProductoCategoria categoria = new ProductoCategoria();
+      categoria.setNombre(nombre);
+      categoria.setActivo(true);
+      return categoria;
+  };
 
-        ProductoMarca marca = new ProductoMarca();
-        marca.setId(1L);
-        marca.setNombre("Gonher");
+  private ProductoMarca crearMarca(String nombre) {
+      ProductoMarca marca = new ProductoMarca();
+      marca.setNombre(nombre);
+      marca.setActivo(true);
+      return marca;
+  };
+
+    private Producto crearProducto(
+        Long id, 
+        ProductoCategoria categoria, 
+        ProductoMarca marca, 
+        String nombre) {
 
         Producto producto = new Producto();
         producto.setId(id);
@@ -64,17 +79,87 @@ class ProductoControllerTest {
     };
 
     // ==========================
-    // 🧹 Editar Producto
+    // 🧹 listar 
+    // ==========================
+    @Test 
+    @DisplayName ("Debe retornar una lista de todos los productos existentes")
+    void obtenerTodos_Productos() {
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        ProductoCategoria categoria2 = new ProductoCategoria();
+        categoria2.setNombre("Transmición");
+        ProductoMarca marca2 = new ProductoMarca();
+        marca2.setNombre("Motorcraft");
+
+        Producto prod1 = crearProducto(1L, categoria, marca, "GP-01");
+        Producto prod2 = crearProducto(2L, categoria, marca, "GP-11");
+        Producto prod3 = crearProducto(3L, categoria2, marca2, "Automatica");
+        prod3.setActivo(false);
+
+        List<Producto> productos = Arrays.asList(prod1, prod2, prod3);
+
+        when(productoService.listarTodos()).thenReturn(productos);
+
+        List<Producto> respuesta = productoController.getAll();
+
+        assertNotNull(respuesta);
+        assertEquals(3, respuesta.size());
+        assertEquals("GP-01", respuesta.get(0).getNombre());
+        assertEquals("GP-11", respuesta.get(1).getNombre());
+        assertEquals("Automatica", respuesta.get(2).getNombre());
+
+        verify(productoService).listarTodos();
+    };
+
+    @Test 
+    @DisplayName ("Debe retornar una lista de todos los productos activos existentes")
+    void obtenerTodos_ProductosActivos() {
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        ProductoCategoria categoria2 = new ProductoCategoria();
+        categoria2.setNombre("Transmición");
+        ProductoMarca marca2 = new ProductoMarca();
+        marca2.setNombre("Motorcraft");
+
+        Producto prod1 = crearProducto(1L, categoria, marca, "GP-01");
+        Producto prod2 = crearProducto(2L, categoria, marca, "GP-11");
+        Producto prod3 = crearProducto(3L, categoria2, marca2, "Automatica");
+        prod3.setActivo(false);
+
+        List<Producto> productos = Arrays.asList(prod1, prod2);
+
+        when(productoService.listarActivos()).thenReturn(productos);
+
+        List<Producto> respuesta = productoController.getAllActives();
+
+        assertNotNull(respuesta);
+        assertEquals(2, respuesta.size());
+        assertEquals("GP-01", respuesta.get(0).getNombre());
+        assertEquals("GP-11", respuesta.get(1).getNombre());
+
+        verify(productoService).listarActivos();
+    };
+
+    // ==========================
+    // 🧹 Editar 
     // ==========================
     @Test
     @DisplayName("Debe actualizar un producto existente")
     void update_ProductoExistente() {
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
         productoExistente.setStockActual(15);
         productoExistente.setActivo(true);
         productoExistente.setFoto("foto-anterior.jpg");
 
-        Producto cambios = crearProducto(2L, "Filtro nuevo");
+        Producto cambios = crearProducto(2L, categoria, marca, "Filtro nuevo");
         cambios.setProveedor("Proveedor nuevo");
         cambios.setPrecioCompra(new BigDecimal("90.00"));
         cambios.setPrecioVentaMostrador(new BigDecimal("140.00"));
@@ -115,7 +200,11 @@ class ProductoControllerTest {
     @Test
     @DisplayName("Debe responder 404 al actualizar un producto inexistente")
     void update_ProductoInexistente() {
-        Producto cambios = crearProducto(1L, "Filtro nuevo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto cambios = crearProducto(1L, categoria, marca, "Filtro nuevo");
         when(productoService.obtenerPorId(99L)).thenReturn(Optional.empty());
 
         ResponseEntity<Producto> respuesta = productoController.update(99L, cambios);
@@ -131,7 +220,11 @@ class ProductoControllerTest {
     @Test 
     @DisplayName("Debe responder con 200 al consultar por ID valido")
     void consultar_ProductoExistente() {
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
         productoExistente.setStockActual(15);
         productoExistente.setActivo(true);
 
@@ -147,7 +240,11 @@ class ProductoControllerTest {
     @Test 
     @DisplayName("Debe responder con 400 al consultar por ID invalido")
     void consultar_ProductoInxistente() {
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
         productoExistente.setStockActual(15);
         productoExistente.setActivo(true);
 
@@ -191,11 +288,17 @@ class ProductoControllerTest {
     @DisplayName ("Debe responder con 200 y delegar la búsqueda con filtros")
     void buscar_Productos() {
         String q = "filtro";
-        String marca = "Gonher";
-        String categoria = "filtros";
+        String specMarca = "Gonher";
+        String specCategoria = "filtros";
         String estadoFiltro = "activo";
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
-        Producto productoExistenteDif = crearProducto(2L, "Aceite");
+
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
+        Producto productoExistenteDif = crearProducto(2L, categoria, marca, "Aceite");
         ProductoCategoria categoriaDif = new ProductoCategoria();
         categoriaDif.setId(2L);
         categoriaDif.setNombre("Motor a gasolina");
@@ -204,10 +307,11 @@ class ProductoControllerTest {
                 .thenReturn(List.of(productoExistente));
 
         ResponseEntity<List<Producto>> respuesta =
-                productoController.search(q, marca, categoria, estadoFiltro, null);
+                productoController.search(q, specMarca, specCategoria, estadoFiltro, null);
 
         assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(respuesta.getBody()).containsExactly(productoExistente);
+        assertThat(respuesta.getBody()).doesNotContain(productoExistenteDif);
         verify(productoService).buscarConEspecificacion(any());
     };
 
@@ -218,7 +322,11 @@ class ProductoControllerTest {
     @Test
     @DisplayName ("Debe realizar una peticion POST ante la creacion de producto correctamente")
     void crear_Producto() {
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
 
         when(productoService.guardar(any(Producto.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -237,7 +345,11 @@ class ProductoControllerTest {
     @Test
     @DisplayName ("Debe realizar un cambio de estado de producto correctamente")
     void editarEstado_Producto() {
-        Producto productoExistente = crearProducto(1L, "Filtro viejo");
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");        
+        Producto productoExistente = crearProducto(1L, categoria, marca, "Filtro viejo");
         productoExistente.setActivo(true);
 
         when(productoService.obtenerPorId(1L)).thenReturn(Optional.of(productoExistente));
@@ -255,7 +367,7 @@ class ProductoControllerTest {
     };
 
     @Test
-    @DisplayName("Debe responder 404 al cambiar el estado de un producto inexistente")
+    @DisplayName("Debe responder 400 al cambiar el estado de un producto inexistente")
     void editarEstado_ProductoInexistente() {
         when(productoService.obtenerPorId(99L)).thenReturn(Optional.empty());
 
@@ -265,5 +377,22 @@ class ProductoControllerTest {
         assertThat(respuesta.getBody()).isNull();
         verify(productoService).obtenerPorId(99L);
         verify(productoService, never()).guardar(any(Producto.class));
+    };
+
+    // ==========================
+    // 🧹 Crear / Cambiar
+    // ==========================
+    @Test 
+    @DisplayName ("Debe realizar un ajuste exitoso de stock")
+    void ajusteStock_exitoso() {
+        ProductoCategoria categoria = new ProductoCategoria();
+        categoria.setNombre("Filtros");
+        ProductoMarca marca = new ProductoMarca();
+        marca.setNombre("Gonher");
+        Producto prod = crearProducto(1L, categoria, marca, "GP-01");
+        
+        when(productoService.ajustarStock(1L, TipoMovimiento.ENTRADA, 5, "testing")).thenReturn(prod);
+
+        ResponseEntity<?> respuesta = productoController.ajustarStock(null, null)
     };
 };
