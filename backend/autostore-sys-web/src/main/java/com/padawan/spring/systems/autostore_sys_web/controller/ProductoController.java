@@ -115,7 +115,7 @@ public class ProductoController {
         boolean eliminado = productoService.eliminarLogico(id);
         if (eliminado) {
             return ResponseEntity.noContent().build(); // Código 204 (Todo bien, sin contenido)
-        }
+        };
         return ResponseEntity.notFound().build(); // Código 404 si el ID no existía
     };
 
