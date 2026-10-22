@@ -4,6 +4,7 @@ import com.padawan.spring.systems.autostore_sys_web.service.ProductoService;
 
 import jakarta.validation.Valid;
 
+import com.padawan.spring.systems.autostore_sys_web.model.AjusteRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.ProductoSpecification;
 
@@ -120,7 +121,7 @@ public class ProductoController {
 
     //POST /api/productos/{id}/ajustar-stock (ISSUE-07)
     @PostMapping("/{id}/ajustar-stock")
-    public ResponseEntity<?> ajustarStock(@PathVariable Long id, @RequestBody AjusteRequest request){
+    public ResponseEntity<?> ajustarStock(@PathVariable Long id, @RequestBody AjusteRequestDTO request){
         try {
             // Convertir el String del JSON a un Enum
             com.padawan.spring.systems.autostore_sys_web.model.TipoMovimiento tipo = 
@@ -133,19 +134,5 @@ public class ProductoController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-    };
-
-    // Clase auxiliar (DTO) para mapear el JSON que llega del Frontend
-    public static class AjusteRequest{
-        private String tipo;
-        private Integer cantidad;
-        private String motivo;
-
-        public String getTipo() { return tipo; }
-        public void setTipo(String tipo) { this.tipo = tipo; }
-        public Integer getCantidad() { return cantidad; }
-        public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
-        public String getMotivo() { return motivo; }
-        public void setMotivo(String motivo) { this.motivo = motivo; }
     };
 };
