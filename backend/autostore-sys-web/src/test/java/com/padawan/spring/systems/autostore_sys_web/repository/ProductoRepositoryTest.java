@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
@@ -373,6 +375,106 @@ public class ProductoRepositoryTest {
         .extracting(Producto::getNombre)
         .containsExactlyInAnyOrder("GP-01", "GP-11");
     assertThat(resultado).allSatisfy(producto -> assertThat(producto.getActivo()).isFalse());
+  };
+
+  @ParameterizedTest
+  @ValueSource(strings = {"true", "TRUE", "1", "  AcTiVo  "})
+  @DisplayName("Debe reconocer alias y mayúsculas para filtrar productos activos")
+  void buscar_ProductosEstadoActivo_Alias(String estado) {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    Producto activo = crearProducto("Activo", categoria, marca);
+    Producto inactivo = crearProducto("Inactivo", categoria, marca);
+    inactivo.setActivo(false);
+    entityManager.persist(activo);
+    entityManager.persist(inactivo);
+    entityManager.flush();
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, null, estado)
+    );
+
+    assertThat(resultado)
+        .extracting(Producto::getNombre)
+        .containsExactly("Activo");
+  };
+
+  @ParameterizedTest
+  @ValueSource(strings = {"false", "FALSE", "0", "  InAcTiVo  "})
+  @DisplayName("Debe reconocer alias y mayúsculas para filtrar productos inactivos")
+  void buscar_ProductosEstadoInactivo_Alias(String estado) {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    Producto activo = crearProducto("Activo", categoria, marca);
+    Producto inactivo = crearProducto("Inactivo", categoria, marca);
+    inactivo.setActivo(false);
+    entityManager.persist(activo);
+    entityManager.persist(inactivo);
+    entityManager.flush();
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, null, estado)
+    );
+
+    assertThat(resultado)
+        .extracting(Producto::getNombre)
+        .containsExactly("Inactivo");
+  };
+
+  @Test
+  @DisplayName("Debe ignorar valores de estado desconocidos y devolver productos activos e inactivos")
+  void buscar_ProductosEstadoDesconocido() {
+    ProductoCategoria categoria = crearCategoria("Filtros");
+    entityManager.persist(categoria);
+    ProductoMarca marca = crearMarca("Gonher");
+    entityManager.persist(marca);
+
+    Producto activo = crearProducto("Activo", categoria, marca);
+    Producto inactivo = crearProducto("Inactivo", categoria, marca);
+    inactivo.setActivo(false);
+    entityManager.persist(activo);
+    entityManager.persist(inactivo);
+    entityManager.flush();
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros(null, null, null, "todos")
+    );
+
+    assertThat(resultado)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("Activo", "Inactivo");
+  };
+
+  @Test
+  @DisplayName("La búsqueda global debe encontrar coincidencias en marca y categoría")
+  void buscar_ProductosTextoGlobalEnMarcaYCategoria() {
+    ProductoCategoria motor = crearCategoria("Motor");
+    entityManager.persist(motor);
+    ProductoCategoria transmision = crearCategoria("Transmision");
+    entityManager.persist(transmision);
+    ProductoMarca gonher = crearMarca("Gonher");
+    entityManager.persist(gonher);
+    ProductoMarca motorcraft = crearMarca("Motorcraft");
+    entityManager.persist(motorcraft);
+
+    entityManager.persist(crearProducto("Producto por categoría", motor, gonher));
+    entityManager.persist(crearProducto("Producto por marca", transmision, motorcraft));
+    entityManager.persist(crearProducto("Sin coincidencia", transmision, gonher));
+    entityManager.flush();
+
+    List<Producto> resultado = productoRepository.findAll(
+            ProductoSpecification.conFiltros("  MOTOR  ", null, null, null)
+    );
+
+    assertThat(resultado)
+        .extracting(Producto::getNombre)
+        .containsExactlyInAnyOrder("Producto por categoría", "Producto por marca");
   };
 
   @Test 

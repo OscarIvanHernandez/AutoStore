@@ -14,7 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.h2.command.dml.MergeUsing.When;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +42,21 @@ class ProductoControllerTest {
 
     @Mock
     private ProductoService productoService;
+
+    @Mock
+    private CriteriaBuilder criteriaBuilder;
+
+    @Mock
+    private CriteriaQuery<?> criteriaQuery;
+
+    @Mock
+    private Root<Producto> productoRoot;
+
+    @Mock
+    private Path<Object> activoPath;
+
+    @Mock
+    private Predicate predicate;
 
     private ProductoController productoController;
 
@@ -303,6 +322,51 @@ class ProductoControllerTest {
         verify(productoService).buscarConEspecificacion(any());
     };
 
+    @Test
+    @DisplayName("Debe usar el parámetro activo cuando no se especifica estado")
+    void buscar_UsaActivoCuandoEstadoNoSeEspecifica() {
+        ProductoCategoria categoria = new ProductoCategoria();
+        ProductoMarca marca = new ProductoMarca();
+        Producto producto = crearProducto(1L, categoria, marca, "Filtro");
+
+        when(productoRoot.get("activo")).thenReturn(activoPath);
+        when(criteriaBuilder.equal(activoPath, true)).thenReturn(predicate);
+        when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
+        when(productoService.buscarConEspecificacion(any())).thenAnswer(invocation -> {
+            Specification<Producto> specification = invocation.getArgument(0);
+            specification.toPredicate(productoRoot, criteriaQuery, criteriaBuilder);
+            return List.of(producto);
+        });
+
+        ResponseEntity<List<Producto>> respuesta =
+                productoController.search(null, null, null, null, "activo");
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respuesta.getBody()).containsExactly(producto);
+        verify(criteriaBuilder).equal(activoPath, true);
+    };
+
+    @Test
+    @DisplayName("El parámetro estado debe tener prioridad sobre activo")
+    void buscar_EstadoTienePrioridadSobreActivo() {
+        when(productoRoot.get("activo")).thenReturn(activoPath);
+        when(criteriaBuilder.equal(activoPath, false)).thenReturn(predicate);
+        when(criteriaBuilder.and(any(Predicate[].class))).thenReturn(predicate);
+        when(productoService.buscarConEspecificacion(any())).thenAnswer(invocation -> {
+            Specification<Producto> specification = invocation.getArgument(0);
+            specification.toPredicate(productoRoot, criteriaQuery, criteriaBuilder);
+            return List.of();
+        });
+
+        ResponseEntity<List<Producto>> respuesta =
+                productoController.search(null, null, null, "inactivo", "activo");
+
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(respuesta.getBody()).isEmpty();
+        verify(criteriaBuilder).equal(activoPath, false);
+        verify(criteriaBuilder, never()).equal(activoPath, true);
+    };
+
     // ==========================
     // 🧹 Crear / Cambiar
     // ==========================
@@ -384,14 +448,14 @@ class ProductoControllerTest {
         marca.setNombre("Gonher");
         Producto prod = crearProducto(1L, categoria, marca, "GP-01");
         
-        when(productoService.ajustarStock(1L, TipoMovimiento.ENTRADA, 5, "testing")).thenReturn(prod);
+        when(productoService.ajustarStock(1L, TipoMovimiento.ENTRADA, 10, "testing")).thenReturn(prod);
 
         ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
 
         assertEquals(HttpStatus.OK, respuesta.getStatusCode());
         assertEquals(prod, respuesta.getBody());
         verify(productoService).ajustarStock(
-            1L, TipoMovimiento.ENTRADA, 5, "testing");
+            1L, TipoMovimiento.ENTRADA, 10, "testing");
     };
 
     @Test 
@@ -406,7 +470,7 @@ class ProductoControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, respuesta.getStatusCode());
         verify(productoService, never()).ajustarStock(
-            1L, TipoMovimiento.ENTRADA, 5, "testing");
+            any(), any(), any(), any());
     };
 
     @Test 
@@ -417,11 +481,31 @@ class ProductoControllerTest {
         request.setCantidad(10);
         request.setMotivo("testing");
 
-        when(productoService.ajustarStock(1L, TipoMovimiento.SALIDA, 2, "testing"))
+        when(productoService.ajustarStock(1L, TipoMovimiento.SALIDA, 10, "testing"))
         .thenThrow(new RuntimeException());
 
         ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
         
         assertEquals(HttpStatus.NOT_FOUND, respuesta.getStatusCode());
     };
+
+    @Test
+    @DisplayName("Debe responder 400 si el ajuste de salida no tiene stock suficiente")
+    void ajusteStock_SinStockSuficiente() {
+        AjusteRequestDTO request = new AjusteRequestDTO();
+        request.setTipo("SALIDA");
+        request.setCantidad(10);
+        request.setMotivo("testing");
+        when(productoService.ajustarStock(1L, TipoMovimiento.SALIDA, 10, "testing"))
+                .thenThrow(new IllegalArgumentException("No hay suficiente stock"));
+
+        ResponseEntity<?> respuesta = productoController.ajustarStock(1L, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, respuesta.getStatusCode());
+        assertEquals("No hay suficiente stock", respuesta.getBody());
+        verify(productoService).ajustarStock(1L, TipoMovimiento.SALIDA, 10, "testing");
+    };
+    // ==========================
+    // 🧹 Busqueda
+    // ==========================
 };
