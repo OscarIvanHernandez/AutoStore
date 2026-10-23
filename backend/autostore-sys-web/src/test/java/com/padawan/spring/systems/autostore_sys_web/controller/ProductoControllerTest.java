@@ -505,7 +505,4 @@ class ProductoControllerTest {
         assertEquals("No hay suficiente stock", respuesta.getBody());
         verify(productoService).ajustarStock(1L, TipoMovimiento.SALIDA, 10, "testing");
     };
-    // ==========================
-    // 🧹 Busqueda
-    // ==========================
 };

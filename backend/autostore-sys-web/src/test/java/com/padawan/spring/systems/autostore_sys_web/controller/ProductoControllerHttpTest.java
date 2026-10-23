@@ -41,18 +41,18 @@ class ProductoControllerHttpTest {
         mockMvc.perform(post("/api/productos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {
-                                  "nombre": " ",
-                                  "categoria": null,
-                                  "marca": null,
-                                  "precioCompra": 0,
-                                  "precioVentaMostrador": 0
-                                }
-                                """))
+                            {
+                                "nombre": " ",
+                                "categoria": null,
+                                "marca": null,
+                                "precioCompra": 0,
+                                "precioVentaMostrador": 0
+                            }
+                            """))
                 .andExpect(status().isBadRequest());
 
         verify(productoService, never()).guardar(any(Producto.class));
-    }
+    };
 
     @Test
     @DisplayName("Debe aceptar el parámetro activo en la ruta de búsqueda")
@@ -65,5 +65,5 @@ class ProductoControllerHttpTest {
                 .andExpect(content().json("[]"));
 
         verify(productoService).buscarConEspecificacion(any());
-    }
-}
+    };
+};
