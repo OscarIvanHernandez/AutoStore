@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
-import org.springframework.http.ResponseEntity;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
