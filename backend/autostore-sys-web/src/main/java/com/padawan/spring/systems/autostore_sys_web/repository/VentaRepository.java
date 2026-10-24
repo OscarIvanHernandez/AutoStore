@@ -21,6 +21,13 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
 
     List<Venta> findByFechaVentaBetween(LocalDateTime inicio, LocalDateTime fin);
 
+    List<Venta> findByClienteIdAndTipoVentaAndEstadoAndSaldoPendienteGreaterThanOrderByFechaVentaAsc(
+        Long clienteId,
+        TipoVenta tipoVenta,
+        EstadoVenta estado,
+        BigDecimal saldoPendiente
+    );
+
     // Consulta para obtener (año, mes) con ventas existentes
     @Query("SELECT DISTINCT YEAR(v.fechaVenta) as anio, MONTH(v.fechaVenta) as mes FROM Venta v ORDER BY anio DESC, mes DESC")
     List<Object[]> findMesesConVentas();

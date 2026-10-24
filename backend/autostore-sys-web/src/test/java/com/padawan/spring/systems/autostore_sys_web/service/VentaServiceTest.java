@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -14,8 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import javax.xml.validation.Validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
 import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoPago;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoCategoria;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoMarca;
@@ -50,9 +48,6 @@ public class VentaServiceTest {
     private ProductoRepository productoRepository;
     @Mock
     private ClienteRepository clienteRepository;
-    @Mock 
-    private Validator validator;
-
     @InjectMocks 
     private VentaService ventaService;
 
@@ -100,7 +95,7 @@ public class VentaServiceTest {
         VentaRequestDTO request = new VentaRequestDTO();
         request.setTipoVenta("CONTADO");
         request.setProductos(List.of(item));
-        request.setDescuento(new BigDecimal("0"));
+        request.setDescuento(new BigDecimal("10.00"));
         request.setEfectivoRecibido(new BigDecimal("250.00"));
     
         when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
@@ -116,6 +111,8 @@ public class VentaServiceTest {
         assertThat(productoBase.getStockActual()).isEqualTo(13);
         assertThat(resultado.getTipoVenta()).isEqualTo(TipoVenta.CONTADO);
         assertThat(resultado.getEstado()).isEqualTo(EstadoVenta.COMPLETADA);
+        assertThat(resultado.getEstadoPago()).isEqualTo(EstadoPago.PAGADO);
+        assertThat(resultado.getSaldoPendiente()).isEqualByComparingTo("0.00");
         assertThat(resultado.getDescuento()).isEqualByComparingTo("10.00");
         assertThat(resultado.getEfectivoRecibido()).isEqualByComparingTo("250.00");
 
@@ -133,7 +130,6 @@ public class VentaServiceTest {
         
         verify(productoRepository).save(productoBase);
         verify(ventaRepository).save(any(Venta.class));
-        verifyNoInteractions(clienteRepository);
     };
 
     @Test
@@ -167,13 +163,15 @@ public class VentaServiceTest {
         Venta resultado = ventaService.crearVenta(request);
     
         assertThat(resultado.getSubtotal()).isEqualByComparingTo("240.00");
-        assertThat(resultado.getTotal()).isEqualByComparingTo("230.00");
-        assertThat(resultado.getCambio()).isEqualByComparingTo("20.00");
+        assertThat(resultado.getTotal()).isEqualByComparingTo("240.00");
+        assertThat(resultado.getCambio()).isEqualByComparingTo("0.00");
         assertThat(resultado.getDetalles()).hasSize(1);
         assertThat(productoBase.getStockActual()).isEqualTo(13);
         assertThat(resultado.getTipoVenta()).isEqualTo(TipoVenta.CREDITO);
         assertThat(resultado.getEstado()).isEqualTo(EstadoVenta.COMPLETADA);
         assertThat(resultado.getCliente().getNombre()).isEqualTo(cliente.getNombre());
+        assertThat(resultado.getEstadoPago()).isEqualTo(EstadoPago.PARCIAL);
+        assertThat(resultado.getSaldoPendiente()).isEqualByComparingTo("90.00");
         assertThat(resultado.getDescuento()).isEqualByComparingTo("0");
         assertThat(resultado.getEfectivoRecibido()).isEqualByComparingTo("150.00");
 
@@ -191,7 +189,9 @@ public class VentaServiceTest {
         
         verify(productoRepository).save(productoBase);
         verify(ventaRepository).save(any(Venta.class));
-        verifyNoInteractions(clienteRepository);
+        verify(clienteRepository).findById(1L);
+        verify(clienteRepository).save(cliente);
+        assertThat(cliente.getDeudaActual()).isEqualByComparingTo("90.00");
     };
 
     @Test 

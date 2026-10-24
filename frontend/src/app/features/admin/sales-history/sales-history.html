@@ -73,6 +73,7 @@
               <th scope="col">Tipo</th>
               <th scope="col">Total</th>
               <th scope="col">Estado</th>
+              <th scope="col">Pago</th>
             </tr>
           </thead>
           <tbody>
@@ -99,9 +100,18 @@
                   {{ venta.estado === 'DEVOLUCION_TOTAL' ? 'DEVUELTA' : venta.estado === 'DEVOLUCION_PARCIAL' ? 'DEVOLUCIÓN PARCIAL' : venta.estado }}
                 </span>
               </td>
+              <td>
+                <span class="status-badge" [class.status-payment-pending]="venta.estadoPago === 'PENDIENTE'" [class.status-payment-partial]="venta.estadoPago === 'PARCIAL'" [class.status-payment-paid]="venta.estadoPago === 'PAGADO'">
+                  {{ venta.estadoPago ?? 'SIN CONCILIAR' }}
+                </span>
+                <small *ngIf="venta.saldoPendiente !== null && venta.saldoPendiente > 0">
+                  Saldo: {{ venta.saldoPendiente | currency:'MXN':'symbol':'1.2-2' }}
+                </small>
+                <small *ngIf="venta.estadoPago === null">Venta anterior a la conciliación de pagos</small>
+              </td>
             </tr>
             <tr *ngIf="ventas.length === 0">
-              <td class="empty-state" colspan="5">No hay ventas registradas.</td>
+              <td class="empty-state" colspan="6">No hay ventas registradas.</td>
             </tr>
           </tbody>
         </table>
@@ -137,6 +147,15 @@
           <div class="summary-total">
             <span>Total</span>
             <strong>{{ venta.total | currency:'MXN':'symbol':'1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>Estado de pago</span>
+            <strong>{{ venta.estadoPago ?? 'SIN CONCILIAR' }}</strong>
+          </div>
+          <div>
+            <span>Saldo pendiente</span>
+            <strong *ngIf="venta.saldoPendiente !== null">{{ venta.saldoPendiente | currency:'MXN':'symbol':'1.2-2' }}</strong>
+            <strong *ngIf="venta.saldoPendiente === null">Sin conciliar</strong>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Devoluciones;
 import com.padawan.spring.systems.autostore_sys_web.model.DevolucionesDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoPago;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
@@ -114,6 +115,14 @@ public class DevolucionesService {
             BigDecimal nuevaDeuda = cliente.getDeudaActual().subtract(acumuladoReembolso);
             cliente.setDeudaActual(nuevaDeuda.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : nuevaDeuda);
             clienteRepository.save(cliente);
+
+            if (venta.getSaldoPendiente() != null) {
+                venta.setSaldoPendiente(
+                        venta.getSaldoPendiente().subtract(acumuladoReembolso).max(BigDecimal.ZERO));
+                if (venta.getSaldoPendiente().signum() == 0) {
+                    venta.setEstadoPago(EstadoPago.PAGADO);
+                };
+            };
         };
 
         if (totalUnidadesDevueltasAcumuladas >= totalUnidadesOriginales) {

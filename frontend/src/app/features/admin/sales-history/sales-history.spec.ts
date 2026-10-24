@@ -18,6 +18,8 @@ describe('SalesHistory', () => {
     subtotal: 100,
     descuento: 0,
     total: 100,
+    saldoPendiente: 0,
+    estadoPago: 'PAGADO',
     tipoVenta: 'CONTADO',
     estado: 'COMPLETADA',
     metodoPago: 'EFECTIVO',

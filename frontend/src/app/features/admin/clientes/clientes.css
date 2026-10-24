@@ -477,9 +477,23 @@ button:disabled {
 }
 
 .abono-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.abono-form select,
+.abono-form input {
+  min-width: 0;
+  min-height: 42px;
+  flex: 1 1 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #172033;
+  background: #ffffff;
+  font: inherit;
 }
 
 .payment-history {

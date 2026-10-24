@@ -13,6 +13,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Entity 
@@ -28,6 +33,11 @@ public class Abono {
     @JoinColumn (name = "cliente_id", nullable = false)
     private Cliente cliente;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venta_id")
+    @JsonIgnore
+    private Venta venta;
+
     @Column (nullable = false)
     private BigDecimal monto;
 
@@ -36,6 +46,12 @@ public class Abono {
 
     @Column (nullable = false)
     private BigDecimal saldoRestante;
+
+    @Transient
+    @JsonProperty("ventaId")
+    public Long getVentaId() {
+        return venta == null ? null : venta.getId();
+    }
     
     @PrePersist
     protected void onCreate() {
@@ -44,8 +60,9 @@ public class Abono {
 
     public Abono() {};
 
-    public Abono(Cliente cliente, BigDecimal monto, BigDecimal saldoRestante) {
+    public Abono(Cliente cliente, Venta venta, BigDecimal monto, BigDecimal saldoRestante) {
         this.cliente = cliente;
+        this.venta = venta;
         this.monto = monto;
         this.saldoRestante = saldoRestante;
     };

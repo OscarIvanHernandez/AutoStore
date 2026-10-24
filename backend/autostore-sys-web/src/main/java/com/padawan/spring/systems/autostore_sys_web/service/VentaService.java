@@ -8,15 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.xml.validation.Validator;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
 import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoPago;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
 import com.padawan.spring.systems.autostore_sys_web.model.ProductoVentaDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
@@ -36,18 +34,15 @@ public class VentaService {
     private final VentaRepository ventaRepository;
     private final ProductoRepository productoRepository;
     private final ClienteRepository clienteRepository;
-    private final Validator va;
 
     public VentaService(
         VentaRepository ventaRepository,
         ProductoRepository productoRepository,
-        ClienteRepository clienteRepository,
-        Validator va
+        ClienteRepository clienteRepository
     ) {
         this.ventaRepository = ventaRepository;
         this.productoRepository = productoRepository;
         this.clienteRepository = clienteRepository;
-        this.va = va;
     }
 
     @Transactional
@@ -155,6 +150,7 @@ public class VentaService {
             clienteRepository.save(cliente);
 
             venta.setClienteId(cliente.getId());
+            venta.setCliente(cliente);
             
         };
         if (tipoVenta == TipoVenta.CONTADO) {
@@ -167,6 +163,16 @@ public class VentaService {
         } else {
             venta.setEfectivoRecibido(efectivoRecibido);
             venta.setCambio(BigDecimal.ZERO);
+        };
+
+        BigDecimal saldoPendiente = totalFinal.subtract(efectivoRecibido).max(BigDecimal.ZERO);
+        venta.setSaldoPendiente(saldoPendiente);
+        if (saldoPendiente.signum() == 0) {
+            venta.setEstadoPago(EstadoPago.PAGADO);
+        } else if (efectivoRecibido.signum() == 0) {
+            venta.setEstadoPago(EstadoPago.PENDIENTE);
+        } else {
+            venta.setEstadoPago(EstadoPago.PARCIAL);
         };
 
         return ventaRepository.save(venta);

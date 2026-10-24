@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { Cliente, Abono, DeudoresStats } from './autostore.models';
+import { Cliente, Abono, DeudoresStats, VentaInterface } from './autostore.models';
 
 @Injectable({
   providedIn: 'root'
@@ -100,9 +100,13 @@ export class ClienteService {
     );
   }
 
-  registrarAbono(clienteId: number, monto: number): Observable<Abono> {
+  obtenerVentasPendientes(clienteId: number): Observable<VentaInterface[]> {
+    return this.http.get<VentaInterface[]>(`${this.apiURL}/${clienteId}/ventas-pendientes`);
+  }
+
+  registrarAbono(clienteId: number, ventaId: number, monto: number): Observable<Abono> {
     console.log('📡 Petición POST a:', this.apiURL);
-    return this.http.post<Abono>(`${this.apiURL}/${clienteId}/abonos`, { monto }).pipe(
+    return this.http.post<Abono>(`${this.apiURL}/${clienteId}/abonos`, { ventaId, monto }).pipe(
       tap(response => {
         console.log('📊 Respuesta recibida en AutoStore/   Clientes-Service:', response);
       })

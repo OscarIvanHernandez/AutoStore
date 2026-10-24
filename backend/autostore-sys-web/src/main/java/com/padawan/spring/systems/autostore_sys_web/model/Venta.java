@@ -70,6 +70,13 @@ public class Venta {
     @Column(nullable = false)
     private EstadoVenta estado;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private EstadoPago estadoPago = EstadoPago.PAGADO;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal saldoPendiente = BigDecimal.ZERO;
+
 
     private String metodoPago;
 

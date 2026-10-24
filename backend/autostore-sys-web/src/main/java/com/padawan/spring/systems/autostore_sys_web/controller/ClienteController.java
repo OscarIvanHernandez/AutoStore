@@ -1,8 +1,10 @@
 package com.padawan.spring.systems.autostore_sys_web.controller;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Abono;
+import com.padawan.spring.systems.autostore_sys_web.model.AbonoRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.ClienteSpecification;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.ProductoSpecification;
 import com.padawan.spring.systems.autostore_sys_web.service.ClienteService;
@@ -11,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -76,10 +79,17 @@ public class ClienteController {
     };
 
     // ISSUE-17: Endpoints de Abonos
+    @GetMapping("/{id}/ventas-pendientes")
+    public ResponseEntity<List<Venta>> ventasPendientes(@PathVariable Long id) {
+        return ResponseEntity.ok(clienteService.obtenerVentasPendientes(id));
+    };
+
     @PostMapping("/{id}/abonos")
-    public ResponseEntity<Abono> registrarAbono(@PathVariable Long id, @RequestBody Map<String, BigDecimal> request) {
-        BigDecimal monto = request.get("monto");
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.registrarAbono(id, monto));
+    public ResponseEntity<Abono> registrarAbono(
+            @PathVariable Long id,
+            @Valid @RequestBody AbonoRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(clienteService.registrarAbono(id, request.getVentaId(), request.getMonto()));
     };
 
     @GetMapping("/{id}/abonos")

@@ -89,6 +89,8 @@ export interface VentaInterface {
   subtotal: number;
   descuento: number;
   total: number;
+  saldoPendiente: number | null;
+  estadoPago: 'PENDIENTE' | 'PARCIAL' | 'PAGADO' | null;
   efectivoRecibido?: number | null;
   cambio?: number | null;
   tipoVenta: 'CONTADO' | 'CREDITO';
@@ -133,6 +135,7 @@ export interface Cliente {
 
 export interface Abono {
   id: number;
+  ventaId?: number | null;
   cliente?: Cliente;
   monto: number;
   fecha: string;

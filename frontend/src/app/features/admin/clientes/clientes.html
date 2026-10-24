@@ -202,6 +202,22 @@
       <p class="current-debt">Deuda actual <strong>${{ clienteSeleccionado.deudaActual | number:'1.2-2' }}</strong></p>
 
       <div class="abono-form">
+        <label for="venta-abono">Venta a abonar</label>
+        <select
+          id="venta-abono"
+          [(ngModel)]="ventaSeleccionadaId"
+          (ngModelChange)="cambiarVentaSeleccionada()"
+          [disabled]="isSaving || loadingStates['cargarVentasPendientes'] || !ventasPendientes.length"
+        >
+          <option [ngValue]="null">Selecciona una venta pendiente</option>
+          <option *ngFor="let venta of ventasPendientes" [ngValue]="venta.id">
+            Venta #{{ venta.id }} — {{ venta.fechaVenta | date:'shortDate' }} — Saldo: ${{ venta.saldoPendiente | number:'1.2-2' }}
+          </option>
+        </select>
+        <p *ngIf="ventaSeleccionada" class="current-debt">
+          Saldo de la venta seleccionada:
+          <strong>${{ ventaSeleccionada.saldoPendiente | number:'1.2-2' }}</strong>
+        </p>
         <label class="visually-hidden" for="monto-abono">Monto a abonar</label>
         <input
           id="monto-abono"
@@ -209,21 +225,33 @@
           [(ngModel)]="montoAbono"
           placeholder="Monto a abonar"
           min="0.01"
-          [max]="clienteSeleccionado.deudaActual"
-          [disabled]="isSaving"
+          [max]="ventaSeleccionada?.saldoPendiente ?? 0"
+          [disabled]="isSaving || !ventaSeleccionada"
         />
-        <button type="button" class="btn-primary" (click)="procesarAbono()" [disabled]="isSaving || montoAbono <= 0">
+        <button type="button" class="btn-primary" (click)="procesarAbono()" [disabled]="isSaving || montoAbono <= 0 || !ventaSeleccionada || montoAbono > (ventaSeleccionada.saldoPendiente ?? 0)">
           {{ isSaving ? 'Procesando...' : 'Abonar' }}
         </button>
         <button
           type="button"
           class="btn-secondary"
           (click)="liquidarDeuda()"
-          [disabled]="isSaving || clienteSeleccionado.deudaActual <= 0"
+          [disabled]="isSaving || !ventaSeleccionada || (ventaSeleccionada.saldoPendiente ?? 0) <= 0"
         >
-          Liquidar deuda
+          Liquidar venta
         </button>
       </div>
+      <div *ngIf="loadingStates['cargarVentasPendientes']" class="table-loading compact-loading" role="status">
+        Cargando ventas pendientes...
+      </div>
+      <div *ngIf="loadErrors['cargarVentasPendientes']" class="inline-error" role="alert">
+        {{ loadErrors['cargarVentasPendientes'] }}
+        <button type="button" class="text-button" (click)="obtenerAbonos(clienteSeleccionado)">
+          Reintentar
+        </button>
+      </div>
+      <p *ngIf="!loadingStates['cargarVentasPendientes'] && !loadErrors['cargarVentasPendientes'] && !ventasPendientes.length">
+        No hay ventas a crédito con saldo asociado para abonar. Si la deuda del cliente es anterior a esta actualización, requiere conciliación.
+      </p>
 
       <div *ngIf="loadingStates['cargarAbonos']" class="table-loading compact-loading" role="status">
         <span class="loading-indicator" aria-hidden="true"></span>
@@ -242,7 +270,7 @@
           <li *ngFor="let abono of historialAbonos">
             <div>
               <strong>${{ abono.monto | number:'1.2-2' }}</strong>
-              <small>{{ abono.fecha | date:'short' }}</small>
+              <small>{{ abono.fecha | date:'short' }}<span *ngIf="abono.ventaId"> · Venta #{{ abono.ventaId }}</span></small>
             </div>
             <span>Saldo: ${{ abono.saldoRestante | number:'1.2-2' }}</span>
           </li>

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Crear } from './modal/crear/crear';
 import { Editar } from './modal/editar/editar';
 import { ClienteService } from '../../../services/autostore.clientes-service';
-import { Abono, Cliente, DeudoresStats } from '../../../services/autostore.models';
+import { Abono, Cliente, DeudoresStats, VentaInterface } from '../../../services/autostore.models';
 import { BaseComponent } from '../base-component/base-component';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -34,6 +34,8 @@ export class Clientes extends BaseComponent implements OnInit {
   clienteSeleccionado: Cliente | null = null;
   montoAbono: number = 0;
   historialAbonos: Abono[] = [];
+  ventasPendientes: VentaInterface[] = [];
+  ventaSeleccionadaId: number | null = null;
 
   // Variables para los filtro de busqueda
   textoBusqueda: string  = '';
@@ -167,18 +169,26 @@ export class Clientes extends BaseComponent implements OnInit {
   obtenerAbonos(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
     this.montoAbono = 0;
+    this.ventaSeleccionadaId = null;
     this.historialAbonos = [];
+    this.ventasPendientes = [];
     this.mostrarModalAbono = true;
     this.cargarRecurso('cargarAbonos', this.clienteService.obtenerHistorialAbonos(cliente.id), (data) => {
       this.historialAbonos = data;
     });
+    this.cargarRecurso('cargarVentasPendientes', this.clienteService.obtenerVentasPendientes(cliente.id), (data) => {
+      this.ventasPendientes = data;
+      this.ventaSeleccionadaId = data[0]?.id ?? null;
+    });
   };
 
   procesarAbono(): void {
-    if (!this.clienteSeleccionado || this.montoAbono <= 0) return;
+    if (!this.clienteSeleccionado || !this.ventaSeleccionadaId || this.montoAbono <= 0) return;
     const cliente = this.clienteSeleccionado;
+    const ventaId = this.ventaSeleccionadaId;
     this.ejecutarMutacion(this.clienteService.registrarAbono(
       cliente.id,
+      ventaId,
       this.montoAbono
     ), 'procesar abono',() => {
       this.cargarClientes();
@@ -191,10 +201,19 @@ export class Clientes extends BaseComponent implements OnInit {
   };
 
   liquidarDeuda(): void {
-    if (this.clienteSeleccionado) {
-      this.montoAbono = this.clienteSeleccionado.deudaActual;
+    const venta = this.ventasPendientes.find(item => item.id === this.ventaSeleccionadaId);
+    if (venta?.saldoPendiente !== null && venta?.saldoPendiente !== undefined) {
+      this.montoAbono = venta.saldoPendiente;
       this.procesarAbono();
     };
+  };
+
+  cambiarVentaSeleccionada(): void {
+    this.montoAbono = 0;
+  };
+
+  get ventaSeleccionada(): VentaInterface | undefined {
+    return this.ventasPendientes.find(venta => venta.id === this.ventaSeleccionadaId);
   };
 
   abrirModalEditar(cliente: Cliente): void {
@@ -218,6 +237,8 @@ export class Clientes extends BaseComponent implements OnInit {
   cerrarModalAbono(): void {
     this.mostrarModalAbono = false;
     this.clienteSeleccionado = null;
+    this.ventaSeleccionadaId = null;
+    this.ventasPendientes = [];
   };
 
   private resetClienteForm(): Partial<Cliente> {

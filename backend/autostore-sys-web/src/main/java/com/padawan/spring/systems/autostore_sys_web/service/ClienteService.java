@@ -12,9 +12,14 @@ import org.springframework.stereotype.Service;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Abono;
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoPago;
+import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Producto;
+import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
+import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.repository.AbonoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ClienteRepository;
+import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -26,6 +31,9 @@ public class ClienteService {
 
     @Autowired
     private AbonoRepository abonoRepository;
+
+    @Autowired
+    private VentaRepository ventaRepository;
 
     // --- ISSUE-15: CRUD y Búsquedas ---
 
@@ -80,22 +88,53 @@ public class ClienteService {
     // --- ISSUE-17: Abonos y Liquidación de Deudas ---
 
     @Transactional
-    public Abono registrarAbono(Long clienteId, BigDecimal monto) {
+    public List<Venta> obtenerVentasPendientes(Long clienteId) {
+        return ventaRepository.findByClienteIdAndTipoVentaAndEstadoAndSaldoPendienteGreaterThanOrderByFechaVentaAsc(
+                clienteId, TipoVenta.CREDITO, EstadoVenta.COMPLETADA, BigDecimal.ZERO);
+    };
+
+    @Transactional
+    public Abono registrarAbono(Long clienteId, Long ventaId, BigDecimal monto) {
         Cliente cliente = obtenerPorId(clienteId);
 
+        if (monto == null) {
+            throw new IllegalArgumentException("El monto del abono es obligatorio.");
+        };
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El monto del abono debe ser mayor a cero.");
         };
-
-        if (monto.compareTo(cliente.getDeudaActual()) > 0) {
-            throw new IllegalArgumentException("El abono ($" + monto + ") no puede ser mayor a la deuda actual ($" + cliente.getDeudaActual() + ").");
+        if (ventaId == null) {
+            throw new IllegalArgumentException("La venta es obligatoria para registrar el abono.");
         };
 
-        BigDecimal nuevoSaldo = cliente.getDeudaActual().subtract(monto);
-        cliente.setDeudaActual(nuevoSaldo);
-        clienteRepository.save(cliente);
+        Venta venta = ventaRepository.findById(ventaId)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + ventaId));
+        if (!clienteId.equals(venta.getClienteId())) {
+            throw new IllegalArgumentException("La venta no pertenece al cliente indicado.");
+        };
+        if (venta.getTipoVenta() != TipoVenta.CREDITO || venta.getEstado() != EstadoVenta.COMPLETADA) {
+            throw new IllegalStateException("Solo se pueden abonar ventas a crédito completadas.");
+        };
+        if (venta.getSaldoPendiente() == null || venta.getSaldoPendiente().signum() <= 0) {
+            throw new IllegalStateException("La venta no tiene saldo pendiente.");
+        };
+        if (monto.compareTo(venta.getSaldoPendiente()) > 0) {
+            throw new IllegalArgumentException("El abono no puede ser mayor al saldo pendiente de la venta ($"
+                    + venta.getSaldoPendiente() + ").");
+        };
+        if (cliente.getDeudaActual() == null || monto.compareTo(cliente.getDeudaActual()) > 0) {
+            throw new IllegalArgumentException("El abono no puede ser mayor a la deuda actual del cliente.");
+        };
 
-        Abono abono = new Abono(cliente, monto, nuevoSaldo);
+        BigDecimal saldoVenta = venta.getSaldoPendiente().subtract(monto);
+        venta.setSaldoPendiente(saldoVenta);
+        venta.setEstadoPago(saldoVenta.signum() == 0 ? EstadoPago.PAGADO : EstadoPago.PARCIAL);
+
+        cliente.setDeudaActual(cliente.getDeudaActual().subtract(monto));
+        clienteRepository.save(cliente);
+        ventaRepository.save(venta);
+
+        Abono abono = new Abono(cliente, venta, monto, saldoVenta);
         return abonoRepository.save(abono);
     };
 
