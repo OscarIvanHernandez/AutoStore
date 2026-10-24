@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.xml.validation.Validator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,6 @@ import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
 import com.padawan.spring.systems.autostore_sys_web.model.VentaRequestDTO;
 import com.padawan.spring.systems.autostore_sys_web.repository.ClienteRepository;
-import com.padawan.spring.systems.autostore_sys_web.repository.DetalleVentaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.ProductoRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.VentaRepository;
 import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
@@ -31,13 +32,23 @@ import jakarta.transaction.Transactional;
 @Service
 public class VentaService {
 
-    @Autowired
-    private VentaRepository ventaRepository;
-    @Autowired
-    private DetalleVentaRepository detalleVentaRepository;
-    @Autowired
-    private ProductoRepository productoRepository;
-    @Autowired ClienteRepository clienteRepository;
+    
+    private final VentaRepository ventaRepository;
+    private final ProductoRepository productoRepository;
+    private final ClienteRepository clienteRepository;
+    private final Validator va;
+
+    public VentaService(
+        VentaRepository ventaRepository,
+        ProductoRepository productoRepository,
+        ClienteRepository clienteRepository,
+        Validator va
+    ) {
+        this.ventaRepository = ventaRepository;
+        this.productoRepository = productoRepository;
+        this.clienteRepository = clienteRepository;
+        this.va = va;
+    }
 
     @Transactional
     public Venta crearVenta(VentaRequestDTO request) {
