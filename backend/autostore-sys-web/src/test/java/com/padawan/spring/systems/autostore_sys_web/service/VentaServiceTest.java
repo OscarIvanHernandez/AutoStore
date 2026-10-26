@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -398,4 +399,79 @@ public class VentaServiceTest {
             resultado.getMessage()
         );
     };
+    // ==========================
+    // 🧹 Listar ventas
+    // ==========================
+    @Test 
+    @DisplayName ("Debe regresar una lista de ventas registradas")
+    void obtener_Ventas() {
+
+        Venta venta1 = new Venta();
+        venta1.setId(1L);
+        Venta venta2 = new Venta();
+        venta2.setId(2L);
+
+        List<Venta> ventas = List.of(venta1, venta2);
+
+        when(ventaRepository.findAll()).thenReturn(ventas);
+
+        List<Venta> resultado = ventaService.obtenerTodas();
+
+        assertThat(resultado).hasSize(2);
+        verify(ventaRepository).findAll();
+    };
+
+    @Test 
+    @DisplayName ("Debe regresar encontrar ventas por SU Id")
+    void obtener_VentasPorId() {
+        
+        Venta venta1 = new Venta();
+        venta1.setId(1L);
+        Venta venta2 = new Venta();
+        venta2.setId(2L);
+
+        when(ventaRepository.findById(1L)).thenReturn(Optional.of(venta1));
+        when(ventaRepository.findById(2L)).thenReturn(Optional.of(venta2));
+        when(ventaRepository.findById(3L)).thenReturn(Optional.empty());
+
+        Optional<Venta> resultado = ventaService.obtenerPorId(1L);
+        Optional<Venta> resultado2 = ventaService.obtenerPorId(2L);
+        Optional<Venta> resultado3 = ventaService.obtenerPorId(3L);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.get().getId()).isEqualTo(1L);
+        assertThat(resultado2).isNotNull();
+        assertThat(resultado2.get().getId()).isEqualTo(2L);
+        assertThat(resultado3).isEmpty();
+        verify(ventaRepository).findById(1L);
+        verify(ventaRepository).findById(2L);
+        verify(ventaRepository).findById(3L);
+    };
+
+    @Test 
+    @DisplayName ("Debe regresar una lista de ventas del dia")
+    void obtener_VentasDia() {
+
+        Venta venta1 = new Venta();
+        venta1.setId(1L);
+        venta1.setFechaVenta(LocalDateTime.now());
+        Venta venta2 = new Venta();
+        venta2.setId(2L);
+        venta2.setFechaVenta(LocalDateTime.now());
+        Venta venta3 = new Venta();
+        venta3.setId(3L);
+
+        LocalDateTime inicio = LocalDate.now().atStartOfDay();
+        LocalDateTime fin = LocalDate.now().atTime(LocalTime.MAX);
+        List<Venta> ventas = List.of(venta1, venta2);
+
+        when(ventaRepository.findByFechaVentaBetween(inicio, fin)).thenReturn(ventas);
+
+        List<Venta> resultado = ventaService.obtenerVentasDelDia();
+
+        assertThat(resultado).hasSize(2);
+        verify(ventaRepository).findByFechaVentaBetween(inicio, fin);
+    };
+
+    
 };
