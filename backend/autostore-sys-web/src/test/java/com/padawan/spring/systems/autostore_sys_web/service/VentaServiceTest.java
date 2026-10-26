@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
@@ -133,7 +135,7 @@ public class VentaServiceTest {
     };
 
     @Test
-    @DisplayName ("Debe registrar una venta a credito exitosamente")
+    @DisplayName ("Debe registrar una venta a credito con un cliente exitosamente")
     void crearVenta_CreditoExitosa() {
         ProductoVentaDTO item = new ProductoVentaDTO();
         item.setId(1L);
@@ -195,6 +197,83 @@ public class VentaServiceTest {
         verify(clienteRepository).findById(1L);
         verify(clienteRepository).save(cliente);
         assertThat(cliente.getDeudaActual()).isEqualByComparingTo("90.00");
+    };
+
+    @Test
+    @DisplayName ("Debe lanzar una excepción al crear una venta a credito sin un cliente")
+    void crearVenta_CreditoSinClienteFalla() {
+        ProductoVentaDTO item = new ProductoVentaDTO();
+        item.setId(1L);
+        item.setCantidad(2);
+        item.setPrecioTipo("MOSTRADOR");
+        
+        VentaRequestDTO request = new VentaRequestDTO();
+        request.setTipoVenta("CREDITO");
+        request.setClienteId(null);
+        request.setProductos(List.of(item));
+        request.setDescuento(new BigDecimal("0"));
+        request.setEfectivoRecibido(new BigDecimal("150.00"));
+    
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+    
+        RuntimeException resultado = assertThrows(RuntimeException.class, () -> ventaService.crearVenta(request));
+
+        assertEquals("Las ventas a crédito requieren seleccionar un cliente", resultado.getMessage());
+    };
+
+    @Test
+    @DisplayName ("Debe lanzar una excepción al crear una venta a credito sin encontrar un cliente")
+    void crearVenta_CreditoClienteNoEncontradoFalla() {
+        ProductoVentaDTO item = new ProductoVentaDTO();
+        item.setId(1L);
+        item.setCantidad(2);
+        item.setPrecioTipo("MOSTRADOR");
+    
+        VentaRequestDTO request = new VentaRequestDTO();
+        request.setTipoVenta("CREDITO");
+        request.setClienteId(1L);
+        request.setProductos(List.of(item));
+        request.setDescuento(new BigDecimal("0"));
+        request.setEfectivoRecibido(new BigDecimal("150.00"));
+    
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
+    
+        RuntimeException resultado = assertThrows(RuntimeException.class, () -> ventaService.crearVenta(request));
+
+        assertEquals("Cliente no encontrado", resultado.getMessage());
+    };
+
+    @Test
+    @DisplayName ("Debe lanzar una excepción al crear una venta a credito con un cliente inactivo")
+    void crearVenta_CreditoConClienteInactivoFalla() {
+        ProductoVentaDTO item = new ProductoVentaDTO();
+        item.setId(1L);
+        item.setCantidad(2);
+        item.setPrecioTipo("MOSTRADOR");
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setNombre("test");
+        cliente.setTelefono("1234567890");
+        cliente.setLimiteCredito(new BigDecimal("600"));
+        cliente.setDeudaActual(new BigDecimal("0"));
+        cliente.setFechaRegistro(LocalDateTime.now());
+        cliente.setActivo(false);
+    
+        VentaRequestDTO request = new VentaRequestDTO();
+        request.setTipoVenta("CREDITO");
+        request.setClienteId(1L);
+        request.setProductos(List.of(item));
+        request.setDescuento(new BigDecimal("0"));
+        request.setEfectivoRecibido(new BigDecimal("150.00"));
+    
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+    
+        RuntimeException resultado = assertThrows(RuntimeException.class, () -> ventaService.crearVenta(request));
+
+        assertEquals("El cliente seleccionado está inactivo.", resultado.getMessage());
     };
 
     @Test 
