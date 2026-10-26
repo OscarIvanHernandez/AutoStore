@@ -201,7 +201,7 @@ public class VentaServiceTest {
 
     @Test
     @DisplayName ("Debe lanzar una excepción al crear una venta a credito sin un cliente")
-    void crearVenta_CreditoSinClienteFalla() {
+    void crearVenta_CreditoSinCliente_LanzaExcepcion() {
         ProductoVentaDTO item = new ProductoVentaDTO();
         item.setId(1L);
         item.setCantidad(2);
@@ -223,7 +223,7 @@ public class VentaServiceTest {
 
     @Test
     @DisplayName ("Debe lanzar una excepción al crear una venta a credito sin encontrar un cliente")
-    void crearVenta_CreditoClienteNoEncontradoFalla() {
+    void crearVenta_CreditoClienteNoEncontrado_LanzaExcepcion() {
         ProductoVentaDTO item = new ProductoVentaDTO();
         item.setId(1L);
         item.setCantidad(2);
@@ -246,7 +246,7 @@ public class VentaServiceTest {
 
     @Test
     @DisplayName ("Debe lanzar una excepción al crear una venta a credito con un cliente inactivo")
-    void crearVenta_CreditoConClienteInactivoFalla() {
+    void crearVenta_CreditoConClienteInactivo_LanzaExcepcion() {
         ProductoVentaDTO item = new ProductoVentaDTO();
         item.setId(1L);
         item.setCantidad(2);
@@ -311,6 +311,41 @@ public class VentaServiceTest {
             () -> ventaService.crearVenta(request));
         
         assertEquals("Producto no encontrado con ID: 1", resultado.getMessage());
+    };
+
+    @Test
+    @DisplayName ("Debe lanzar una excepción en una venta a credito donde se revasa el limite de cliente con deuda")
+    void crearVenta_CreditoExcedeLimiteDeCliente_LanzaExcepcion() {
+        ProductoVentaDTO item = new ProductoVentaDTO();
+        item.setId(1L);
+        item.setCantidad(2);
+        item.setPrecioTipo("MOSTRADOR");
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setNombre("test");
+        cliente.setTelefono("1234567890");
+        cliente.setLimiteCredito(new BigDecimal("600"));
+        cliente.setDeudaActual(new BigDecimal("500"));
+        cliente.setFechaRegistro(LocalDateTime.now());
+    
+        VentaRequestDTO request = new VentaRequestDTO();
+        request.setTipoVenta("CREDITO");
+        request.setClienteId(1L);
+        request.setProductos(List.of(item));
+        request.setDescuento(new BigDecimal("0"));
+        request.setEfectivoRecibido(new BigDecimal("100.00"));
+    
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(productoBase));
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+    
+        RuntimeException resultado = assertThrows(RuntimeException.class, 
+            ()-> ventaService.crearVenta(request));
+
+        assertEquals(
+            "La venta excede el límite de crédito del cliente. Límite: $600.00, Deuda actual: $500.00",
+            resultado.getMessage());
+    
     };
 
     @Test 
