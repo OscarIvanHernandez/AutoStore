@@ -168,10 +168,13 @@ public class VentaServiceTest {
         assertThat(resultado.getDetalles()).hasSize(1);
         assertThat(productoBase.getStockActual()).isEqualTo(13);
         assertThat(resultado.getTipoVenta()).isEqualTo(TipoVenta.CREDITO);
+        
+        // Verificar estado de la venta y estado de pago
         assertThat(resultado.getEstado()).isEqualTo(EstadoVenta.COMPLETADA);
         assertThat(resultado.getCliente().getNombre()).isEqualTo(cliente.getNombre());
         assertThat(resultado.getEstadoPago()).isEqualTo(EstadoPago.PARCIAL);
         assertThat(resultado.getSaldoPendiente()).isEqualByComparingTo("90.00");
+
         assertThat(resultado.getDescuento()).isEqualByComparingTo("0");
         assertThat(resultado.getEfectivoRecibido()).isEqualByComparingTo("150.00");
 
