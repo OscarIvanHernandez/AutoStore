@@ -18,6 +18,7 @@ import com.padawan.spring.systems.autostore_sys_web.model.EstadoPago;
 import com.padawan.spring.systems.autostore_sys_web.model.EstadoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.TipoVenta;
 import com.padawan.spring.systems.autostore_sys_web.model.Venta;
+import com.padawan.spring.systems.autostore_sys_web.repository.specs.VentaSpecification;
 
 @DataJpaTest
 class VentaRepositoryTest {
@@ -31,6 +32,52 @@ class VentaRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    private Cliente crearCliente(String nombre, String telefono) {
+        Cliente cliente = new Cliente();
+        cliente.setNombre(nombre);
+        cliente.setTelefono(telefono);
+        cliente.setLimiteCredito(BigDecimal.ZERO);
+        cliente.setDeudaActual(BigDecimal.ZERO);
+        return entityManager.persistFlushFind(cliente);
+    };
+
+    private Venta crearVenta(Long clienteId, TipoVenta tipoVenta, LocalDateTime fechaVenta) {
+        Venta venta = new Venta();
+        venta.setClienteId(clienteId);
+        venta.setFechaVenta(fechaVenta);
+        venta.setSubtotal(new BigDecimal("100.00"));
+        venta.setTotal(new BigDecimal("100.00"));
+        venta.setDescuento(BigDecimal.ZERO);
+        venta.setCambio(BigDecimal.ZERO);
+        venta.setEfectivoRecibido(new BigDecimal("100.00"));
+        venta.setTipoVenta(tipoVenta);
+        venta.setEstado(EstadoVenta.COMPLETADA);
+        venta.setSaldoPendiente(BigDecimal.ZERO);
+        venta.setEstadoPago(EstadoPago.PAGADO);
+        venta.setMetodoPago("EFECTIVO");
+        return venta;
+    };
+
+    private Venta crearVenta(Long clienteId, TipoVenta tipo, EstadoVenta estado, BigDecimal saldoPendiente) {
+        Venta venta = new Venta();
+        venta.setClienteId(clienteId);
+        venta.setFechaVenta(LocalDateTime.now());
+        venta.setSubtotal(new BigDecimal("100.00"));
+        venta.setTotal(new BigDecimal("100.00"));
+        venta.setDescuento(BigDecimal.ZERO);
+        venta.setCambio(BigDecimal.ZERO);
+        venta.setEfectivoRecibido(BigDecimal.ZERO);
+        venta.setTipoVenta(tipo);
+        venta.setEstado(estado);
+        venta.setSaldoPendiente(saldoPendiente);
+        venta.setEstadoPago(saldoPendiente.signum() == 0 ? EstadoPago.PAGADO : EstadoPago.PENDIENTE);
+        venta.setMetodoPago("EFECTIVO");
+        return venta;
+    };
+
+    // ==========================
+    // 🧹 Crear venta
+    // ==========================
     @Test
     @DisplayName("Debe listar solo ventas de crédito completadas con saldo pendiente del cliente")
     void findVentasPendientesCreditoPorCliente() {
@@ -70,8 +117,10 @@ class VentaRepositoryTest {
         assertThat(resultado)
                 .extracting(Venta::getId)
                 .containsExactly(pendiente.getId());
-    }
-
+    };
+    // ==========================
+    // 🧹 Guardar abono
+    // ==========================
     @Test
     @DisplayName("Debe persistir la relación entre el abono y su venta")
     void guardarAbono_ConVentaRelacionada() {
@@ -94,22 +143,93 @@ class VentaRepositoryTest {
 
         assertThat(persisted.getVentaId()).isEqualTo(venta.getId());
         assertThat(persisted.getVenta().getId()).isEqualTo(venta.getId());
-    }
+    };
 
-    private Venta crearVenta(Long clienteId, TipoVenta tipo, EstadoVenta estado, BigDecimal saldoPendiente) {
-        Venta venta = new Venta();
-        venta.setClienteId(clienteId);
-        venta.setFechaVenta(LocalDateTime.now());
-        venta.setSubtotal(new BigDecimal("100.00"));
-        venta.setTotal(new BigDecimal("100.00"));
-        venta.setDescuento(BigDecimal.ZERO);
-        venta.setCambio(BigDecimal.ZERO);
-        venta.setEfectivoRecibido(BigDecimal.ZERO);
-        venta.setTipoVenta(tipo);
-        venta.setEstado(estado);
-        venta.setSaldoPendiente(saldoPendiente);
-        venta.setEstadoPago(saldoPendiente.signum() == 0 ? EstadoPago.PAGADO : EstadoPago.PENDIENTE);
-        venta.setMetodoPago("EFECTIVO");
-        return venta;
-    }
-}
+    // ==========================
+    // 🧹 Buscar venta
+    // ==========================
+    @Test
+    @DisplayName("Debe filtrar ventas por cliente, mes, año y tipo")
+    void buscarPorEspecificacion_FiltrosCombinados() {
+        Cliente cliente = crearCliente("Cliente objetivo", "5551111111");
+        Cliente otroCliente = crearCliente("Otro cliente", "5552222222");
+
+        Venta esperada = crearVenta(cliente.getId(), TipoVenta.CREDITO,
+                LocalDateTime.of(2025, 6, 15, 12, 0));
+        Venta otroTipo = crearVenta(cliente.getId(), TipoVenta.CONTADO,
+                LocalDateTime.of(2025, 6, 16, 12, 0));
+        Venta otroMes = crearVenta(cliente.getId(), TipoVenta.CREDITO,
+                LocalDateTime.of(2025, 7, 1, 0, 0));
+        Venta otroClienteVenta = crearVenta(otroCliente.getId(), TipoVenta.CREDITO,
+                LocalDateTime.of(2025, 6, 20, 12, 0));
+        entityManager.persist(esperada);
+        entityManager.persist(otroTipo);
+        entityManager.persist(otroMes);
+        entityManager.persist(otroClienteVenta);
+        entityManager.flush();
+
+        List<Venta> resultado = ventaRepository.findAll(
+                VentaSpecification.filtrar(cliente.getId(), 6, 2025, TipoVenta.CREDITO, null));
+
+        assertThat(resultado)
+                .extracting(Venta::getId)
+                .containsExactly(esperada.getId());
+    };
+
+    @Test
+    @DisplayName("Debe encontrar ventas por nombre de cliente sin distinguir mayúsculas")
+    void buscarPorEspecificacion_TextoNombreClienteIgnoraMayusculas() {
+        Cliente cliente = crearCliente("María González", "5553333333");
+        Cliente otroCliente = crearCliente("Carlos López", "5554444444");
+        Venta esperada = crearVenta(cliente.getId(), TipoVenta.CONTADO,
+                LocalDateTime.of(2025, 5, 10, 10, 0));
+        Venta noCoincide = crearVenta(otroCliente.getId(), TipoVenta.CONTADO,
+                LocalDateTime.of(2025, 5, 10, 11, 0));
+        entityManager.persist(esperada);
+        entityManager.persist(noCoincide);
+        entityManager.flush();
+
+        List<Venta> resultado = ventaRepository.findAll(
+                VentaSpecification.filtrar(null, null, null, null, "MARÍA"));
+
+        assertThat(resultado)
+                .extracting(Venta::getId)
+                .containsExactly(esperada.getId());
+    };
+
+    @Test
+    @DisplayName("Debe encontrar una venta por folio con prefijo")
+    void buscarPorEspecificacion_FolioConPrefijo() {
+        Cliente cliente = crearCliente("Cliente folio", "5555555555");
+        Venta esperada = crearVenta(cliente.getId(), TipoVenta.CONTADO, LocalDateTime.now());
+        entityManager.persist(esperada);
+        entityManager.flush();
+
+        List<Venta> resultado = ventaRepository.findAll(
+                VentaSpecification.filtrar(null, null, null, null, "V-" + esperada.getId()));
+
+        assertThat(resultado)
+                .extracting(Venta::getId)
+                .containsExactly(esperada.getId());
+    };
+
+    @Test
+    @DisplayName("Debe encontrar ventas cuando el texto de búsqueda es el tipo")
+    void buscarPorEspecificacion_TextoTipoCredito() {
+        Cliente cliente = crearCliente("Cliente tipo", "5556666666");
+        Venta esperada = crearVenta(cliente.getId(), TipoVenta.CREDITO,
+                LocalDateTime.of(2025, 3, 10, 10, 0));
+        Venta noCoincide = crearVenta(cliente.getId(), TipoVenta.CONTADO,
+                LocalDateTime.of(2025, 3, 11, 10, 0));
+        entityManager.persist(esperada);
+        entityManager.persist(noCoincide);
+        entityManager.flush();
+
+        List<Venta> resultado = ventaRepository.findAll(
+                VentaSpecification.filtrar(null, null, null, null, "crédito"));
+
+        assertThat(resultado)
+                .extracting(Venta::getId)
+                .containsExactly(esperada.getId());
+    };
+};
