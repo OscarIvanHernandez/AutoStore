@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.padawan.spring.systems.autostore_sys_web.model.Cliente;
 import com.padawan.spring.systems.autostore_sys_web.model.DetalleVenta;
@@ -473,5 +475,135 @@ public class VentaServiceTest {
         verify(ventaRepository).findByFechaVentaBetween(inicio, fin);
     };
 
-    
+    // ==========================
+    // 🧹 Buscar ventas
+    // ==========================
+    @Test
+    @DisplayName("Debe buscar ventas usando una especificación")
+    void buscarConEspecificacion_DevuelveVentasEncontradas() {
+        Specification<Venta> spec =
+                (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), 1L);
+        Venta venta = new Venta();
+        venta.setId(1L);
+
+        when(ventaRepository.findAll(spec)).thenReturn(List.of(venta));
+
+        List<Venta> resultado = ventaService.buscarConEspecificacion(spec);
+
+        assertThat(resultado).containsExactly(venta);
+        verify(ventaRepository).findAll(spec);
+    };
+
+    @Test
+    @DisplayName("Debe buscar ventas aplicando los filtros recibidos")
+    void buscarVentas_DevuelveVentasEncontradas() {
+        Venta venta = new Venta();
+        venta.setId(1L);
+        when(ventaRepository.findAll(
+                org.mockito.ArgumentMatchers.<Specification<Venta>>any()))
+                .thenReturn(List.of(venta));
+
+        List<Venta> resultado = ventaService.buscarVentas(
+                2L, 6, 2025, TipoVenta.CREDITO, "cliente");
+
+        assertThat(resultado).containsExactly(venta);
+        verify(ventaRepository).findAll(
+                org.mockito.ArgumentMatchers.<Specification<Venta>>any());
+    };
+
+    @Test
+    @DisplayName("Debe obtener los años y meses con ventas")
+    void obtenerMesesDisponibles_ConvierteResultadosDelRepositorio() {
+        when(ventaRepository.findMesesConVentas()).thenReturn(List.of(
+                new Object[] {2024, 1},
+                new Object[] {2025, 6}
+        ));
+
+        List<Map<String, Integer>> resultado = ventaService.obtenerMesesDisponibles();
+
+        assertThat(resultado).containsExactly(
+                Map.of("anio", 2024, "mes", 1),
+                Map.of("anio", 2025, "mes", 6)
+        );
+        verify(ventaRepository).findMesesConVentas();
+    };
+
+    @Test
+    @DisplayName("Debe devolver una lista vacía cuando no hay ventas por mes")
+    void obtenerMesesDisponibles_SinResultados() {
+        when(ventaRepository.findMesesConVentas()).thenReturn(Collections.emptyList());
+
+        List<Map<String, Integer>> resultado = ventaService.obtenerMesesDisponibles();
+
+        assertThat(resultado).isEmpty();
+        verify(ventaRepository).findMesesConVentas();
+    };
+
+    @Test
+    @DisplayName("Debe cancelar una venta de hoy y devolver los productos al inventario")
+    void cancelarVenta_VentaDeHoy_RestauraStock() {
+        productoBase.setStockActual(10);
+        DetalleVenta detalle = new DetalleVenta();
+        detalle.setProducto(productoBase);
+        detalle.setCantidad(3);
+
+        Venta venta = new Venta();
+        venta.setId(1L);
+        venta.setFechaVenta(LocalDateTime.now());
+        venta.setEstado(EstadoVenta.COMPLETADA);
+        venta.setDetalles(List.of(detalle));
+        when(ventaRepository.findById(1L)).thenReturn(Optional.of(venta));
+        when(ventaRepository.save(venta)).thenReturn(venta);
+
+        Venta resultado = ventaService.cancelarVenta(1L);
+
+        assertThat(resultado.getEstado()).isEqualTo(EstadoVenta.CANCELADA);
+        assertThat(productoBase.getStockActual()).isEqualTo(13);
+        verify(productoRepository).save(productoBase);
+        verify(ventaRepository).save(venta);
+    };
+
+    @Test
+    @DisplayName("Debe fallar al cancelar una venta inexistente")
+    void cancelarVenta_NoEncontrada_LanzaExcepcion() {
+        when(ventaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        RuntimeException resultado = assertThrows(
+                RuntimeException.class, () -> ventaService.cancelarVenta(1L));
+
+        assertThat(resultado).hasMessage("Venta no encontrada con ID: 1");
+        verify(ventaRepository).findById(1L);
+    };
+
+    @Test
+    @DisplayName("Debe fallar al cancelar una venta ya cancelada")
+    void cancelarVenta_YaCancelada_LanzaExcepcion() {
+        Venta venta = new Venta();
+        venta.setId(1L);
+        venta.setFechaVenta(LocalDateTime.now());
+        venta.setEstado(EstadoVenta.CANCELADA);
+        when(ventaRepository.findById(1L)).thenReturn(Optional.of(venta));
+
+        RuntimeException resultado = assertThrows(
+                RuntimeException.class, () -> ventaService.cancelarVenta(1L));
+
+        assertThat(resultado).hasMessage("La venta ya se encuentra cancelada");
+    };
+
+    @Test
+    @DisplayName("Debe fallar al cancelar una venta de otro día")
+    void cancelarVenta_VentaDeOtroDia_LanzaExcepcion() {
+        Venta venta = new Venta();
+        venta.setId(1L);
+        venta.setFechaVenta(LocalDate.now().minusDays(1).atStartOfDay());
+        venta.setEstado(EstadoVenta.COMPLETADA);
+        when(ventaRepository.findById(1L)).thenReturn(Optional.of(venta));
+
+        RuntimeException resultado = assertThrows(
+                RuntimeException.class, () -> ventaService.cancelarVenta(1L));
+
+        assertThat(resultado)
+                .hasMessage("Solo se pueden cancelar ventas realizadas el dia de hoy");
+    };
+
 };
